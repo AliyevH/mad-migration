@@ -22,9 +22,10 @@ migration_tables = config.migrationTables
 # MysqlDB Migrate class
 for mt in migration_tables:
     migrate = Migrate(mt.migrationTable)
-    print(migrate.columns)
-
-
+    print(migrate.source_table)
+    print(migrate.destination_table)
+    for mc in migrate.columns:
+        print(mc.dict())
 
 
 # print(migrate.source_table)
