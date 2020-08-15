@@ -1,54 +1,39 @@
 version: 1
-Config:
+Configs:
   - SourceConfig:
-      dbURI: mysql://root:admin@127.0.0.1:3306/old
+      dbURI: "postgresql:///company_service"
   - DestinationConfig:
-      dbURI: mysql://root:admin@127.0.0.1:3306/new
+      dbURI: "postgresql:///company_service"
 
 migrationTables:
-  - migrationTable1:
-      Create: True
-      SourceTableName: cars
-      DestinationTableName: automobiles_automobile
-      uniqueKey: id
+  - migrationTable:
+      SourceTableName: 
+        name: operations
+      DestinationTableName:
+        name: operations
       MigrationColumns:
-#        - sourceColumn: id
-#          destinationColumn: id
-#
-#        - sourceColumn: number
-#          destinationColumn: gos_number
-#
-#        - sourceColumn: release_year
-#          destinationColumn: year
-#          type_cast: int
-#
-#        - sourceColumn: model_name
-#          destinationColumn: brand_model
-#
-#        - sourceColumn: capacity
-#          destinationColumn: load_carrying_capacity
-#          type_cast: float
-#
-#        - sourceColumn: capacity_trailer1
-#          destinationColumn: trailer_load_carrying_capacity
-#          type_cast: float
-#
         - sourceColumn:
-            name: number_trailer1
-          destinationColumn:
-            name: trailer_gos_number
-            options:
-              type_cast: datetime
-              on_delete: cascade
+            name: id
+          destinationColumn: 
+            name: id
+        
 
 
-#          source_time_format: string
-#          destination_time_format: timestamp
-
-
-
-
-
-
-
-
+  - migrationTable:
+      SourceTableName: 
+        name: operations
+      DestinationTableName:
+        name: operations
+      MigrationColumns:
+      - sourceColumn:
+          name: id
+        destinationColumn: 
+          name: id
+          
+      - sourceColumn: 
+          name: release_year
+        destinationColumn: 
+          name: year
+          options:
+            type_cast: int
+            nullable: false
