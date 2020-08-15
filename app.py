@@ -25,6 +25,8 @@ for mt in migration_tables:
     print(migrate.columns)
 
 
+
+
 # print(migrate.source_table)
 # print(migrate.destination_table)
 # print(migrate.columns)
