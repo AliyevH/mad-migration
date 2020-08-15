@@ -6,6 +6,16 @@ from config.conf import config
 sourceDB = SourceDB()
 destinationDB = DestinationDB()
 
+driver = destinationDB.engine.driver
+name = destinationDB.engine.name
+
+sourcedb_tables = sourceDB.engine.table_names()
+destinationdb_tables = destinationDB.engine.table_names()
+
+migration_tables = config.migrationTables
+for i in migration_tables:
+    print(i.migrationTable.SourceTable)
+
 
 def run():
     if "mysql" in destinationDB.engine.driver:
