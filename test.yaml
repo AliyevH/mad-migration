@@ -1,39 +1,39 @@
-version: 1
+version: 1.1
 Configs:
   - SourceConfig:
-      dbURI: "postgresql:///company_service"
+      dbURI: "mysql://root:admin@127.0.0.1/old"
   - DestinationConfig:
-      dbURI: "postgresql:///company_service"
-
+      dbURI: "mysql://root:admin@127.0.0.1/new"
 migrationTables:
   - migrationTable:
-      SourceTableName: 
+      SourceTable:
         name: operations
-      DestinationTableName:
+      DestinationTable:
         name: operations
+
       MigrationColumns:
         - sourceColumn:
             name: id
           destinationColumn: 
             name: id
-        
+
+        - sourceColumn:
+            name: usernam
+          destinationColumn:
+            regions: username
+            options:
+              foreignKey: False
+              unique: True
+              index: True
+              type: varchar ()
 
 
-  - migrationTable:
-      SourceTableName: 
-        name: operations
-      DestinationTableName:
-        name: operations
-      MigrationColumns:
-      - sourceColumn:
-          name: id
-        destinationColumn: 
-          name: id
-          
-      - sourceColumn: 
-          name: release_year
-        destinationColumn: 
-          name: year
-          options:
-            type_cast: int
-            nullable: false
+
+
+
+#students = Table(
+#   'students', meta,
+#   Column('id', Integer, primary_key = True),
+#   Column('name', String),
+#   Column('lastname', String),
+#)

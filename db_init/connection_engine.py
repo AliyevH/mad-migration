@@ -1,16 +1,13 @@
-from conf import Config
-
+from config.conf import config
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.automap import automap_base
 
-config = Config("test.yaml")
-print(config)
 
 class SourceDB():
     def __init__(self):
         self.base = automap_base()
-        self.engine = create_engine(config.sourceURI)
+        self.engine = create_engine(config.source_uri)
         self.base.prepare(self.engine, reflect=True)
         self.session = Session(self.engine, autocommit=False, autoflush=False)
 
@@ -18,6 +15,6 @@ class SourceDB():
 class DestinationDB():
     def __init__(self):
         self.base = automap_base()
-        self.engine = create_engine(config.destinationURI)
+        self.engine = create_engine(config.destination_uri)
         self.base.prepare(self.engine, reflect=True)
         self.session = Session(self.engine, autocommit=False, autoflush=False)

@@ -3,9 +3,14 @@ from typing import Union,List,Any,AnyStr,Dict,Mapping
 from datetime import datetime
 
 class OptionsSchema(BaseModel):
-    fkey: bool = False
-    unique: bool = False
+    primary_key: bool = False
     nullable: bool = False
+    default: bool = None
+    index: bool = None
+    unique: bool = None
+    autoincrement: bool = True
+    foreign_keys: bool = False
+
     type_cast: AnyStr = None
 
 class SourceConfigSchema(BaseModel):
@@ -31,3 +36,4 @@ class MigrationTablesSchema(BaseModel):
 class ConfigSchema(BaseModel):
     Configs: List[Union[SourceConfigSchema,DestinationConfigSchema]]
     migrationTables: List[MigrationTablesSchema]
+    version: float
