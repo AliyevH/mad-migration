@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.ext.automap import automap_base
 
 config = Config("test.yaml")
-
+print(config)
 
 class SourceDB():
     def __init__(self):
