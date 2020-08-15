@@ -18,16 +18,26 @@ migrationTables:
             name: id
 
         - sourceColumn:
-            name: usernam
+            name: username
           destinationColumn:
-            regions: username
-            options:
-              foreignKey: False
-              unique: True
-              index: True
-              type: varchar ()
+            name: username
 
-
+#  - migrationTable:
+#      SourceTable:
+#        name: cars
+#      DestinationTable:
+#        name: automobiles
+#
+#      MigrationColumns:
+#        - sourceColumn:
+#            name: id
+#          destinationColumn:
+#            name: id
+#
+#        - sourceColumn:
+#            name: car_number
+#          destinationColumn:
+#            regions: reg_number
 
 
 

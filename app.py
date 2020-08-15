@@ -1,27 +1,33 @@
 from db_init.connection_engine import SourceDB
 from db_init.connection_engine import DestinationDB
 from config.conf import config
+from config import config_schema
+from src.mysqldb.migration import Migrate
 
 # Source and Destination DB Initialization with session
 sourceDB = SourceDB()
 destinationDB = DestinationDB()
 
-driver = destinationDB.engine.driver
-name = destinationDB.engine.name
+# Destination DB Driver and name
+destinationDB_driver = destinationDB.engine.driver
+destinationDB_name = destinationDB.engine.name
 
-sourcedb_tables = sourceDB.engine.table_names()
-destinationdb_tables = destinationDB.engine.table_names()
+# Source and Destination Database all tables (NOT MIGRATION!!!!)
+sourceDB_all_tables = sourceDB.engine.table_names()
+destinationDB_all_tables = destinationDB.engine.table_names()
 
+# All migration tables (Yaml file migrationTables)
 migration_tables = config.migrationTables
-for i in migration_tables:
-    print(i.migrationTable.SourceTable)
+
+# MysqlDB Migrate class
+for mt in migration_tables:
+    migrate = Migrate(mt.migrationTable)
+    print(migrate.columns)
 
 
-def run():
-    if "mysql" in destinationDB.engine.driver:
-        from src.mysqldb.migration import Migrate
-        Migrate()
-
+# print(migrate.source_table)
+# print(migrate.destination_table)
+# print(migrate.columns)
 
 
 # ###########################
