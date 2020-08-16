@@ -23,10 +23,8 @@ def get_cast_type(type_name: str) -> object:
     return {
         'str': str,
         'string': str,
-
         'int': int,
         'integer': int,
-
         'float': float,
         'datetime': datetime
     }.get(type_name.lower())
