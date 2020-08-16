@@ -1,10 +1,9 @@
-
-import  click
+import click
 import math
 import random
 import time
 import sys
-from madmigration.config.conf import  Config
+from madmigration.config.conf import Config
 from madmigration.mad_migration import MadMigration
 
 
@@ -19,7 +18,6 @@ def clear():
     click.clear()
 
 
-
 @cli.command(help='😄 simple Migrate ready on hand with CLI')
 def cli():
     click.echo("hello world")
@@ -28,6 +26,3 @@ def cli():
 
     a = MadMigration(config)
     a.test_func()
-
-
-    

@@ -1,7 +1,8 @@
 import yaml
 from madmigration.config.config_schema import ConfigSchema
-from pprint import pprint
 
+
+# Config class generates configuration based on yaml file
 class Config:
     def __init__(self, config_yaml):
         self.config_file = config_yaml

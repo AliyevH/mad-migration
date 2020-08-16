@@ -12,6 +12,7 @@ from sqlalchemy import (
 
 from madmigration.mysqldb.migration import Migrate as mysql_migrate
 
+
 ###########################
 # Get class of cast #
 ###########################
@@ -26,8 +27,10 @@ def get_cast_type(type_name: str) -> object:
         'int': int,
         'integer': int,
         'float': float,
-        'datetime': datetime
+        'datetime': datetime,
+        'varchar': VARCHAR
     }.get(type_name.lower())
+
 
 ###########################
 # Get class of db type #
@@ -44,15 +47,17 @@ def get_column_type(type_name: str) -> object:
         'float': Float,
         'datetime': DateTime,
         'date' : Date,
-        'timestamp' : TIMESTAMP
+        'timestamp' : TIMESTAMP,
+        'varchar': VARCHAR
     }.get(type_name.lower())
+
 
 ###########################
 # Detect db driver fro migration #
 ###########################
-def detect_driver(driver:str) -> object:
+def detect_driver(driver: str) -> object:
     """
-    :param type_name: str
+    :param driver: str
     :return: object class
     """
     return {
