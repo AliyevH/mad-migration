@@ -14,7 +14,6 @@ class Config:
         self.destination_uri = self.config_data.Configs[1].DestinationConfig.get("dbURI")
         self.migrationTables = self.config_data.migrationTables
 
-config = Config("test.yaml")
 
 
 # Create Table in Destination Database

@@ -1,36 +1,13 @@
-from db_init.connection_engine import SourceDB
-from db_init.connection_engine import DestinationDB
-from config.conf import config
-from config import config_schema
-from src.mysqldb.migration import Migrate
+from config.conf import Config
+from src.mad_migration import MadMigration
 
-# Source and Destination DB Initialization with session
-sourceDB = SourceDB()
-destinationDB = DestinationDB()
-
-# Destination DB Driver and name
-destinationDB_driver = destinationDB.engine.driver
-destinationDB_name = destinationDB.engine.name
-
-# Source and Destination Database all tables (NOT MIGRATION!!!!)
-sourceDB_all_tables = sourceDB.engine.table_names()
-destinationDB_all_tables = destinationDB.engine.table_names()
-
-# All migration tables (Yaml file migrationTables)
-migration_tables = config.migrationTables
-
-# MysqlDB Migrate class
-for mt in migration_tables:
-    migrate = Migrate(mt.migrationTable)
-    print(migrate.source_table)
-    print(migrate.destination_table)
-    for mc in migrate.columns:
-        print(mc.dict())
+config = Config("test.yaml")
 
 
-# print(migrate.source_table)
-# print(migrate.destination_table)
-# print(migrate.columns)
+if __name__ == "__main__":
+    a = MadMigration(config)
+    a.test_func()
+
 
 
 # ###########################

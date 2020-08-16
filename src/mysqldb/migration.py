@@ -1,7 +1,7 @@
-from config.conf import config
 from config.config_schema import MigrationTablesSchema
 from config.config_schema import ColumnParameters
 from config.config_schema import TablesInfo
+
 
 
 class Migrate:
