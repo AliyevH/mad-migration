@@ -2,13 +2,12 @@ from setuptools import setup,find_packages
 
 setup(
     name='MadMIgration',
-    packages=["src","utils","config","scripts"],
+    packages=["src","utils","config","scripts","db_init"],
 
     entry_points="""
         [console_scripts]
         madmigrate=scripts.start:cli
     """,
-    
     classifiers=[
     'Intended Audience :: Developers',
     'Topic :: Software Development :: Build Tools',
