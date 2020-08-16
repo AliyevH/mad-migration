@@ -7,6 +7,9 @@ setup(
         [console_scripts]
         madmigrate=madmigration.scripts.start:cli
     """,
+    install_requires=[
+        "click"
+    ],
     classifiers=[
     'Intended Audience :: Developers',
     'Topic :: Software Development :: Build Tools',
@@ -19,14 +22,6 @@ setup(
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ])
-
-
-
-
-
-
-
-
 
 
 
