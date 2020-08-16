@@ -1,5 +1,5 @@
-from config.conf import Config
-from src.mad_migration import MadMigration
+from madmigration.config.conf import Config
+from madmigration.mad_migration import MadMigration
 
 config = Config("test.yaml")
 
