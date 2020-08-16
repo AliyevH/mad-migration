@@ -35,6 +35,8 @@ class MadMigration:
                 print(mc.dict())
 
     def create_tables(self):
+        # create destination tables with options 
+
         for mig_tables in self.migration_tables:
             tablename = mig_tables.dict().get("migrationTable").get("DestinationTable").get("name")
             columns = []
