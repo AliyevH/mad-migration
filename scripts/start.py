@@ -20,10 +20,9 @@ def clear():
 
 
 
-@cli.command(help='😄 simple boilerplate ready for development')
+@cli.command(help='😄 simple Migrate ready on hand with CLI')
 def cli():
-    print("hello wprl")
-    click.echo("test")
+    click.echo("hello world")
 
     config = Config("test.yaml")
 
