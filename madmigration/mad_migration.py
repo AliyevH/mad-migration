@@ -1,7 +1,8 @@
 from madmigration.db_init.connection_engine import SourceDB
 from madmigration.db_init.connection_engine import DestinationDB
-from madmigration.utils.helpers import detect_driver
-
+from madmigration.utils.helpers import detect_driver, get_cast_type, get_column_type
+from sqlalchemy import Column, MetaData,Table
+from pprint import pprint
 
 
 class MadMigration:
@@ -11,7 +12,7 @@ class MadMigration:
         # Source and Destination DB Initialization with session
         self.sourceDB = SourceDB(self.config)
         self.destinationDB = DestinationDB(self.config)
-
+        self.metadata = MetaData()
 
         # Source and Destination Database all tables (NOT MIGRATION!!!!)
         self.sourceDB_all_tables = self.sourceDB.engine.table_names()
@@ -32,3 +33,22 @@ class MadMigration:
             print(migrate.destination_table)
             for mc in migrate.columns:
                 print(mc.dict())
+
+    def create_tables(self):
+        for mig_tables in self.migration_tables:
+            tablename = mig_tables.dict().get("migrationTable").get("DestinationTable").get("name")
+            columns = []
+
+            for column in mig_tables.dict().get("migrationTable").get("MigrationColumns"):
+                pprint(column)
+                column_type = get_column_type(column.get("destinationColumn")["options"].pop("type"))
+                column.get("destinationColumn")["options"].pop("type_cast")
+                col = Column(column.get("destinationColumn").get("name"),column_type,**column.get("destinationColumn").get("options"))
+                columns.append(col)
+
+            tab = Table(
+                tablename,self.metadata,
+                *columns
+            )
+
+            self.metadata.create_all(self.destinationDB.engine)

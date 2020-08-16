@@ -1,10 +1,21 @@
 from datetime import datetime
+from sqlalchemy import (
+    Integer,
+    String,
+    DateTime,
+    Date,
+    BigInteger,
+    VARCHAR,
+    Float,
+    TIMESTAMP
+)
+
 from madmigration.mysqldb.migration import Migrate as mysql_migrate
 
 ###########################
-# Get class type of input #
+# Get class of cast #
 ###########################
-def get_type(type_name: str) -> object:
+def get_cast_type(type_name: str) -> object:
     """
     :param type_name: str
     :return: object class
@@ -18,13 +29,34 @@ def get_type(type_name: str) -> object:
 
         'float': float,
         'datetime': datetime
-    }.get(type_name)
+    }.get(type_name.lower())
 
+###########################
+# Get class of db type #
+###########################
+def get_column_type(type_name: str) -> object:
+    """
+    :param type_name: str
+    :return: object class
+    """
+    return {
+        'string': String,
+        'integer': Integer,
+        'biginteger': BigInteger,
+        'float': Float,
+        'datetime': DateTime,
+        'date' : Date,
+        'timestamp' : TIMESTAMP
+    }.get(type_name.lower())
 
 ###########################
 # Detect db driver fro migration #
 ###########################
 def detect_driver(driver:str) -> object:
+    """
+    :param type_name: str
+    :return: object class
+    """
     return {
         "mysqldb" : mysql_migrate,
         "psycopg2": mysql_migrate  # heleki ozum verdim ki mende error vermesin

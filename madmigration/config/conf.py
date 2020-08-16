@@ -1,6 +1,6 @@
 import yaml
 from madmigration.config.config_schema import ConfigSchema
-
+from pprint import pprint
 
 class Config:
     def __init__(self, config_yaml):
