@@ -1,6 +1,5 @@
 from pydantic import BaseModel
-from typing import Union,List,Any,AnyStr,Dict,Mapping
-from datetime import datetime
+from typing import Union, List, Any, AnyStr, Dict
 
 
 class OptionsSchema(BaseModel):
@@ -16,11 +15,11 @@ class OptionsSchema(BaseModel):
 
 
 class SourceConfigSchema(BaseModel):
-    SourceConfig: Dict[str,str]
+    SourceConfig: Dict[str, str]
 
 
 class DestinationConfigSchema(BaseModel):
-    DestinationConfig: Dict[str,str]
+    DestinationConfig: Dict[str, str]
 
 
 class SourceTableSchema(BaseModel):
@@ -44,6 +43,6 @@ class MigrationTablesSchema(BaseModel):
 
 
 class ConfigSchema(BaseModel):
-    Configs: List[Union[SourceConfigSchema,DestinationConfigSchema]]
+    Configs: List[Union[SourceConfigSchema, DestinationConfigSchema]]
     migrationTables: List[MigrationTablesSchema]
     version: float
