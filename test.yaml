@@ -13,6 +13,7 @@ migrationTables:
         name: operations
       DestinationTable:
         name: mytable
+        create: True # -> I suggest that we have to define this option that will tell us whether we have to create tables or not
 
       MigrationColumns:
         - sourceColumn:
@@ -29,6 +30,16 @@ migrationTables:
             name: username
           destinationColumn:
             name: username
+            options:
+              primary_key: true
+              type: varchar
+              length: 255
+              type_cast: int
+
+        - sourceColumn:
+            name: lastname
+          destinationColumn:
+            name: lastname
             options:
               primary_key: true
               type: varchar
