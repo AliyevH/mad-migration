@@ -42,13 +42,12 @@ class MadMigration:
             columns = []
 
             for column in mig_tables.dict().get("migrationTable").get("MigrationColumns"):
-                pprint(column)
                 column_type = get_column_type(column.get("destinationColumn")["options"].pop("type"))
                 column.get("destinationColumn")["options"].pop("type_cast")
                 col = Column(column.get("destinationColumn").get("name"),column_type,**column.get("destinationColumn").get("options"))
                 columns.append(col)
 
-            tab = Table(
+            Table(
                 tablename,self.metadata,
                 *columns
             )
