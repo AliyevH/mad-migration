@@ -1,5 +1,5 @@
 import yaml
-from config.config_schema import ConfigSchema
+from madmigration.config.config_schema import ConfigSchema
 
 
 class Config:

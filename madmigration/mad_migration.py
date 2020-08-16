@@ -1,6 +1,6 @@
-from db_init.connection_engine import SourceDB
-from db_init.connection_engine import DestinationDB
-from utils.helpers import detect_driver
+from madmigration.db_init.connection_engine import SourceDB
+from madmigration.db_init.connection_engine import DestinationDB
+from madmigration.utils.helpers import detect_driver
 
 
 

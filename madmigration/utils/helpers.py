@@ -1,5 +1,5 @@
 from datetime import datetime
-from src.mysqldb.migration import Migrate as mysql_migrate
+from madmigration.mysqldb.migration import Migrate as mysql_migrate
 
 ###########################
 # Get class type of input #

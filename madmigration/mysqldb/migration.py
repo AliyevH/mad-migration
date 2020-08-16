@@ -1,6 +1,6 @@
-from config.config_schema import MigrationTablesSchema
-from config.config_schema import ColumnParameters
-from config.config_schema import TablesInfo
+from madmigration.config.config_schema import MigrationTablesSchema
+from madmigration.config.config_schema import ColumnParameters
+from madmigration.config.config_schema import TablesInfo
 
 
 

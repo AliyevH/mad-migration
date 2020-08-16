@@ -1,11 +1,11 @@
 version: 1.1
 Configs:
   - SourceConfig:
-      # dbURI: "postgresql:///company_service"
-      dbURI: "mysql://root:admin@127.0.0.1/old"
+      dbURI: "postgresql:///company_service"
+      # dbURI: "mysql://root:admin@127.0.0.1/old"
   - DestinationConfig:
-      # dbURI: "postgresql:///company_service"
-      dbURI: "mysql://root:admin@127.0.0.1/new"
+      dbURI: "postgresql:///company_service"
+      # dbURI: "mysql://root:admin@127.0.0.1/new"
 
 migrationTables:
   - migrationTable:
@@ -20,10 +20,10 @@ migrationTables:
           destinationColumn: 
             name: id
 
-        - sourceColumn:
-            name: username
-          destinationColumn:
-            name: username
+        # - sourceColumn:
+        #     name: username
+        #   destinationColumn:
+        #     name: username
 
 #  - migrationTable:
 #      SourceTable:
