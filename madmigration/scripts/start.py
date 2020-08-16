@@ -4,8 +4,8 @@ import math
 import random
 import time
 import sys
-from config.conf import  Config
-from src.mad_migration import MadMigration
+from madmigration.config.conf import  Config
+from madmigration.mad_migration import MadMigration
 
 
 @click.group()
