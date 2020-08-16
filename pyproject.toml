@@ -1,0 +1,11 @@
+[build-system]
+requires = ["flit_core >=2,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.flit.metadata]
+module = "madmigration"
+author = "test"
+author-email = "test@gmail"
+home-page = "http://sa"
+classifiers = ["License :: OSI Approved :: MIT License"]
+
