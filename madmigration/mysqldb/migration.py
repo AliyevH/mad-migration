@@ -1,5 +1,5 @@
 from madmigration.config.config_schema import MigrationTablesSchema
-from madmigration.config.config_schema import ColumnParameters
+from madmigration.config.config_schema import ColumnParametersSchema
 from madmigration.config.config_schema import TablesInfo
 from sqlalchemy import Column, Table, MetaData
 from sqlalchemy.dialects.mysql import (
@@ -24,7 +24,6 @@ from sqlalchemy.dialects.mysql import (
 
 
 class Migrate:
-    # init methodunda Tableinfo bes elemir mene db enginler lazimdi burda table create etmek ucun,ona gore deyishirem config
     def __init__(self, migration_table: TablesInfo):
         self.migration_tables = migration_table
         self.metadata = MetaData()
@@ -36,7 +35,7 @@ class Migrate:
         self.destination_table = self.migration_tables.DestinationTable
         self.columns = self.migration_tables.MigrationColumns
 
-    def parse_migration_columns(self, migration_columns: ColumnParameters):
+    def parse_migration_columns(self, migration_columns: ColumnParametersSchema):
         self.source_column = migration_columns.sourceColumn
         self.destination_column = migration_columns.destinationColumn
         self.dest_options = migration_columns.destinationColumn.options.dict()
@@ -45,7 +44,6 @@ class Migrate:
     def create_tables(self, dest_engine):
         # create destination tables with options
 
-        # for mig_tables in self.migration_tables:
         tablename = self.destination_table.get("name")
         temp_columns = []
 

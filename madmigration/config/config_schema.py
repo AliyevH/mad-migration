@@ -32,7 +32,7 @@ class DestinationColumn(BaseModel):
     options: OptionsSchema
 
 
-class ColumnParameters(BaseModel):
+class ColumnParametersSchema(BaseModel):
     destinationColumn: DestinationColumn
     sourceColumn: Any
 
@@ -40,7 +40,7 @@ class ColumnParameters(BaseModel):
 class TablesInfo(BaseModel):
     SourceTable: Dict[str, str]
     DestinationTable: Dict[str, str]
-    MigrationColumns: List[ColumnParameters]
+    MigrationColumns: List[ColumnParametersSchema]
 
 
 class MigrationTablesSchema(BaseModel):

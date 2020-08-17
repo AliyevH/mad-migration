@@ -45,6 +45,8 @@ class MadMigration:
                 print(mc.dict())
 
     def prepare_tables(self):
+            # detect migration class  
+        
         migrate = detect_driver(self.destinationDB_driver)
         for migrate_table in self.migration_tables:
             mig = migrate(migrate_table.migrationTable)
