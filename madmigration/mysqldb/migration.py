@@ -49,6 +49,7 @@ class Migrate:
 
         for column in self.columns:
             self.parse_migration_columns(column)
+            self.dest_options.pop("foreign_keys")
             column_type = Migrate.get_column_type(
                 self.dest_options.pop("type")
             )

@@ -45,45 +45,23 @@ class MadMigration:
                 print(mc.dict())
 
     def prepare_tables(self):
-            # detect migration class  
-        
+        # detect migration class
         migrate = detect_driver(self.destinationDB_driver)
         for migrate_table in self.migration_tables:
             mig = migrate(migrate_table.migrationTable)
             mig.create_tables(self.destinationDB.engine)
 
+    def get_columns_type_from_source_table(self, table_name, column_name):
+        """
+        Get type of column in source table from Source Database
+        :param table_name: Table name
+        :param column_name: Column name
+        :return: Column type (Integer, Varchar, Float, Double, etc...)
+        """
+        tables = self.sourceDB.base.metadata.tables
+        table = tables.get(table_name)
+        for column in table.columns:
+            if column.name == column_name:
+                return column.type
 
 
-
-    def column_type(self, column):
-        column_type = get_column_type(column.get("destinationColumn")["options"].pop("type"))
-        if column_type == String:
-            return
-
-    def create_tables2(self):
-        # create destination tables with options
-
-        for mig_tables in self.migration_tables:
-            tablename = mig_tables.dict().get("migrationTable").get("DestinationTable").get("name")
-            columns = []
-
-            for column in mig_tables.dict().get("migrationTable").get("MigrationColumns"):
-                column_type = get_column_type(column.get("destinationColumn")["options"].pop("type"))
-                column.get("destinationColumn")["options"].pop("type_cast")
-                length = column.get("destinationColumn")["options"].get("length")
-                if length:
-                    column.get("destinationColumn")["options"].pop("length")
-                    col = Column(column.get("destinationColumn").get("name"), column_type(length), **column.get("destinationColumn").get("options"))
-                else:
-                    col = Column(column.get("destinationColumn").get("name"), column_type, **column.get("destinationColumn").get("options"))
-                columns.append(col)
-
-            Table(
-                tablename, self.metadata,
-                *columns
-            )
-
-            self.metadata.create_all(self.destinationDB.engine)
-    #
-    # def update_tables(self):
-    #     """"""
