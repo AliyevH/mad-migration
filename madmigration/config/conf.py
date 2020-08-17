@@ -9,7 +9,7 @@ class Config:
 
         with open(self.config_file) as f:
             self.config_data = ConfigSchema(**yaml.load(f, Loader=yaml.FullLoader)) # noqa  E501
-        pprint(self.config_data.dict())
+        # pprint(self.config_data.dict())
         self.version = self.config_data.version
         self.source_uri = self.config_data.Configs[0].SourceConfig.get("dbURI")
         self.destination_uri = self.config_data.Configs[1].DestinationConfig.get("dbURI") # noqa  E501

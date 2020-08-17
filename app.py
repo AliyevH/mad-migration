@@ -8,3 +8,4 @@ if __name__ == "__main__":
     a.prepare_tables()
     a.sourceDB.session.close()
     a.destinationDB.session.close()
+    print(a.test_func())
