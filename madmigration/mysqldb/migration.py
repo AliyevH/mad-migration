@@ -39,8 +39,8 @@ class Migrate:
     def parse_migration_columns(self, migration_columns: ColumnParameters):
         self.source_column = migration_columns.sourceColumn
         self.destination_column = migration_columns.destinationColumn
-        self.dest_options = migration_columns.destinationColumn.get("options")
-        self.source_options = migration_columns.sourceColumn.get("options")
+        self.dest_options = migration_columns.destinationColumn.options.dict()
+        # self.source_options = migration_columns.sourceColumn.options
 
     def create_tables(self, dest_engine):
         # create destination tables with options
@@ -51,13 +51,15 @@ class Migrate:
 
         for column in self.columns:
             self.parse_migration_columns(column)
-            print(column)
             column_type = Migrate.get_column_type(
                 self.dest_options.pop("type")
             )
+            type_length = self.dest_options.pop("length")
+            if type_length:
+                column_type = column_type(type_length)
             self.dest_options.pop("type_cast")
             col = Column(
-                self.destination_column.get("name"),
+                self.destination_column.name,
                 column_type,
                 **self.dest_options
             )

@@ -31,9 +31,8 @@ migrationTables:
           destinationColumn:
             name: username
             options:
-              primary_key: true
               type: varchar
-              # length: 255
+              length: 255
               type_cast: int
 
         - sourceColumn:
@@ -41,9 +40,8 @@ migrationTables:
           destinationColumn:
             name: lastname
             options:
-              primary_key: true
               type: varchar
-              # length: 255
+              length: 255
               type_cast: int
 
   - migrationTable:
