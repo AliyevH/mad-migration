@@ -5,7 +5,7 @@ setup(
     packages=find_packages(),
     entry_points="""
         [console_scripts]
-        madmigrate=madmigration.scripts.start:cli
+        madmigrate=madmigration.scripts.commands:cli
     """,
     install_requires=[
         "click"
