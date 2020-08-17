@@ -15,7 +15,7 @@ from sqlalchemy import (
 )
 
 
-class MadMigration:
+class Controller:
     def __init__(self, migration_config):
         self.config = migration_config
 

@@ -1,5 +1,5 @@
 from madmigration.config.conf import Config
-from madmigration.mad_migration import MadMigration
+from madmigration.main import Controller
 
 config = Config("test.yaml")
 

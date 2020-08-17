@@ -18,6 +18,7 @@ from sqlalchemy.dialects.mysql import (
     TEXT,
 )
 
+
 class TypeConvert:
     def __init__(self, source_type, destination_type):
         pass
