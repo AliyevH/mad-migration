@@ -1,5 +1,6 @@
 from madmigration.db_init.connection_engine import SourceDB
 from madmigration.db_init.connection_engine import DestinationDB
+from madmigration.mysqldb.migration import Migrate
 from madmigration.utils.helpers import detect_driver, get_cast_type, get_column_type
 from sqlalchemy import Column, MetaData, Table
 from sqlalchemy import (
@@ -43,25 +44,14 @@ class MadMigration:
             for mc in migrate.columns:
                 print(mc.dict())
 
-    def create_tables(self):
-        # create destination tables with options 
+    def prepare_tables(self):
+        migrate = detect_driver(self.destinationDB_driver)
+        for migrate_table in self.migration_tables:
+            mig = migrate(migrate_table.migrationTable)
+            mig.create_tables(self.destinationDB.engine)
 
-        for mig_tables in self.migration_tables:
-            tablename = mig_tables.dict().get("migrationTable").get("DestinationTable").get("name")
-            columns = []
 
-            for column in mig_tables.dict().get("migrationTable").get("MigrationColumns"):
-                column_type = get_column_type(column.get("destinationColumn")["options"].pop("type"))
-                column.get("destinationColumn")["options"].pop("type_cast")
-                col = Column(column.get("destinationColumn").get("name"), column_type, **column.get("destinationColumn").get("options"))
-                columns.append(col)
 
-            Table(
-                tablename, self.metadata,
-                *columns
-            )
-
-            self.metadata.create_all(self.destinationDB.engine)
 
     def column_type(self, column):
         column_type = get_column_type(column.get("destinationColumn")["options"].pop("type"))

@@ -5,6 +5,6 @@ config = Config("test.yaml")
 
 if __name__ == "__main__":
     a = MadMigration(config)
-    a.create_tables2()
+    a.prepare_tables()
     a.sourceDB.session.close()
     a.destinationDB.session.close()

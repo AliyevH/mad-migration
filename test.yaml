@@ -1,11 +1,11 @@
 version: 1.1
 Configs:
   - SourceConfig:
-      #dbURI: "postgresql:///caruserdb"
-      dbURI: "mysql://root:admin@127.0.0.1/old"
+      dbURI: "postgresql:///caruserdb"
+      # dbURI: "mysql://root:admin@127.0.0.1/old"
   - DestinationConfig:
-      #dbURI: "postgresql:///caruserdb"
-      dbURI: "mysql://root:admin@127.0.0.1/madmigration"
+      dbURI: "postgresql:///caruserdb"
+      # dbURI: "mysql://root:admin@127.0.0.1/madmigration"
 
 migrationTables:
   - migrationTable:
@@ -31,7 +31,6 @@ migrationTables:
           destinationColumn:
             name: username
             options:
-              primary_key: true
               type: varchar
               length: 255
               type_cast: int
@@ -41,7 +40,6 @@ migrationTables:
           destinationColumn:
             name: lastname
             options:
-              primary_key: true
               type: varchar
               length: 255
               type_cast: int

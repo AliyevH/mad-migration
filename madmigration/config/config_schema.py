@@ -10,6 +10,8 @@ class OptionsSchema(BaseModel):
     unique: bool = None
     autoincrement: bool = True
     foreign_keys: bool = False
+    length: int = None
+    type: str
 
     type_cast: AnyStr = None
 
@@ -25,11 +27,14 @@ class DestinationConfigSchema(BaseModel):
 class SourceTableSchema(BaseModel):
     name: Dict[str, str]
 
+class DestinationColumn(BaseModel):
+    name: str
+    options: OptionsSchema
+
 
 class ColumnParameters(BaseModel):
-    destinationColumn: Any
+    destinationColumn: DestinationColumn
     sourceColumn: Any
-    options: OptionsSchema = None
 
 
 class TablesInfo(BaseModel):
