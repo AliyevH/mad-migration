@@ -62,6 +62,8 @@ def detect_driver(driver: str) -> object:
     """
     return {
         "mysqldb" : mysql_migrate,
+        "pymysql": mysql_migrate,
+        "mysql+pymysql" : mysql_migrate,
         "psycopg2": mysql_migrate  # heleki ozum verdim ki mende error vermesin
 
     }.get(driver)

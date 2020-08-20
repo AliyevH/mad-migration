@@ -49,8 +49,9 @@ class MadMigration:
         
         migrate = detect_driver(self.destinationDB_driver)
         for migrate_table in self.migration_tables:
-            mig = migrate(migrate_table.migrationTable)
-            mig.create_tables(self.destinationDB.engine)
+            mig = migrate(migrate_table.migrationTable,self.destinationDB.engine)
+            mig.create_tables()
+        migrate.create_fk_constraint(self.destinationDB.engine)
 
 
 

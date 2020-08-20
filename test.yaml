@@ -38,11 +38,13 @@ migrationTables:
         - sourceColumn:
             name: lastname
           destinationColumn:
-            name: lastname
+            name: reg_id
             options:
-              type: varchar
-              length: 255
+              type: integer
               type_cast: int
+              foreign_key:
+                table_name: automobiles
+                column_name: id
 
   - migrationTable:
       SourceTable:
@@ -68,12 +70,7 @@ migrationTables:
             options:
               type: Integer
               type_cast: int
+              nullable: False
+              
 
 
-
-#students = Table(
-#   'students', meta,
-#   Column('id', Integer, primary_key = True),
-#   Column('name', String),
-#   Column('lastname', String),
-#)
