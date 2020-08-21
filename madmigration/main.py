@@ -3,6 +3,7 @@ from madmigration.db_init.connection_engine import DestinationDB
 from madmigration.mysqldb.migration import Migrate
 from madmigration.utils.helpers import detect_driver, get_cast_type, get_column_type
 from sqlalchemy import Column, MetaData, Table
+from madmigration.config.conf import Config
 from sqlalchemy import (
     Integer,
     String,
@@ -16,7 +17,7 @@ from sqlalchemy import (
 
 
 class Controller:
-    def __init__(self, migration_config):
+    def __init__(self, migration_config: Config):
         self.config = migration_config
 
         # Source and Destination DB Initialization with session
@@ -25,8 +26,8 @@ class Controller:
         self.metadata = MetaData()
 
         # Source and Destination Database - all tables (NOT MIGRATION TABLES!!!)
-        self.sourceDB_all_tables = self.sourceDB.engine.table_names()
-        self.destinationDB_all_tables = self.destinationDB.engine.table_names()
+        self.sourceDB_all_tables_names = self.sourceDB.engine.table_names()
+        self.destinationDB_all_tables_names = self.destinationDB.engine.table_names()
 
         # All migration tables (Yaml file migrationTables)
         self.migration_tables = self.config.migrationTables
@@ -35,15 +36,6 @@ class Controller:
         self.destinationDB_driver = self.destinationDB.engine.driver
         self.destinationDB_name = self.destinationDB.engine.name
 
-    def test_func(self):
-        # MysqlDB Migrate class
-        for mt in self.migration_tables:
-            migrate = detect_driver(self.destinationDB_driver)(mt.migrationTable)
-            print(migrate.source_table)
-            print(migrate.destination_table)
-            for mc in migrate.columns:
-                print(mc.dict())
-
     def prepare_tables(self):
         # detect migration class
         migrate = detect_driver(self.destinationDB_driver)
@@ -51,7 +43,7 @@ class Controller:
             mig = migrate(migrate_table.migrationTable)
             mig.create_tables(self.destinationDB.engine)
 
-    def get_columns_type_from_source_table(self, table_name, column_name):
+    def get_column_type_from_source_table(self, table_name, column_name):
         """
         Get type of column in source table from Source Database
         :param table_name: Table name
@@ -63,5 +55,29 @@ class Controller:
         for column in table.columns:
             if column.name == column_name:
                 return column.type
+
+    def run(self):
+        for mt in self.migration_tables:
+            migrate = Migrate(mt.migrationTable, self.sourceDB)
+
+            # This columns list and table name is going to be sent to function
+            # Based on this get_data_from_source_table function will yield data
+            columns = []
+            for column in migrate.columns:
+                columns.append(column.sourceColumn.get("name"))
+
+            data = migrate.get_data_from_source_table(mt.migrationTable.SourceTable, columns)
+
+            # for i in data:
+            #     print(i)
+
+
+
+
+
+
+
+
+
 
 

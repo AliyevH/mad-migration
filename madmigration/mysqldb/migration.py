@@ -24,48 +24,55 @@ from sqlalchemy.dialects.mysql import (
 
 
 class Migrate:
-    def __init__(self, migration_table: TablesInfo):
+    def __init__(self, migration_table: TablesInfo, engine):
+        self.sourceDB = engine
         self.migration_tables = migration_table
         self.metadata = MetaData()
         self.parse_migration_tables()
-        
 
     def parse_migration_tables(self):
+        """
+        This function parses migrationTables from yaml file
+        """
         self.source_table = self.migration_tables.SourceTable
         self.destination_table = self.migration_tables.DestinationTable
         self.columns = self.migration_tables.MigrationColumns
 
     def parse_migration_columns(self, migration_columns: ColumnParametersSchema):
+        """
+        This function parses migrationColumns from yaml file
+        """
         self.source_column = migration_columns.sourceColumn
         self.destination_column = migration_columns.destinationColumn
         self.dest_options = migration_columns.destinationColumn.options.dict()
         # self.source_options = migration_columns.sourceColumn.options
 
-    def create_tables(self, dest_engine):
-        # create destination tables with options
+    def get_table_attribute_from_base_class(self, source_table_name: str):
+        """
+        This function gets table name attribute from sourceDB.base.classes. Example sourceDB.base.class.(table name)
+        Using this attribute we can query table using sourceDB.session
+        :return table attribute
+        """
+        print(source_table_name)
+        return getattr(self.sourceDB.base.classes, source_table_name)
 
-        tablename = self.destination_table.get("name")
-        temp_columns = []
+    def get_data_from_source_table(self, source_table_name: str, source_columns: list):
 
-        for column in self.columns:
-            self.parse_migration_columns(column)
-            self.dest_options.pop("foreign_keys")
-            column_type = Migrate.get_column_type(
-                self.dest_options.pop("type")
-            )
-            type_length = self.dest_options.pop("length")
-            if type_length:
-                column_type = column_type(type_length)
-            self.dest_options.pop("type_cast")
-            col = Column(
-                self.destination_column.name,
-                column_type,
-                **self.dest_options
-            )
-            temp_columns.append(col)
-        Table(tablename, self.metadata, *temp_columns)
+        table = self.get_table_attribute_from_base_class(source_table_name.get("name"))
 
-        self.metadata.create_all(dest_engine)
+        rows = self.sourceDB.session.query(table).yield_per(1000)
+
+        for row in rows:
+            data = {}
+            for column in source_columns:
+                data[column] = getattr(row, column)
+            yield data
+
+
+
+
+
+
 
     ###########################
     # Get class of db type #
@@ -96,3 +103,4 @@ class Migrate:
             "numeric": NUMERIC,
             "text": TEXT,
         }.get(type_name.lower())
+
