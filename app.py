@@ -4,8 +4,8 @@ from madmigration.main import Controller
 config = Config("test.yaml")
 
 if __name__ == "__main__":
-    a = MadMigration(config)
-    a.prepare_tables()
-    a.sourceDB.session.close()
-    a.destinationDB.session.close()
-    print(a.test_func())
+    app = Controller(config)
+    app.sourceDB.session.close()
+    app.destinationDB.session.close()
+
+    app.run()
