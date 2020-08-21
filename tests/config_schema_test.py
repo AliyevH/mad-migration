@@ -1,9 +1,9 @@
-import  os
+import os
 import pytest
 from madmigration.config.config_schema import ConfigSchema
 from madmigration.config.conf import Config
-import  sys
-import  yaml
+import sys
+import yaml
 
 
 # # Config class generates configuration based on yaml file
@@ -21,7 +21,7 @@ import  yaml
 
 def config_schema_test():
 
-    file  = os.path.realpath('test.yaml')
+    file = os.path.realpath('test.yaml')
     obj = Config(file)
 
     assert obj.version == obj.config_data.version
