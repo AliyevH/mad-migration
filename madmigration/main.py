@@ -1,6 +1,5 @@
 from madmigration.db_init.connection_engine import SourceDB
 from madmigration.db_init.connection_engine import DestinationDB
-from madmigration.mysqldb.migration import Migrate
 from madmigration.utils.helpers import detect_driver, get_cast_type, get_column_type
 from sqlalchemy import Column, MetaData, Table
 from madmigration.config.conf import Config
@@ -36,6 +35,9 @@ class Controller:
         self.destinationDB_driver = self.destinationDB.engine.driver
         self.destinationDB_name = self.destinationDB.engine.name
 
+        # Source DB Driver
+        self.sourceDB_driver = self.sourceDB.engine.driver
+
     def prepare_tables(self):
         # detect migration class
         migrate = detect_driver(self.destinationDB_driver)
@@ -58,6 +60,8 @@ class Controller:
 
     def run(self):
         for mt in self.migration_tables:
+            Migrate = detect_driver(self.sourceDB_driver)
+            
             migrate = Migrate(mt.migrationTable, self.sourceDB)
 
             # This columns list and table name is going to be sent to function
