@@ -43,8 +43,8 @@ class Migrate:
         This function parses migrationColumns from yaml file
         """
         self.source_column = migration_columns.sourceColumn
-        self.destination_column = migration_columns.destinationColumn
-        self.dest_options = migration_columns.destinationColumn.options.dict()
+        self.destination_column = migration_columns.destinationColumn.dict()
+        self.destination_options = migration_columns.destinationColumn.options.dict()
         # self.source_options = migration_columns.sourceColumn.options
 
     def get_table_attribute_from_base_class(self, source_table_name: str):
@@ -53,14 +53,18 @@ class Migrate:
         Using this attribute we can query table using sourceDB.session
         :return table attribute
         """
-        print(source_table_name)
+        # for i in dir(self.sourceDB.base.classes):
+        #     print(i)
+
+        # print(" ---------- ")
+
         return getattr(self.sourceDB.base.classes, source_table_name)
 
     def get_data_from_source_table(self, source_table_name: str, source_columns: list):
 
         table = self.get_table_attribute_from_base_class(source_table_name.get("name"))
 
-        rows = self.sourceDB.session.query(table).yield_per(1000)
+        rows = self.sourceDB.session.query(table).yield_per(1)
 
         for row in rows:
             data = {}

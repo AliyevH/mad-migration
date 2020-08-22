@@ -1,6 +1,7 @@
 from madmigration.db_init.connection_engine import SourceDB
 from madmigration.db_init.connection_engine import DestinationDB
 from madmigration.mysqldb.migration import Migrate
+from madmigration.mysqldb.type_convert import get_type_object
 from madmigration.utils.helpers import detect_driver, get_cast_type, get_column_type
 from sqlalchemy import Column, MetaData, Table
 from madmigration.config.conf import Config
@@ -58,19 +59,49 @@ class Controller:
 
     def run(self):
         for mt in self.migration_tables:
-            migrate = Migrate(mt.migrationTable, self.sourceDB)
+            source_table = mt.migrationTable.SourceTable
+            destination_table = mt.migrationTable.DestinationTable
 
-            # This columns list and table name is going to be sent to function
-            # Based on this get_data_from_source_table function will yield data
+            migrate = Migrate(mt.migrationTable, self.sourceDB)
+            migrate.parse_migration_tables()
+
+            self.convert_info = {}
+
             columns = []
             for column in migrate.columns:
+                # print(column.sourceColumn.get("name"))
                 columns.append(column.sourceColumn.get("name"))
 
-            data = migrate.get_data_from_source_table(mt.migrationTable.SourceTable, columns)
+                if column.destinationColumn.options.type_cast:
+                    self.convert_info[
+                        column.destinationColumn.name] = column.destinationColumn.options.type_cast.decode("utf-8")
 
-            # for i in data:
-            #     print(i)
+            self.source_data = migrate.get_data_from_source_table(mt.migrationTable.SourceTable, columns)
 
+            for data in self.source_data:
+                for columns in mt.migrationTable.MigrationColumns:
+                    source_column = columns.sourceColumn.get("name")
+                    destination_column = columns.destinationColumn.name
+
+                    if columns.destinationColumn.options.type_cast:
+                        destination_type_cast = columns.destinationColumn.options.type_cast.decode("utf-8")
+                    else:
+                        destination_type_cast = None
+
+                    if self.convert_info.get(destination_column):
+                        ClassType = get_type_object(destination_type_cast)
+
+                        try:
+                            if ClassType.__name__ == "uuid4":
+                                data[destination_column] = ClassType().hex
+                            else:
+                                data[destination_column] = ClassType(data.pop(source_column))
+                        except Exception as err:
+                            print(err)
+                            data[destination_column] = None
+                    else:
+                        data[destination_column] = data.pop(source_column)
+                print(data)
 
 
 

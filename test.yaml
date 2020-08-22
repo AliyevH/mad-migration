@@ -8,45 +8,45 @@ Configs:
        dbURI: "mysql://root:admin@127.0.0.1/madmigration"
 
 migrationTables:
+#  - migrationTable:
+#      SourceTable:
+#        name: cars
+#      DestinationTable:
+#        name: mytable
+#        create: True # -> I suggest that we have to define this option that will tell us whether we have to create tables or not
+#
+#      MigrationColumns:
+#        - sourceColumn:
+#            name: id
+#          destinationColumn:
+#            name: id
+#            options:
+#              primary_key: true
+#              autoincrement: true
+#              type: Integer
+#              type_cast: uuid
+#
+#        - sourceColumn:
+#            name: release_year
+#          destinationColumn:
+#            name: year
+#            options:
+#              type: varchar
+##              type_cast: varchar
+#              length: 255
+#
+#        - sourceColumn:
+#            name: model_name
+#          destinationColumn:
+#            name: auto_model
+#            options:
+#              type: varchar
+#              length: 255
+#              type_cast: str
+
   - migrationTable:
       SourceTable:
-        name: cars
-      DestinationTable:
-        name: mytable
-        create: True # -> I suggest that we have to define this option that will tell us whether we have to create tables or not
-
-      MigrationColumns:
-        - sourceColumn:
-            name: id
-          destinationColumn: 
-            name: id
-            options:
-              primary_key: true
-              autoincrement: true
-              type: Integer
-              type_cast: varchar
-
-        - sourceColumn:
-            name: release_year
-          destinationColumn:
-            name: year
-            options:
-              type: varchar
-              length: 255
-              type_cast: int
-
-        - sourceColumn:
-            name: model_name
-          destinationColumn:
-            name: auto_model
-            options:
-              type: varchar
-              length: 255
-              type_cast: int
-
-  - migrationTable:
-      SourceTable:
-        name: fn_stock
+        name: models
       DestinationTable:
         name: automobiles
 
@@ -54,7 +54,7 @@ migrationTables:
         - sourceColumn:
             name: id
           destinationColumn:
-            name: region_id
+            name: uuid
             options:
               primary_key: true
               autoincrement: true
@@ -62,20 +62,12 @@ migrationTables:
               type_cast: int
 
         - sourceColumn:
-            name: user_id
+            name: name
           destinationColumn:
-            name: reg_number
+            name: test_name
             options:
               type: Integer
-              type_cast: int
-
-        - sourceColumn:
-            name: status
-          destinationColumn:
-            name: reg_number
-            options:
-              type: Integer
-              type_cast: int
+              type_cast: float
 
 
 
