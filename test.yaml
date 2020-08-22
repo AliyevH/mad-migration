@@ -31,18 +31,18 @@ migrationTables:
           destinationColumn:
             name: year
             options:
-              type: varchar
               length: 255
-              type_cast: int
+              type_cast: varchar
 
         - sourceColumn:
             name: model_name
           destinationColumn:
             name: auto_model
             options:
-              type: varchar
-              length: 255
-              type_cast: int
+              type_cast: integer
+              foreign_key:
+                table_name: automobiles
+                column_name: id
 
   - migrationTable:
       SourceTable:
@@ -58,8 +58,7 @@ migrationTables:
             options:
               primary_key: true
               autoincrement: true
-              type: Integer
-              type_cast: int
+              type_cast: Integer
 
         - sourceColumn:
             name: user_id
@@ -74,14 +73,8 @@ migrationTables:
           destinationColumn:
             name: reg_number
             options:
-              type: Integer
-              type_cast: int
+              type_cast: Integer
+              nullable: False
+              
 
 
-
-#students = Table(
-#   'students', meta,
-#   Column('id', Integer, primary_key = True),
-#   Column('name', String),
-#   Column('lastname', String),
-#)
