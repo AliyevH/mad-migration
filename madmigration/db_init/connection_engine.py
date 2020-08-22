@@ -24,7 +24,7 @@ def before_parent_attach(target, parent):
 class SourceDB:
     def __init__(self, config):
         self.base = automap_base()
-        self.engine = create_engine(config.source_uri)
+        self.engine = create_engine(config.source_uri,echo=True)
         self.base.prepare(self.engine, reflect=True)
         self.session = Session(self.engine, autocommit=False, autoflush=False)
 

@@ -2,18 +2,23 @@ from pydantic import BaseModel
 from typing import Union, List, Any, AnyStr, Dict
 
 
+class ForeignKeySchema(BaseModel):
+    use_alter: bool = True
+    table_name: str
+    column_name: str
+    ondelete: str = "CASCADE"
+
 class OptionsSchema(BaseModel):
     primary_key: bool = False
     nullable: bool = False
     default: bool = None
     index: bool = None
     unique: bool = None
-    autoincrement: bool = True
-    foreign_keys: bool = False
+    autoincrement: bool = False
+    foreign_key: ForeignKeySchema = None
     length: int = None
-    type: str
 
-    type_cast: AnyStr = None
+    type_cast: str = None
 
 
 class SourceConfigSchema(BaseModel):
