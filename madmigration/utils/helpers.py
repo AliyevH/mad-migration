@@ -11,6 +11,7 @@ from sqlalchemy import (
 )
 
 from madmigration.mysqldb.migration import Migrate as mysql_migrate
+from madmigration.postgresqldb.migration import Migrate as postgres_migrate
 
 
 ###########################
@@ -64,6 +65,6 @@ def detect_driver(driver: str) -> object:
         "mysqldb" : mysql_migrate,
         "pymysql": mysql_migrate,
         "mysql+pymysql" : mysql_migrate,
-        "psycopg2": mysql_migrate  # heleki ozum verdim ki mende error vermesin
+        "psycopg2": postgres_migrate  # heleki ozum verdim ki mende error vermesin
 
     }.get(driver)

@@ -21,7 +21,7 @@ import yaml
 
 def config_schema_test():
 
-    file = os.path.realpath('test.yaml')
+    file = os.path.realpath('mysql.yaml')
     obj = Config(file)
 
     assert obj.version == obj.config_data.version

@@ -3,6 +3,7 @@ from madmigration.db_init.connection_engine import DestinationDB
 from madmigration.utils.helpers import detect_driver, get_cast_type, get_column_type
 from sqlalchemy import Column, MetaData, Table
 from madmigration.config.conf import Config
+from madmigration.mysqldb.type_convert import get_type_object
 from sqlalchemy import (
     Integer,
     String,
@@ -75,7 +76,7 @@ class Controller:
 
                 if column.destinationColumn.options.type_cast:
                     self.convert_info[
-                        column.destinationColumn.name] = column.destinationColumn.options.type_cast.decode("utf-8")
+                        column.destinationColumn.name] = column.destinationColumn.options.type_cast
 
             self.source_data = migrate.get_data_from_source_table(mt.migrationTable.SourceTable, columns)
 
@@ -85,7 +86,7 @@ class Controller:
                     destination_column = columns.destinationColumn.name
 
                     if columns.destinationColumn.options.type_cast:
-                        destination_type_cast = columns.destinationColumn.options.type_cast.decode("utf-8")
+                        destination_type_cast = columns.destinationColumn.options.type_cast
                     else:
                         destination_type_cast = None
 
@@ -102,7 +103,7 @@ class Controller:
                             data[destination_column] = None
                     else:
                         data[destination_column] = data.pop(source_column)
-                print(data)
+                # print(data)
 
 
 

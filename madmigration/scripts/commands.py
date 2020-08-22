@@ -24,7 +24,7 @@ def cli():
     
     click.echo("hello world")
 
-    config = Config("test.yaml")
+    config = Config("mysql.yaml")
 
     a = Controller(config)
     a.test_func()

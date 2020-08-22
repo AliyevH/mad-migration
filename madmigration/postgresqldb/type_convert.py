@@ -10,7 +10,6 @@ def get_type_object(data_type):
     """
     return {
         "uuid": uuid4,
-        "string": str,
         "str": str,
         "varchar": str,
         "text": str,
@@ -20,7 +19,6 @@ def get_type_object(data_type):
 
         "int": int,
         "integer": int,
-        "nteger": int,
         "bigint": int,
 
         "float": float,

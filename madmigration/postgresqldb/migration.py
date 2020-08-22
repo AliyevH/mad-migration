@@ -7,19 +7,19 @@ from sqlalchemy.ext.declarative import declarative_base
 from alembic.migration import MigrationContext
 from sqlalchemy.engine import reflection
 from alembic.operations import Operations
-from sqlalchemy.dialects.mysql import (
+from sqlalchemy.dialects.postgresql import (
     VARCHAR,
     INTEGER,
-    NVARCHAR,
+    # NVARCHAR,
     SMALLINT,
-    SET,
+    # SET,
     BIGINT,
-    BINARY,
+    # BINARY,
     BOOLEAN,
     CHAR,
     DATE,
-    DATETIME,
-    DECIMAL,
+    # DATETIME,
+    # DECIMAL,
     ENUM,
     FLOAT,
     JSON,
@@ -71,6 +71,7 @@ class Migrate:
         temp_columns = []
         for column in self.columns:
             self.parse_migration_columns(column)
+            print(self.dest_options)
             fk_key_options = self.dest_options.pop("foreign_key")
             column_type = Migrate.get_column_type( 
                 self.dest_options.pop("type_cast")
@@ -79,7 +80,8 @@ class Migrate:
                 fk_key_options["source_table"] = tablename
                 fk_key_options["dest_column"] = self.destination_column.name
                 Migrate.fk_constraints.append(fk_key_options)
-
+                
+            print(self.dest_options.get("length"))
             type_length = self.dest_options.pop("length")
             if type_length:
                 column_type = column_type(type_length)
@@ -92,7 +94,7 @@ class Migrate:
             
             temp_columns.append(col)
         
-        self.__create_table(tablename, *temp_columns)
+        print(self.__create_table(tablename, *temp_columns))
 
     # def create_foreign_key(self,options:dict) -> str:
     #     fk_name = f'{options.pop("table_name")}.{options.pop("column_name")}'
@@ -105,13 +107,13 @@ class Migrate:
             #context config for alembic
             ctx = MigrationContext.configure(conn)
             op = Operations(ctx)
-            op.create_table(
-                table_name,
-                *columns,
+            print(table_name)
+            op.create_table(table_name,
+            *columns,
             )
             return True 
         except Exception as err:
-            print("__create_table -> ", err)
+            print(err)
         finally:
             conn.close()
 
@@ -157,12 +159,13 @@ class Migrate:
             conn = engine.connect()
             ctx = MigrationContext.configure(conn)
             op = Operations(ctx)
+            print(Migrate.fk_constraints)
             for constraint in Migrate.fk_constraints:
                 dest_table_name = constraint.pop("table_name")
                 column_name = constraint.pop("column_name")
                 source_table = constraint.pop("source_table")
                 dest_column = constraint.pop("dest_column")
-                print("constraint -> ", constraint)
+                print(constraint)
                 op.create_foreign_key(None, source_table, dest_table_name, [dest_column], [column_name], **constraint)
             return True 
         except Exception as err:
@@ -255,20 +258,19 @@ class Migrate:
         :return: object class
         """
         return {
-            "string": VARCHAR,
             "varchar": VARCHAR,
             "integer": INTEGER,
-            "nvarchar": NVARCHAR,
+            # "nvarchar": NVARCHAR,
             "smallint": SMALLINT,
-            "set": SET,
+            # "set": SET,
             "bigint": BIGINT,
-            "binary": BINARY,
+            # "binary": BINARY,
             "boolean": BOOLEAN,
             "bool": BOOLEAN,
             "char": CHAR,
             "date": DATE,
-            "datetime": DATETIME,
-            "decimal": DECIMAL,
+            # "datetime": DATETIME,
+            # "decimal": DECIMAL,
             "enum": ENUM,
             "float": FLOAT,
             "json": JSON,
@@ -276,3 +278,5 @@ class Migrate:
             "text": TEXT,
         }.get(type_name.lower())
 
+
+    
