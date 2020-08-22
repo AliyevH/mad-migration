@@ -17,4 +17,4 @@ class Config:
         self.migrationTables = self.config_data.migrationTables
 
 
-config = Config("mysql.yaml")
+config = Config("postgres.yaml")

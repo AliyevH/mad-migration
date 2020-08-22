@@ -10,6 +10,7 @@ from alembic.operations import Operations
 from sqlalchemy.dialects.postgresql import (
     VARCHAR,
     INTEGER,
+
     # NVARCHAR,
     SMALLINT,
     # SET,
@@ -269,6 +270,7 @@ class Migrate:
             "bool": BOOLEAN,
             "char": CHAR,
             "date": DATE,
+            "string": VARCHAR,
             # "datetime": DATETIME,
             # "decimal": DECIMAL,
             "enum": ENUM,
