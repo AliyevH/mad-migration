@@ -1,58 +1,41 @@
 from datetime import datetime, date
 from enum import Enum
 import json
+from uuid import uuid4
 
-
-class DataTypeConvert:
+def get_type_object(data_type):
     """
-    This class will convert SqlAlchemy Data types to python objects
-    We use this function to convert data in python level to be able to insert into database
+    :param data_type: data type
+    :return: object class
     """
-    def __init__(self, data, destination_type):
-        """
-        :param data: data
-        :param destination_type: Type of column in destination database
-        """
-        self.data = data
-        self.destination_type = destination_type
+    return {
+        "uuid": uuid4,
+        "str": str,
+        "varchar": str,
+        "text": str,
+        "nvarchar": str,
+        "smallint": str,
+        "char": str,
 
-    def convert(self):
-        """
-        :return: Converted data in python level
-        """
-        return self.get_type_object(self.destination_type)(self.data)
+        "int": int,
+        "integer": int,
+        "bigint": int,
 
-    def get_type_object(self, data_type):
-        """
-        :param data_type: data type
-        :return: object class
-        """
-        return {
-            "varchar": str,
-            "text": str,
-            "nvarchar": str,
-            "smallint": str,
-            "char": str,
+        "float": float,
+        "numeric": float,
+        "decimal": float,
 
-            "integer": int,
-            "bigint": int,
+        "date": date,
+        "datetime": datetime,
 
-            "float": float,
-            "numeric": float,
-            "decimal": float,
+        "binary": bytes,
+        "enum": Enum,
+        "set": set,
 
-            "date": date,
-            "datetime": datetime,
+        "json": dict,
 
-            "binary": bytes,
-            "enum": Enum,
-            "set": set,
+        "boolean": bool,
+        "bool": bool,
+        None: None
 
-            "json": dict,
-
-            "boolean": bool,
-            "bool": bool,
-
-
-
-        }.get(data_type.lower())
+    }.get(data_type.lower())

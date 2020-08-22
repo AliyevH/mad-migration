@@ -62,7 +62,7 @@ migrationTables:
         - sourceColumn:
             name: car_number
           destinationColumn:
-            name: reg_number
+            name: test_name
             options:
               type_cast: Integer
               nullable: False

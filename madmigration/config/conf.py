@@ -1,6 +1,5 @@
 import yaml
 from madmigration.config.config_schema import ConfigSchema
-from pprint import pprint
 
 
 # Config class generates configuration based on yaml file
@@ -15,3 +14,6 @@ class Config:
         self.source_uri = self.config_data.Configs[0].SourceConfig.get("dbURI")
         self.destination_uri = self.config_data.Configs[1].DestinationConfig.get("dbURI") # noqa  E501
         self.migrationTables = self.config_data.migrationTables
+
+
+config = Config("test.yaml")
