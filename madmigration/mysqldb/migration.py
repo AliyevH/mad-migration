@@ -88,9 +88,9 @@ class Migrate:
         
         print(self.__create_table(tablename, *temp_columns))
 
-    def create_foreign_key(self,options:dict) -> str:
-        fk_name = f'{options.pop("table_name")}.{options.pop("column_name")}'
-        return fk_name
+    # def create_foreign_key(self,options:dict) -> str:
+    #     fk_name = f'{options.pop("table_name")}.{options.pop("column_name")}'
+    #     return fk_name
 
     def __create_table(self,table_name:str,*columns) -> bool:
         try:
