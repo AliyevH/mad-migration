@@ -1,16 +1,16 @@
 version: 1.1
 Configs:
   - SourceConfig:
-      dbURI: "postgresql:///caruserdb"
-      # dbURI: "mysql://root:admin@127.0.0.1/old"
+#      dbURI: "postgresql:///caruserdb"
+       dbURI: "mysql://root:admin@127.0.0.1/old"
   - DestinationConfig:
-      dbURI: "postgresql:///caruserdb"
-      # dbURI: "mysql://root:admin@127.0.0.1/madmigration"
+#      dbURI: "postgresql:///caruserdb"
+       dbURI: "mysql://root:admin@127.0.0.1/madmigration"
 
 migrationTables:
   - migrationTable:
       SourceTable:
-        name: operations
+        name: cars
       DestinationTable:
         name: mytable
         create: True # -> I suggest that we have to define this option that will tell us whether we have to create tables or not
@@ -23,20 +23,21 @@ migrationTables:
             options:
               primary_key: true
               autoincrement: true
-              type_cast: Integer
+              type: Integer
+              type_cast: varchar
 
         - sourceColumn:
-            name: firstname
+            name: release_year
           destinationColumn:
-            name: firstname
+            name: year
             options:
               length: 255
               type_cast: varchar
 
         - sourceColumn:
-            name: lastname
+            name: model_name
           destinationColumn:
-            name: reg_id
+            name: auto_model
             options:
               type_cast: integer
               foreign_key:
@@ -45,7 +46,7 @@ migrationTables:
 
   - migrationTable:
       SourceTable:
-        name: cars
+        name: fn_stock
       DestinationTable:
         name: automobiles
 
@@ -53,14 +54,22 @@ migrationTables:
         - sourceColumn:
             name: id
           destinationColumn:
-            name: id
+            name: region_id
             options:
               primary_key: true
               autoincrement: true
               type_cast: Integer
 
         - sourceColumn:
-            name: car_number
+            name: user_id
+          destinationColumn:
+            name: reg_number
+            options:
+              type: Integer
+              type_cast: int
+
+        - sourceColumn:
+            name: status
           destinationColumn:
             name: reg_number
             options:

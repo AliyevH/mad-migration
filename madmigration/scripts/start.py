@@ -4,7 +4,7 @@ import random
 import time
 import sys
 from madmigration.config.conf import Config
-from madmigration.mad_migration import MadMigration
+from madmigration.main import Controller
 
 
 @click.group()
@@ -24,5 +24,5 @@ def cli():
 
     config = Config("test.yaml")
 
-    a = MadMigration(config)
+    a = Controller(config)
     a.test_func()

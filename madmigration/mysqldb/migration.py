@@ -36,20 +36,27 @@ class Migrate:
     #for table foreign keys,collect all fk options ti this list
     fk_constraints = []
 
-    def __init__(self, migration_table: TablesInfo,engine):
+
+    def __init__(self, migration_table: TablesInfo, engine):
+        self.sourceDB = engine
         self.migration_tables = migration_table
         self.engine = engine
         self.__queue  = []
         self.metadata = MetaData()
         self.parse_migration_tables()
-        
 
     def parse_migration_tables(self):
+        """
+        This function parses migrationTables from yaml file
+        """
         self.source_table = self.migration_tables.SourceTable
         self.destination_table = self.migration_tables.DestinationTable
         self.columns = self.migration_tables.MigrationColumns
 
     def parse_migration_columns(self, migration_columns: ColumnParametersSchema):
+        """
+        This function parses migrationColumns from yaml file
+        """
         self.source_column = migration_columns.sourceColumn
         self.destination_column = migration_columns.destinationColumn
         self.dest_options = migration_columns.destinationColumn.options.dict()
@@ -111,6 +118,34 @@ class Migrate:
 
     def check_table(self,table_name: str) -> bool:
         return self.engine.dialect.has_table(self.engine.connect(),table_name)
+
+        
+    def get_table_attribute_from_base_class(self, source_table_name: str):
+        """
+        This function gets table name attribute from sourceDB.base.classes. Example sourceDB.base.class.(table name)
+        Using this attribute we can query table using sourceDB.session
+        :return table attribute
+        """
+        print(source_table_name)
+        return getattr(self.sourceDB.base.classes, source_table_name)
+
+    def get_data_from_source_table(self, source_table_name: str, source_columns: list):
+
+        table = self.get_table_attribute_from_base_class(source_table_name.get("name"))
+
+        rows = self.sourceDB.session.query(table).yield_per(1000)
+
+        for row in rows:
+            data = {}
+            for column in source_columns:
+                data[column] = getattr(row, column)
+            yield data
+
+
+
+
+
+
 
     @staticmethod
     def create_fk_constraint(engine:object) -> bool:
