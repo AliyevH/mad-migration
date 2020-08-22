@@ -1,16 +1,16 @@
 version: 1.1
 Configs:
   - SourceConfig:
-#      dbURI: "postgresql:///caruserdb"
-       dbURI: "mysql://root:admin@127.0.0.1/old"
+      dbURI: "postgresql:///caruserdb"
+      # dbURI: "mysql://root:admin@127.0.0.1/old"
   - DestinationConfig:
-#      dbURI: "postgresql:///caruserdb"
-       dbURI: "mysql://root:admin@127.0.0.1/madmigration"
+      dbURI: "postgresql:///caruserdb"
+      # dbURI: "mysql://root:admin@127.0.0.1/madmigration"
 
 migrationTables:
   - migrationTable:
       SourceTable:
-        name: cars
+        name: operations
       DestinationTable:
         name: mytable
         create: True # -> I suggest that we have to define this option that will tell us whether we have to create tables or not
@@ -23,21 +23,20 @@ migrationTables:
             options:
               primary_key: true
               autoincrement: true
-              type: Integer
-              type_cast: varchar
+              type_cast: Integer
 
         - sourceColumn:
-            name: release_year
+            name: firstname
           destinationColumn:
-            name: year
+            name: firstname
             options:
               length: 255
               type_cast: varchar
 
         - sourceColumn:
-            name: model_name
+            name: lastname
           destinationColumn:
-            name: auto_model
+            name: reg_id
             options:
               type_cast: integer
               foreign_key:
@@ -46,7 +45,7 @@ migrationTables:
 
   - migrationTable:
       SourceTable:
-        name: fn_stock
+        name: cars
       DestinationTable:
         name: automobiles
 
@@ -54,27 +53,18 @@ migrationTables:
         - sourceColumn:
             name: id
           destinationColumn:
-            name: region_id
+            name: id
             options:
               primary_key: true
               autoincrement: true
               type_cast: Integer
 
         - sourceColumn:
-            name: user_id
-          destinationColumn:
-            name: reg_number
-            options:
-              type: Integer
-              type_cast: int
-
-        - sourceColumn:
-            name: status
+            name: car_number
           destinationColumn:
             name: reg_number
             options:
               type_cast: Integer
               nullable: False
               
-
 

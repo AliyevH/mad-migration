@@ -15,6 +15,6 @@ class SourceDB():
 class DestinationDB():
     def __init__(self, config):
         self.base = automap_base()
-        self.engine = create_engine(config.destination_uri,echo=True)
+        self.engine = create_engine(config.destination_uri)
         self.base.prepare(self.engine, reflect=True)
         self.session = Session(self.engine, autocommit=False, autoflush=False)

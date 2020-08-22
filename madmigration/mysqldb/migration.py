@@ -7,19 +7,19 @@ from sqlalchemy.ext.declarative import declarative_base
 from alembic.migration import MigrationContext
 from sqlalchemy.engine import reflection
 from alembic.operations import Operations
-from sqlalchemy.dialects.mysql import (
+from sqlalchemy.dialects.postgresql import (
     VARCHAR,
     INTEGER,
-    NVARCHAR,
+    # NVARCHAR,
     SMALLINT,
-    SET,
+    # SET,
     BIGINT,
-    BINARY,
+    # BINARY,
     BOOLEAN,
     CHAR,
     DATE,
-    DATETIME,
-    DECIMAL,
+    # DATETIME,
+    # DECIMAL,
     ENUM,
     FLOAT,
     JSON,
@@ -78,6 +78,7 @@ class Migrate:
             )
             if fk_key_options:
                 fk_key_options["source_table"] = tablename
+                fk_key_options["dest_column"] = self.destination_column.name
                 Migrate.fk_constraints.append(fk_key_options)
                 
             print(self.dest_options.get("length"))
@@ -106,7 +107,7 @@ class Migrate:
             #context config for alembic
             ctx = MigrationContext.configure(conn)
             op = Operations(ctx)
-
+            print(table_name)
             op.create_table(table_name,
             *columns,
             )
@@ -154,11 +155,14 @@ class Migrate:
             conn = engine.connect()
             ctx = MigrationContext.configure(conn)
             op = Operations(ctx)
+            print(Migrate.fk_constraints)
             for constraint in Migrate.fk_constraints:
                 dest_table_name = constraint.pop("table_name")
                 column_name = constraint.pop("column_name")
                 source_table = constraint.pop("source_table")
-                op.create_foreign_key(None, source_table, dest_table_name, [column_name], [column_name], **constraint)
+                dest_column = constraint.pop("dest_column")
+                print(constraint)
+                op.create_foreign_key(None, source_table, dest_table_name, [dest_column], [column_name], **constraint)
             return True 
         except Exception as err:
             print(err)
@@ -252,17 +256,17 @@ class Migrate:
         return {
             "varchar": VARCHAR,
             "integer": INTEGER,
-            "nvarchar": NVARCHAR,
+            # "nvarchar": NVARCHAR,
             "smallint": SMALLINT,
-            "set": SET,
+            # "set": SET,
             "bigint": BIGINT,
-            "binary": BINARY,
+            # "binary": BINARY,
             "boolean": BOOLEAN,
             "bool": BOOLEAN,
             "char": CHAR,
             "date": DATE,
-            "datetime": DATETIME,
-            "decimal": DECIMAL,
+            # "datetime": DATETIME,
+            # "decimal": DECIMAL,
             "enum": ENUM,
             "float": FLOAT,
             "json": JSON,
