@@ -14,12 +14,11 @@ class OptionsSchema(BaseModel):
     default: bool = None
     index: bool = None
     unique: bool = None
-    autoincrement: bool = True
+    autoincrement: bool = False
     foreign_key: ForeignKeySchema = None
     length: int = None
-    type: str
 
-    type_cast: AnyStr = None
+    type_cast: str = None
 
 
 class SourceConfigSchema(BaseModel):

@@ -23,25 +23,22 @@ migrationTables:
             options:
               primary_key: true
               autoincrement: true
-              type: Integer
-              type_cast: int
+              type_cast: Integer
 
         - sourceColumn:
-            name: username
+            name: firstname
           destinationColumn:
-            name: username
+            name: firstname
             options:
-              type: varchar
               length: 255
-              type_cast: int
+              type_cast: varchar
 
         - sourceColumn:
             name: lastname
           destinationColumn:
             name: reg_id
             options:
-              type: integer
-              type_cast: int
+              type_cast: integer
               foreign_key:
                 table_name: automobiles
                 column_name: id
@@ -60,16 +57,14 @@ migrationTables:
             options:
               primary_key: true
               autoincrement: true
-              type: Integer
-              type_cast: int
+              type_cast: Integer
 
         - sourceColumn:
             name: car_number
           destinationColumn:
             name: reg_number
             options:
-              type: Integer
-              type_cast: int
+              type_cast: Integer
               nullable: False
               
 
