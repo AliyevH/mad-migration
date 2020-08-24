@@ -6,6 +6,7 @@ from sqlalchemy import Table, event
 
 if __name__ == "__main__":
 
+
     with Controller(config) as app:
 
         # app = Controller(config)

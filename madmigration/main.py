@@ -14,6 +14,7 @@ from sqlalchemy import (
     Float,
     TIMESTAMP
 )
+from time import sleep
 
 
 class Controller:
@@ -75,25 +76,38 @@ class Controller:
                 return column.type
 
     def run(self):
+
+        # Looping in migrationTables
         for mt in self.migration_tables:
+            self.destination_table = mt.migrationTable.DestinationTable
+            count = 0
+
+            # Migrate class is use based on driver
             Migrate = detect_driver(self.sourceDB_driver)
-            
+
+            # Instance of Migrate class
             migrate = Migrate(mt.migrationTable, self.sourceDB)
             migrate.parse_migration_tables()
 
+            # Dictionary is used to keep data about destination column and type_cast format
             self.convert_info = {}
 
+            # Columns List is used to keep source Columns names
+            # We will send table name and source columns list to function "get_data_from_source_table"
+            # get_data_from_source_table function will yield data with specified columns from row
             columns = []
+
             for column in migrate.columns:
-                # print(column.sourceColumn.get("name"))
                 columns.append(column.sourceColumn.get("name"))
 
                 if column.destinationColumn.options.type_cast:
                     self.convert_info[
                         column.destinationColumn.name] = column.destinationColumn.options.type_cast
 
+            # self.source_data is data received (yield) from get_data_from_source_table function
             self.source_data = migrate.get_data_from_source_table(mt.migrationTable.SourceTable, columns)
 
+            # Looping in self.source_data
             for data in self.source_data:
                 for columns in mt.migrationTable.MigrationColumns:
                     source_column = columns.sourceColumn.get("name")
@@ -105,11 +119,13 @@ class Controller:
                         destination_type_cast = None
 
                     if self.convert_info.get(destination_column):
+                        # ClassType is Class of data type (int, str, float, etc...)
+                        # Using this ClassType we are converting data into format specified in type_cast
                         ClassType = get_type_object(destination_type_cast)
 
                         try:
                             if ClassType.__name__ == "uuid4":
-                                data[destination_column] = ClassType().hex
+                                data[destination_column] = ClassType()
                             else:
                                 data[destination_column] = ClassType(data.pop(source_column))
                         except Exception as err:
@@ -117,7 +133,13 @@ class Controller:
                             data[destination_column] = None
                     else:
                         data[destination_column] = data.pop(source_column)
+
                 # print(data)
+
+            print(getattr(self.destinationDB.base.classes, self.destination_table.get("name")))
+            # print(self.destination_table.get("name"))
+
+
 
 
 
