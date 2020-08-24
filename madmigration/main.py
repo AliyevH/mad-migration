@@ -17,6 +17,8 @@ from sqlalchemy import (
 
 
 class Controller:
+  
+
     def __init__(self, migration_config: Config):
         self.config = migration_config
 
@@ -38,6 +40,18 @@ class Controller:
 
         # Source DB Driver
         self.sourceDB_driver = self.sourceDB.engine.driver
+    
+
+    def __enter__(self):
+        print('enter')
+        return self
+
+    def __exit__(self, type, value, traceback):
+        print('exit')
+        self.sourceDB.session.close()
+        self.destinationDB.session.close()
+
+    
 
     def prepare_tables(self):
         # detect migration class
