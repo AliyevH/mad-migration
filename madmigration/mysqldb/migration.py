@@ -145,11 +145,6 @@ class Migrate:
             yield data
 
 
-
-
-
-
-
     @staticmethod
     def create_fk_constraint(engine:object) -> bool:
         """ Get list of foreign keys from static list `fk_constraints` and created it  """
@@ -245,7 +240,10 @@ class Migrate:
             print(err)
             return False
         finally:
-            conn.close()     
+            conn.close()
+
+
+    #
 
 
     @staticmethod
