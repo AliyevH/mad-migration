@@ -8,46 +8,46 @@ Configs:
        dbURI: "mysql://root:admin@127.0.0.1/new"
 
 migrationTables:
-#  - migrationTable:
-#      SourceTable:
-#        name: operations
-#      DestinationTable:
-#        name: mytable
-#        create: True # -> I suggest that we have to define this option that will tell us whether we have to create tables or not
-#
-#      MigrationColumns:
-#        - sourceColumn:
-#            name: id
-#          destinationColumn:
-#            name: id
-#            options:
-#              primary_key: true
-#              autoincrement: true
-#              type_cast: Integer
-#
-#        - sourceColumn:
-#            name: firstname
-#          destinationColumn:
-#            name: firstname
-#            options:
-#              length: 255
-#              type_cast: varchar
-#
-#        - sourceColumn:
-#            name: lastname
-#          destinationColumn:
-#            name: reg_id
-#            options:
-#              type_cast: integer
-#              foreign_key:
-#                table_name: automobiles
-#                column_name: id
-
   - migrationTable:
       SourceTable:
         name: cars
       DestinationTable:
-        name: automobiles
+        name: drivers_drivers
+        create: True # -> I suggest that we have to define this option that will tell us whether we have to create tables or not
+
+      MigrationColumns:
+        - sourceColumn:
+            name: id
+          destinationColumn:
+            name: id
+            options:
+              primary_key: true
+              autoincrement: true
+              type_cast: uuid
+
+        - sourceColumn:
+            name: driver
+          destinationColumn:
+            name: firstname
+            options:
+              length: 255
+              type_cast: string
+
+        - sourceColumn:
+            name: release_year
+          destinationColumn:
+            name: year
+            options:
+              type_cast: string
+              foreign_key:
+                table_name: automobiles
+                column_name: id
+
+  - migrationTable:
+      SourceTable:
+        name: persons
+      DestinationTable:
+        name: automobiles_automobile
 
       MigrationColumns:
         - sourceColumn:
@@ -60,7 +60,16 @@ migrationTables:
               type_cast: Integer
 
         - sourceColumn:
-            name: number
+            name: name
+          destinationColumn:
+            name: test_name
+            options:
+              type_cast: String
+              length: 255
+              nullable: False
+
+        - sourceColumn:
+            name: voen
           destinationColumn:
             name: test_name
             options:

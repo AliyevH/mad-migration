@@ -145,11 +145,6 @@ class Migrate:
             yield data
 
 
-
-
-
-
-
     @staticmethod
     def create_fk_constraint(engine:object) -> bool:
         """ Get list of foreign keys from static list `fk_constraints` and created it  """
@@ -244,9 +239,7 @@ class Migrate:
         except Exception as err:
             print(err)
             return False
-        # finally:
-        #     conn.close()     
-
+        
 
     @staticmethod
     def get_column_type(type_name: str) -> object:
