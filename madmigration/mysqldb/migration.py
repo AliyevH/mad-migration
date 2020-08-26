@@ -112,8 +112,8 @@ class Migrate:
             return True 
         except Exception as err:
             print("__create_table -> ", err)
-        finally:
-            conn.close()
+        # finally:
+        #     conn.close()
 
     def check_table(self,table_name: str) -> bool:
         return self.engine.dialect.has_table(self.engine.connect(),table_name)
@@ -168,8 +168,8 @@ class Migrate:
         except Exception as err:
             print(err)
             return False
-        finally:
-            conn.close()
+        # finally:
+        #     conn.close()
 
     def add_column(self,table_name:str,column) -> bool:
         try:
@@ -184,8 +184,8 @@ class Migrate:
         except Exception as err:
             print(err)
             return False
-        finally:
-            conn.close()
+        # finally:
+        #     conn.close()
 
     def check_column(self,table_name:str, column_name: str,column: Column) -> bool:
         """
@@ -244,8 +244,8 @@ class Migrate:
         except Exception as err:
             print(err)
             return False
-        finally:
-            conn.close()     
+        # finally:
+        #     conn.close()     
 
 
     @staticmethod
