@@ -133,7 +133,10 @@ class Migrate:
         return getattr(self.sourceDB.base.classes, source_table_name)
 
     def get_data_from_source_table(self, source_table_name: str, source_columns: list):
+        """ 
+        This function yield data from source table and return generator
 
+        """
         table = self.get_table_attribute_from_base_class(source_table_name.get("name"))
 
         rows = self.sourceDB.session.query(table).yield_per(1)
@@ -206,7 +209,10 @@ class Migrate:
         return has_column
 
     def db_drop_everything(self,engine):
-        # From http://www.sqlalchemy.org/trac/wiki/UsageRecipes/DropEverything
+        """ 
+        From http://www.sqlalchemy.org/trac/wiki/UsageRecipes/DropEverything
+        """
+        
         try:
             conn = engine.connect()
 

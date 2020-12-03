@@ -159,11 +159,6 @@ class Migrate:
             yield data
 
 
-
-
-
-
-
     @staticmethod
     def create_fk_constraint(engine:object) -> bool:
         """ Get list of foreign keys from static list `fk_constraints` and created it  """
@@ -187,6 +182,7 @@ class Migrate:
             conn.close()
 
     def add_column(self,table_name:str,column) -> bool:
+        """ Add column to given table """
         try:
             conn = self.engine.connect()
             ctx = MigrationContext.configure(conn)
@@ -226,7 +222,7 @@ class Migrate:
         return has_column
 
     def db_drop_everything(self,engine):
-        # From http://www.sqlalchemy.org/trac/wiki/UsageRecipes/DropEverything
+        """ From http://www.sqlalchemy.org/trac/wiki/UsageRecipes/DropEverything """
         try:
             conn = engine.connect()
 
