@@ -27,6 +27,7 @@ from sqlalchemy.dialects.postgresql import (
     TEXT,
 )
 from sqlalchemy import DateTime
+from sqlalchemy_utils import UUIDType
 from alembic import op
 
 
@@ -285,6 +286,7 @@ class Migrate:
             "json": JSON,
             "numeric": NUMERIC,
             "text": TEXT,
+            "uuid": UUIDType
         }.get(type_name.lower())
 
 
