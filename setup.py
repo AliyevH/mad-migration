@@ -19,7 +19,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/MadeByMads/mad-migration",
     long_description=long_description,
-    install_requires=["click>=7.1.2","SQLAlchemy>=1.3.18","mysqlclient>=2.0.1","psycopg2>=2.8.5","alembic>=1.4.2", "PyYAML>=5.3.1 "],
+    install_requires=["click>=7.1.2","SQLAlchemy>=1.3.18","alembic>=1.4.2", "PyYAML>=5.3.1"],
     classifiers=[
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Build Tools",
@@ -43,6 +43,10 @@ setup(
         'Bug Reports': 'https://github.com/MadeByMads/mad-migration/issues',
         'Say Thanks!': 'https://github.com/MadeByMads/mad-migration/network/dependencies',
         'Source': 'https://github.com/MadeByMads/mad-migration',
+    },
+    extras_require={
+        'mysql': ["mysqlclient>=2.0.1"],
+        'postgresql': ["psycopg2>=2.8.5"],
     },
 )
 
