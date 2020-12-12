@@ -13,7 +13,7 @@ setup(
         madmigrate=madmigration.scripts.commands:cli
     """,
     author="Hasan Aliyev, Tural Muradov, Sabuhi Shukurov",
-    author_email="",
+    author_email="hasan.aliyev.555@gmail.com, tural_m@hotmail.com, sabuhi.shukurov@gmail.com",
     description="Mad migration",
     long_description_content_type="text/markdown",
     url="https://github.com/MadeByMads/mad-migration",
