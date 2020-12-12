@@ -52,6 +52,7 @@ migrationTables:
         name: Todo
       DestinationTable:
         name: todo
+        
 
       MigrationColumns:
         - sourceColumn:

@@ -29,8 +29,12 @@ class DestinationConfigSchema(BaseModel):
 
 
 class SourceTableSchema(BaseModel):
-    name: Dict[str, str]
+    name: str
+    
 
+class DestTableSchema(BaseModel):
+    name: str
+    create: bool = True
 class DestinationColumn(BaseModel):
     name: str
     options: OptionsSchema
@@ -42,8 +46,8 @@ class ColumnParametersSchema(BaseModel):
 
 
 class TablesInfo(BaseModel):
-    SourceTable: Dict[str, str]
-    DestinationTable: Dict[str, str]
+    SourceTable: SourceTableSchema
+    DestinationTable: DestTableSchema
     MigrationColumns: List[ColumnParametersSchema]
 
 
