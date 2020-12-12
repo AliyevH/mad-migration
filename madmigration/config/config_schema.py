@@ -11,14 +11,13 @@ class ForeignKeySchema(BaseModel):
 class OptionsSchema(BaseModel):
     primary_key: bool = False
     nullable: bool = False
-    default: bool = None
-    index: bool = None
-    unique: bool = None
+    default: Union[bool,None] = None
+    index: Union[bool,None] = None
+    unique: Union[bool,None] = None
     autoincrement: bool = False
-    foreign_key: ForeignKeySchema = None
-    length: int = None
-
-    type_cast: str = None
+    foreign_key: Union[ForeignKeySchema,None] = None
+    length: Union[int,None] = None
+    type_cast: Union[str,None] = None
 
 
 class SourceConfigSchema(BaseModel):
