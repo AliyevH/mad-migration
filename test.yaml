@@ -1,18 +1,18 @@
 version: 1.1
 Configs:
   - SourceConfig:
-      dbURI: "postgresql:///caruserdb"
+      dbURI: "postgresql:///userTodoDb"
       # dbURI: "mysql://root:admin@127.0.0.1/old"
   - DestinationConfig:
-      dbURI: "postgresql:///caruserdb"
+      dbURI: "postgresql:///tural"
       # dbURI: "mysql://root:admin@127.0.0.1/madmigration"
 
- migrationTables:
+migrationTables:
   - migrationTable:
       SourceTable:
-        name: operations
+        name: User
       DestinationTable:
-        name: mytable
+        name: user
         create: True # -> I suggest that we have to define this option that will tell us whether we have to create tables or not
 
       MigrationColumns:
@@ -26,7 +26,7 @@ Configs:
               type_cast: Integer
 
         - sourceColumn:
-            name: firstname
+            name: name
           destinationColumn:
             name: firstname
             options:
@@ -34,20 +34,25 @@ Configs:
               type_cast: varchar
 
         - sourceColumn:
-            name: lastname
+            name: surname
           destinationColumn:
-            name: reg_id
+            name: lastname
             options:
-              type_cast: integer
-              foreign_key:
-                table_name: automobiles
-                column_name: id
+              type_cast: varchar
+              length: 255
+        - sourceColumn:
+            name: nickname
+          destinationColumn:
+            name: nick
+            options:
+              length: 255
+              type_cast: varchar
 
   - migrationTable:
       SourceTable:
-        name: cars
+        name: Todo
       DestinationTable:
-        name: automobiles
+        name: todo
 
       MigrationColumns:
         - sourceColumn:
@@ -60,11 +65,19 @@ Configs:
               type_cast: Integer
 
         - sourceColumn:
-            name: car_number
+            name: date
           destinationColumn:
-            name: reg_number
+            name: time
             options:
-              type_cast: Integer
+              type_cast: datetime
               nullable: False
               
-
+        - sourceColumn:
+            name: user_id
+          destinationColumn:
+            name: userID
+            options:
+              type_cast: integer
+              foreign_key:
+                table_name: user
+                column_name: id

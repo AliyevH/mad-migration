@@ -19,7 +19,6 @@ from sqlalchemy.dialects.postgresql import (
     BOOLEAN,
     CHAR,
     DATE,
-    # DATETIME,
     # DECIMAL,
     ENUM,
     FLOAT,
@@ -27,6 +26,7 @@ from sqlalchemy.dialects.postgresql import (
     NUMERIC,
     TEXT,
 )
+from sqlalchemy import DateTime
 from alembic import op
 
 
@@ -278,7 +278,7 @@ class Migrate:
             "char": CHAR,
             "date": DATE,
             "string": VARCHAR,
-            # "datetime": DATETIME,
+            "datetime": DateTime,
             # "decimal": DECIMAL,
             "enum": ENUM,
             "float": FLOAT,

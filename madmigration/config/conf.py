@@ -18,4 +18,4 @@ class Config:
 
 
 # config = Config("postgres.yaml")
-config = Config("mysql.yaml")
+config = Config("test.yaml")
