@@ -44,11 +44,9 @@ class Controller:
     
 
     def __enter__(self):
-        print('enter')
         return self
 
     def __exit__(self, type, value, traceback):
-        print('exit')
         self.sourceDB.session.close()
         self.destinationDB.session.close()
         return True # we take care of error handling, wrap it up.

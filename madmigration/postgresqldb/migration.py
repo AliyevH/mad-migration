@@ -47,11 +47,11 @@ class Migrate:
         self.parse_migration_tables()
     
     def __enter__(self):
-        print('enter')
+  
         return self
 
     def __exit__(self, type, value, traceback):
-        print('exit')
+ 
         self.engine.session.close()
         self.sourceDB.session.close()
 
