@@ -1,114 +1,116 @@
-<p align="center">
+<!-- <p align="center">
   <a href="" rel="noopener">
- <img width=200px height=200px src="https://i.imgur.com/6wj0hh6.jpg" alt="Project logo"></a>
-</p>
+ <img width=200px height=200px src="https://avatars1.githubusercontent.com/u/69718719?s=200&v=4" alt="Project logo"></a>
+</p> -->
 
-<h3 align="center">Project Title</h3>
+<h3 align="center">Database Migration Tool</h3>
 
 <div align="center">
 
 [![Status](https://img.shields.io/badge/status-active-success.svg)]()
-[![GitHub Issues](https://img.shields.io/github/issues/kylelobo/The-Documentation-Compendium.svg)](https://github.com/MadMigrationTeam/mad-migration/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/kylelobo/The-Documentation-Compendium.svg)](https://github.com/MadMigrationTeam/mad-migration/pulls)
+[![GitHub Issues](https://img.shields.io/github/issues/kylelobo/The-Documentation-Compendium.svg)](https://github.com/MadeByMads/mad-migration/issues)
+[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/kylelobo/The-Documentation-Compendium.svg)](https://github.com/MadeByMads/mad-migration/pulls)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
 
 </div>
 
----
-
-<p align="center"> Few lines describing your project.
-    <br> 
-</p>
 
 ## 📝 Table of Contents
 
-- [About](#about)
-- [Getting Started](#getting_started)
-- [Deployment](#deployment)
-- [Usage](#usage)
-- [Built Using](#built_using)
-- [TODO](../TODO.md)
-- [Contributing](../CONTRIBUTING.md)
-- [Authors](#authors)
-- [Acknowledgments](#acknowledgement)
+- [About](https://github.com/MadeByMads/mad-migration#-about-)
+- [Getting Started](https://github.com/MadeByMads/mad-migration#-getting_started-)
+- [Usage](https://github.com/MadeByMads/mad-migration#-usage-)
+- [TODO](https://github.com/MadeByMads/mad-migration/projects/1)
+- [Contributing](https://github.com/MadeByMads/mad-migration/blob/master/mdCONTRIBUTING.md)
+- [Authors](https://github.com/MadeByMads/mad-migration#%EF%B8%8F-authors-)
 
 ## 🧐 About <a name = "about"></a>
 
-Write about 1-2 paragraphs describing the purpose of your project.
-
+Database Migration Tool has been designed for those who wants migrate their data from one database to another database. Mainly tool is emphazied on migrating data from diffirent database sturctures. Currently tool chained with with mysql and porstgres drivers, we do believe to add NoSql to SQL databases and wise versa. Our main goal to make possible for all envirnments to able to migrate datas. 
 ## 🏁 Getting Started <a name = "getting_started"></a>
-
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See [deployment](#deployment) for notes on how to deploy the project on a live system.
-
-### Prerequisites
-
-What things you need to install the software and how to install them.
-
-```
-Give examples
-```
 
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running.
-
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo.
-
-## 🔧 Running the tests <a name = "tests"></a>
-
-Explain how to run the automated tests for this system.
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
+```bash
+pip install madmigration
 ```
 
 ## 🎈 Usage <a name="usage"></a>
 
-Add notes about how to use the system.
+After installation you should define YAML file where configuration will be taken in order to apply data to target database. Yaml file with list and dictionaries  may contain following structures:
 
-## 🚀 Deployment <a name = "deployment"></a>
+#### Connection Config
 
-Add additional notes about how to deploy this on a live system.
+- SourceConfig is intented to be data from source database
+- DestinationConfig is intented to be transfered data to target database
 
-## ⛏️ Built Using <a name = "built_using"></a>
+```yaml
+version: 1.1
+Configs:
+  - SourceConfig:
+      dbURI:  "postgres://YourUserName:YourPassword@YourHostname:5432/SourDB";
+  - DestinationConfig:
+      dbURI:  "postgres://YourUserName:YourPassword@YourHostname:5432/DestinationDB";
+```
 
-- [Python](https://www.python.org/) - Programming language
+#### Tables Config
+- migrationTables list of tables to addded migration
+- migrationTable dictionary 
+- SourceTable
+- name
+- DestinationTable
+- MigrationColumns
+- sourceColumn
+- options
+- 
+- 
+- 
+
+```yaml
+migrationTables:
+  - migrationTable:
+      SourceTable:
+        name: example
+      DestinationTable:
+        name: newtable
+        create: True # -> I suggest that we have to define this option that will tell us whether we have to create tables or not
+
+      MigrationColumns:
+        - sourceColumn:
+            name: id
+          destinationColumn: 
+            name: ID
+            options:
+              primary_key: true
+              # autoincrement: true
+              type_cast: uuid
+
+        - sourceColumn:
+            name: name
+          destinationColumn:
+            name: firstname
+            options:
+              length: 120
+              type_cast: varchar
+
+        - sourceColumn:
+            name: email
+          destinationColumn:
+            name: EMAIL
+            options:
+              type_cast: varchar
+              length: 120
+
+```
+
+madmigrate -f migrate.yaml
 
 
 ## ✍️ Authors <a name = "authors"></a>
 
 - [@AliyevH](https://github.com/AliyevH) - Idea & Initial work
 - [@Turall](https://github.com/Turall) 
-- [@marlin-dev](https://github.com/Turall)
+- [@sabuhish](https://github.com/sabuhish)
 
-See also the list of [contributors](https://github.com/kylelobo/The-Documentation-Compendium/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/MadeByMads/mad-migration/graphs/contributors) who participated in this project.
 
-## 🎉 Acknowledgements <a name = "acknowledgement"></a>
-
-- Hat tip to anyone whose code was used
-- Inspiration
-- References
