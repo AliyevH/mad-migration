@@ -8,7 +8,6 @@ from alembic.migration import MigrationContext
 from sqlalchemy.engine import reflection
 from alembic.operations import Operations
 from madmigration.errors import TableExists
-from psycopg2.errors import DuplicateTable
 from sqlalchemy.dialects.postgresql import (
     VARCHAR,
     INTEGER,
@@ -127,7 +126,7 @@ class Migrate:
             *columns,
             )
             return True 
-        except DuplicateTable as error:
+        except Exception as error:
             print("ERR,",error)
             # raise Exception("test")
             raise TableExists("Exception raised",f"{error}")
