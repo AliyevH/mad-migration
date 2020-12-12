@@ -18,10 +18,8 @@ def cli():
 
 @cli.command(help='simple Migrate ready on hand with CLI')
 @click.option('--file',"-f",metavar='YAML file',prompt='YAML file',show_default=True,required=True, help='YAML file')
-
 def cli(file):
 
-   
     config = Config(file)
 
 

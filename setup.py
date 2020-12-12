@@ -1,5 +1,9 @@
 from setuptools import setup, find_packages
 
+
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 setup(
     name="madmigration",
     packages=find_packages(),
@@ -7,7 +11,10 @@ setup(
         [console_scripts]
         madmigrate=madmigration.scripts.commands:cli
     """,
-    install_requires=["click"],
+    description="Mad migration",
+    long_description=long_description,
+    
+    install_requires=["click", "SQLAlchemy<=1.3.18", ""],
     classifiers=[
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Build Tools",
@@ -29,8 +36,4 @@ setup(
 )
 
 
-def x():
-    x = []
-    for i in range(10):
-        x.append(i)
 
