@@ -108,32 +108,32 @@ class Controller:
 
             # Looping in self.source_data
             for data in self.source_data:
-                for columns in mt.migrationTable.MigrationColumns:
-                    source_column = columns.sourceColumn.get("name")
-                    destination_column = columns.destinationColumn.name
+                # for columns in mt.migrationTable.MigrationColumns:
+                #     source_column = columns.sourceColumn.get("name")
+                #     destination_column = columns.destinationColumn.name
 
-                    if columns.destinationColumn.options.type_cast:
-                        destination_type_cast = columns.destinationColumn.options.type_cast
-                    else:
-                        destination_type_cast = None
+                #     if columns.destinationColumn.options.type_cast:
+                #         destination_type_cast = columns.destinationColumn.options.type_cast
+                #     else:
+                #         destination_type_cast = None
 
-                    if self.convert_info.get(destination_column):
-                        # ClassType is Class of data type (int, str, float, etc...)
-                        # Using this ClassType we are converting data into format specified in type_cast
-                        ClassType = get_type_object(destination_type_cast)
+                #     if self.convert_info.get(destination_column):
+                #         # ClassType is Class of data type (int, str, float, etc...)
+                #         # Using this ClassType we are converting data into format specified in type_cast
+                #         ClassType = get_type_object(destination_type_cast)
 
-                        try:
-                            if ClassType.__name__ == "uuid4":
-                                data[destination_column] = ClassType()
-                            else:
-                                data[destination_column] = ClassType(data.pop(source_column))
-                        except Exception as err:
-                            print(err)
-                            data[destination_column] = None
-                    else:
-                        data[destination_column] = data.pop(source_column)
+                #         try:
+                #             if ClassType.__name__ == "uuid4":
+                #                 data[destination_column] = ClassType()
+                #             else:
+                #                 data[destination_column] = ClassType(data.pop(source_column))
+                #         except Exception as err:
+                #             print(err)
+                #             data[destination_column] = None
+                #     else:
+                #         data[destination_column] = data.pop(source_column)
 
-                # print(data)
+                print(data)
 
             print(getattr(self.destinationDB.base.classes, self.destination_table.get("name")))
             # print(self.destination_table.get("name"))
