@@ -35,10 +35,73 @@ Database Migration Tool has been designed for those who wants migrate their data
 pip install madmigration
 ```
 
-
 ## 🎈 Usage <a name="usage"></a>
 
+After installation you should define YAML file where configuration will be taken in order to apply data to target database. Yaml file with list and dictionaries  may contain following structures:
 
+#### Connection Config
+
+- SourceConfig is intented to be data from source database
+- DestinationConfig is intented to be transfered data to target database
+
+```yaml
+version: 1.1
+Configs:
+  - SourceConfig:
+      dbURI:  "postgres://YourUserName:YourPassword@YourHostname:5432/SourDB";
+  - DestinationConfig:
+      dbURI:  "postgres://YourUserName:YourPassword@YourHostname:5432/DestinationDB";
+```
+
+#### Tables Config
+- migrationTables list of tables to addded migration
+- migrationTable dictionary 
+- SourceTable
+- name
+- DestinationTable
+- MigrationColumns
+- sourceColumn
+- options
+- 
+- 
+- 
+
+```yaml
+migrationTables:
+  - migrationTable:
+      SourceTable:
+        name: example
+      DestinationTable:
+        name: newtable
+        create: True # -> I suggest that we have to define this option that will tell us whether we have to create tables or not
+
+      MigrationColumns:
+        - sourceColumn:
+            name: id
+          destinationColumn: 
+            name: ID
+            options:
+              primary_key: true
+              # autoincrement: true
+              type_cast: uuid
+
+        - sourceColumn:
+            name: name
+          destinationColumn:
+            name: firstname
+            options:
+              length: 120
+              type_cast: varchar
+
+        - sourceColumn:
+            name: email
+          destinationColumn:
+            name: EMAIL
+            options:
+              type_cast: varchar
+              length: 120
+
+```
 
 madmigrate -f migrate.yaml
 
