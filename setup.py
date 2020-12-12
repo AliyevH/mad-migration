@@ -1,13 +1,25 @@
 from setuptools import setup, find_packages
+import madmigration
+
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
 setup(
     name="madmigration",
     packages=find_packages(),
+    version="0.1.5",
     entry_points="""
         [console_scripts]
         madmigrate=madmigration.scripts.commands:cli
     """,
-    install_requires=["click"],
+    author="Hasan Aliyev, Tural Muradov, Sabuhi Shukurov",
+    author_email="hasan.aliyev.555@gmail.com, tural_m@hotmail.com, sabuhi.shukurov@gmail.com",
+    license='MIT',
+    description="Mad migration",
+    long_description_content_type="text/markdown",
+    url="https://github.com/MadeByMads/mad-migration",
+    long_description=long_description,
+    install_requires=["click>=7.1.2", "SQLAlchemy-Utils>=0.36.8","SQLAlchemy>=1.3.18",'pydantic>=1.7.2',"alembic>=1.4.2", "PyYAML>=5.3.1"],
     classifiers=[
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Build Tools",
@@ -25,12 +37,18 @@ setup(
         'pytest',
         'mock',
     ],
-    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.* '
+    platforms=['any'],
+    python_requires='>=3.6',
+    project_urls={  
+        'Bug Reports': 'https://github.com/MadeByMads/mad-migration/issues',
+        'Say Thanks!': 'https://github.com/MadeByMads/mad-migration/network/dependencies',
+        'Source': 'https://github.com/MadeByMads/mad-migration',
+    },
+    extras_require={
+        'mysql': ["mysqlclient>=2.0.1"],
+        'postgresql': ["psycopg2>=2.8.5"],
+    },
 )
 
 
-def x():
-    x = []
-    for i in range(10):
-        x.append(i)
 

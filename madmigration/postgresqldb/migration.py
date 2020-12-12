@@ -7,6 +7,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from alembic.migration import MigrationContext
 from sqlalchemy.engine import reflection
 from alembic.operations import Operations
+from madmigration.errors import TableExists
 from sqlalchemy.dialects.postgresql import (
     VARCHAR,
     INTEGER,
@@ -134,8 +135,10 @@ class Migrate:
             *columns,
             )
             return True 
-        except Exception as err:
-            print(err)
+        except Exception as error:
+            print("ERR,",error)
+            # raise Exception("test")
+            raise TableExists("Exception raised",f"{error}")
         finally:
             conn.close()
     

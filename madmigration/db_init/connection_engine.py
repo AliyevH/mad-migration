@@ -5,6 +5,7 @@ from sqlalchemy_utils.functions.database import database_exists, create_database
 from madmigration.config.conf import config
 import sys
 
+
 @event.listens_for(Table, "after_parent_attach")
 def before_parent_attach(target, parent):
     if not target.primary_key and "id" in target.c:
