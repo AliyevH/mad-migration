@@ -1,29 +1,28 @@
 version: 1.1
 Configs:
   - SourceConfig:
-      dbURI: "postgresql:///mqtt"
+      dbURI: "postgresql:///userTodoDb"
       # dbURI: "mysql://root:admin@127.0.0.1/old"
   - DestinationConfig:
-      dbURI: "postgresql:///mydb"
+      dbURI: "postgresql:///tural"
       # dbURI: "mysql://root:admin@127.0.0.1/madmigration"
 
 migrationTables:
   - migrationTable:
       SourceTable:
-        name: example
+        name: User
       DestinationTable:
         name: user
         create: True # -> I suggest that we have to define this option that will tell us whether we have to create tables or not
 
       MigrationColumns:
-        # - sourceColumn:
-        #     name: id
-        #   destinationColumn: 
-        #     name: ID
-        #     options:
-        #       primary_key: true
-        #       autoincrement: true
-        #       type_cast: bigint
+        - sourceColumn:
+            name: id
+          destinationColumn: 
+            name: id
+            options:
+              primary_key: true
+              type_cast: uuid
 
         - sourceColumn:
             name: name
@@ -34,50 +33,50 @@ migrationTables:
               type_cast: varchar
 
         - sourceColumn:
-            name: email
+            name: surname
           destinationColumn:
-            name: EMAIL
+            name: lastname
             options:
               type_cast: varchar
               length: 120
-        # - sourceColumn:
-        #     name: nickname
-        #   destinationColumn:
-        #     name: nick
-        #     options:
-        #       length: 120
-        #       type_cast: varchar
+        - sourceColumn:
+            name: nickname
+          destinationColumn:
+            name: nick
+            options:
+              length: 120
+              type_cast: varchar
 
-  # - migrationTable:
-  #     SourceTable:
-  #       name: Todo
-  #     DestinationTable:
-  #       name: todo
+  - migrationTable:
+      SourceTable:
+        name: Todo
+      DestinationTable:
+        name: todo
 
-  #     MigrationColumns:
-  #       - sourceColumn:
-  #           name: id
-  #         destinationColumn:
-  #           name: id
-  #           options:
-  #             primary_key: true
-  #             autoincrement: true
-  #             type_cast: bigint
+      MigrationColumns:
+        - sourceColumn:
+            name: id
+          destinationColumn:
+            name: id
+            options:
+              primary_key: true
+              autoincrement: true
+              type_cast: bigint
 
-  #       - sourceColumn:
-  #           name: date
-  #         destinationColumn:
-  #           name: time
-  #           options:
-  #             type_cast: datetime
-  #             nullable: False
+        - sourceColumn:
+            name: date
+          destinationColumn:
+            name: time
+            options:
+              type_cast: datetime
+              nullable: False
               
-  #       - sourceColumn:
-  #           name: user_id
-  #         destinationColumn:
-  #           name: userID
-  #           options:
-  #             type_cast: integer
-  #             foreign_key:
-  #               table_name: user
-  #               column_name: id
+        - sourceColumn:
+            name: user_id
+          destinationColumn:
+            name: userID
+            options:
+              type_cast: uuid
+              foreign_key:
+                table_name: user
+                column_name: id
