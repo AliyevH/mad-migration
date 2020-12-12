@@ -48,11 +48,20 @@ migrationTables:
         #       length: 120
         #       type_cast: varchar
 
+
+  - migrationTable:
+      SourceTable:
+        name: Todo
+      DestinationTable:
+        name: todo
+        
+
   # - migrationTable:
   #     SourceTable:
   #       name: Todo
   #     DestinationTable:
   #       name: todo
+
 
   #     MigrationColumns:
   #       - sourceColumn:
