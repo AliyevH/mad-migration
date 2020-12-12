@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-
+import madmigration
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -7,13 +7,14 @@ with open("README.md", "r") as fh:
 setup(
     name="madmigration",
     packages=find_packages(),
-    version="0.0.1",
+    version="0.0.2",
     entry_points="""
         [console_scripts]
         madmigrate=madmigration.scripts.commands:cli
     """,
     author="Hasan Aliyev, Tural Muradov, Sabuhi Shukurov",
     author_email="hasan.aliyev.555@gmail.com, tural_m@hotmail.com, sabuhi.shukurov@gmail.com",
+    license='MIT',
     description="Mad migration",
     long_description_content_type="text/markdown",
     url="https://github.com/MadeByMads/mad-migration",
@@ -37,7 +38,12 @@ setup(
         'mock',
     ],
     platforms=['any'],
-    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.* '
+    python_requires='>=3.6',
+    project_urls={  
+        'Bug Reports': 'https://github.com/MadeByMads/mad-migration/issues',
+        'Say Thanks!': 'https://github.com/MadeByMads/mad-migration/network/dependencies',
+        'Source': 'https://github.com/MadeByMads/mad-migration',
+    },
 )
 
 
