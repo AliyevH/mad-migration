@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 setup(
     name="madmigration",
     packages=find_packages(),
-    version="0.1.2",
+    version="0.1.3",
     entry_points="""
         [console_scripts]
         madmigrate=madmigration.scripts.commands:cli
@@ -19,7 +19,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/MadeByMads/mad-migration",
     long_description=long_description,
-    install_requires=["click>=7.1.2","SQLAlchemy>=1.3.18","alembic>=1.4.2", "PyYAML>=5.3.1"],
+    install_requires=["click>=7.1.2","SQLAlchemy>=1.3.18",'pydantic>=1.7.2',"alembic>=1.4.2", "PyYAML>=5.3.1"],
     classifiers=[
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Build Tools",
