@@ -15,15 +15,6 @@
 </div>
 
 
-## 📝 Table of Contents
-
-- [About](https://github.com/MadeByMads/mad-migration#-about-)
-- [Getting Started](https://github.com/MadeByMads/mad-migration#-getting_started-)
-- [Usage](https://github.com/MadeByMads/mad-migration#-usage-)
-- [TODO](https://github.com/MadeByMads/mad-migration/projects/1)
-- [Contributing](https://github.com/MadeByMads/mad-migration/blob/master/mdCONTRIBUTING.md)
-- [Authors](https://github.com/MadeByMads/mad-migration#%EF%B8%8F-authors-)
-
 ## 🧐 About <a name = "about"></a>
 
 Database Migration Tool has been designed for those who wants migrate their data from one database to another database. Mainly tool is emphazied on migrating data from diffirent database sturctures. Currently tool chained with with mysql and porstgres drivers, we do believe to add NoSql to SQL databases and wise versa. Our main goal to make possible for all envirnments to able to migrate datas. 
@@ -114,3 +105,8 @@ madmigrate -f migrate.yaml
 
 See also the list of [contributors](https://github.com/MadeByMads/mad-migration/graphs/contributors) who participated in this project.
 
+
+## Contributing
+
+
+- [Contributing](https://github.com/MadeByMads/mad-migration/blob/master/mdCONTRIBUTING.md)
