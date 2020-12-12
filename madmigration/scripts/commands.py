@@ -4,6 +4,8 @@ import random
 import time
 import sys
 from madmigration.config.conf import  Config
+# from madmigration.config.conf import config
+
 from madmigration.main import Controller
 
 
@@ -12,22 +14,26 @@ def cli():
     """Controller group Cli"""
     
 
-@cli.command()
-def clear():
-    """This will clear the entire screen """
-    click.clear()
-
 
 
 @cli.command(help='simple Migrate ready on hand with CLI')
-def cli():
-    
-    click.echo("hello world")
+@click.option('--file',"-f",metavar='YAML file',prompt='YAML file',show_default=True,required=True, help='YAML file')
 
-    config = Config("mysql.yaml")
+def cli(file):
 
-    a = Controller(config)
-    a.test_func()
+   
+    config = Config(file)
+
+
+    with Controller(config) as app:
+
+        # app = Controller(config)
+        app.prepare_tables()
+
+    # config = Config("mysql.yaml")
+
+    # a = Controller(config)
+    # a.test_func()
 
 
     

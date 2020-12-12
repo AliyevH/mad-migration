@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, MetaData, event, Table
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.automap import automap_base
 
-from madmigration.config.conf import config
+# from madmigration.config.conf import config
 
 
 @event.listens_for(Table, "after_parent_attach")
