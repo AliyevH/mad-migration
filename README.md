@@ -44,18 +44,7 @@ Configs:
       dbURI:  "postgres://YourUserName:YourPassword@YourHostname:5432/DestinationDB";
 ```
 
-#### Tables Config
-- migrationTables list of tables to addded migration
-- migrationTable dictionary 
-- SourceTable
-- name
-- DestinationTable
-- MigrationColumns
-- sourceColumn
-- options
-- 
-- 
-- 
+![alt text](https://github.com/MadeByMads/mad-migration/docs/img/db_example.jpg)
 
 ```yaml
 migrationTables:
