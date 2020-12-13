@@ -23,7 +23,7 @@ def cli(file):
         with Controller(config) as app:
 
             app.prepare_tables()
-    
-    file_not_found(file)
+    else:
+        file_not_found(file)
 
     
