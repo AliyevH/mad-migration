@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from typing import Union, List, Any, AnyStr, Dict
 
 
@@ -11,13 +11,18 @@ class ForeignKeySchema(BaseModel):
 class OptionsSchema(BaseModel):
     primary_key: bool = False
     nullable: bool = False
-    default: Union[bool,None] = None
+    default: Any = None
     index: Union[bool,None] = None
     unique: Union[bool,None] = None
     autoincrement: bool = False
     foreign_key: Union[ForeignKeySchema,None] = None
     length: Union[int,None] = None
     type_cast: Union[str,None] = None
+
+    @validator("type_cast")
+    def validate_cast(cls,v,values): #TODO check types
+        if v == "integer" and values["length"] != None:
+            raise ValueError(f"Type {v} has no length")
 
 
 class SourceConfigSchema(BaseModel):

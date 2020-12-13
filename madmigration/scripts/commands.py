@@ -4,7 +4,6 @@ import random
 import time
 import sys
 from madmigration.config.conf import  Config
-# from madmigration.config.conf import config
 
 from madmigration.main import Controller
 

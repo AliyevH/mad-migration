@@ -57,7 +57,7 @@ class Controller:
         # detect migration class
         migrate = detect_driver(self.destinationDB_driver)
         for migrate_table in self.migration_tables:
-            mig = migrate(migrate_table.migrationTable,self.destinationDB.engine)
+            mig = migrate(migrate_table.migrationTable,self.destinationDB)
             mig.create_tables()
         migrate.create_fk_constraint(self.destinationDB.engine)
 

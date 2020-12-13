@@ -1,4 +1,6 @@
 from datetime import datetime
+from sqlalchemy.schema import DropTable
+from sqlalchemy.ext.compiler import compiles
 from sqlalchemy import (
     Integer,
     String,
@@ -68,3 +70,13 @@ def detect_driver(driver: str) -> object:
         "psycopg2": postgres_migrate  # heleki ozum verdim ki mende error vermesin
 
     }.get(driver)
+
+
+@compiles(DropTable, "postgresql")
+def _compile_drop_table(element, compiler, **kwargs):
+    """ 
+    Drop table cascade with foreignkeys
+    https://stackoverflow.com/questions/38678336/sqlalchemy-how-to-implement-drop-table-cascade# 
+    
+    """
+    return compiler.visit_drop_table(element) + " CASCADE"
