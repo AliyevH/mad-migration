@@ -30,12 +30,13 @@ pip install madmigration
 
 After installation you should define YAML file where configuration will be taken in order to apply data to target database. Yaml file with list and dictionaries  may contain following structures:
 
+
+![alt text](https://github.com/MadeByMads/mad-migration/blob/master/docs/img/db.jpg)
+
 #### Connection Config
 
 - SourceConfig is intented to be data from source database
 - DestinationConfig is intented to be transfered data to target database
-
-![alt text](https://github.com/MadeByMads/mad-migration/blob/master/docs/img/db.jpg)
 
 ```yaml
 version: 1.1
