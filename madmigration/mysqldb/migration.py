@@ -7,6 +7,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from alembic.migration import MigrationContext
 from sqlalchemy.engine import reflection
 from alembic.operations import Operations
+from madmigration.errors import TableExists
+from sqlalchemy import DateTime
+from sqlalchemy_utils import UUIDType
 from sqlalchemy.dialects.mysql import (
     VARCHAR,
     INTEGER,
@@ -39,21 +42,30 @@ class Migrate:
 
     def __init__(self, migration_table: TablesInfo, engine):
         self.migration_tables = migration_table
+        self.connection = engine
         self.engine = engine.engine
+        self.__queue  = []
         self.metadata = MetaData()
         self.parse_migration_tables()
+    
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.engine.session.close()
+        self.sourceDB.session.close()
 
     def parse_migration_tables(self):
         """
         This function parses migrationTables from yaml file
         """
-        self.source_table = self.migration_tables.SourceTable
-        self.destination_table = self.migration_tables.DestinationTable
+        self.source_table = self.migration_tables.SourceTable.dict()
+        self.destination_table = self.migration_tables.DestinationTable.dict()
         self.columns = self.migration_tables.MigrationColumns
 
-    def parse_migration_columns(self, migration_columns: ColumnParametersSchema):
+    def parse_migration_columns(self,tablename:str, migration_columns: ColumnParametersSchema):
         """
-        This function parses migrationColumns from yaml file
+        This function parses migrationColumns schema and prepare column
         """
         self.source_column = migration_columns.sourceColumn
         self.destination_column = migration_columns.destinationColumn
@@ -174,20 +186,10 @@ class Migrate:
         Using this attribute we can query table using sourceDB.session
         :return table attribute
         """
-        # for i in dir(self.sourceDB.base.classes):
-        #     print(i)
-
-        # print(" ---------- ")
-
         return getattr(self.sourceDB.base.classes, source_table_name)
 
     def get_data_from_source_table(self, source_table_name: str, source_columns: list):
-        """ 
-        This function yield data from source table and return generator
-
-        """
-        table = self.get_table_attribute_from_base_class(source_table_name.get("name"))
-
+        table = self.get_table_attribute_from_base_class(source_table_name.name)
         rows = self.sourceDB.session.query(table).yield_per(1)
 
         for row in rows:
@@ -270,17 +272,11 @@ class Migrate:
             conn.close()
 
     def db_drop_everything(self,engine):
-        """ 
-        From http://www.sqlalchemy.org/trac/wiki/UsageRecipes/DropEverything
-        """
-        
+        """ From http://www.sqlalchemy.org/trac/wiki/UsageRecipes/DropEverything """
         try:
             conn = engine.connect()
-
             transactional = conn.begin()
-
             inspector = reflection.Inspector.from_engine(engine)
-
             metadata = MetaData()
 
             tables = []
@@ -306,6 +302,25 @@ class Migrate:
         except Exception as err:
             print(err)
             return False
+        finally:
+            conn.close()
+
+    @staticmethod
+    def insert_data(engine,table_name, data: dict):
+        try:
+            stmt = engine.base.metadata.tables[table_name].insert().values(**data)
+            engine.session.execute(stmt)
+            engine.session.commit()
+        except Exception as err:
+            print("err -> ", err)
+        finally:
+            engine.session.close()       
+        
+
+
+
+
+
         
 
     @staticmethod
@@ -334,5 +349,6 @@ class Migrate:
             "json": JSON,
             "numeric": NUMERIC,
             "text": TEXT,
+            "uuid": UUIDType
         }.get(type_name.lower())
 

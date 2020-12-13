@@ -43,6 +43,7 @@ class Migrate:
     def __init__(self, migration_table: TablesInfo, engine):
         self.migration_tables = migration_table
         self.engine = engine.engine
+        self.connection = engine
         self.metadata = MetaData()
         self.parse_migration_tables()
     
@@ -187,8 +188,8 @@ class Migrate:
 
     def get_data_from_source_table(self, source_table_name: str, source_columns: list):
 
-        table = self.get_table_attribute_from_base_class(source_table_name.get("name"))
-        rows = self.engine.session.query(table).yield_per(1)
+        table = self.get_table_attribute_from_base_class(source_table_name.name)
+        rows = self.sourceDB.session.query(table).yield_per(1)
 
         for row in rows:
             data = {}

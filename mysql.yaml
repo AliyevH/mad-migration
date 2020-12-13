@@ -10,7 +10,7 @@ Configs:
 migrationTables:
   - migrationTable:
       SourceTable:
-        name: cars
+        name: old_cars
       DestinationTable:
         name: drivers_drivers
         create: True # -> I suggest that we have to define this option that will tell us whether we have to create tables or not
@@ -22,8 +22,7 @@ migrationTables:
             name: id
             options:
               primary_key: true
-              autoincrement: true
-              type_cast: uuid
+              type_cast: integer
 
         - sourceColumn:
             name: driver
@@ -39,9 +38,7 @@ migrationTables:
             name: year
             options:
               type_cast: string
-              foreign_key:
-                table_name: automobiles
-                column_name: id
+              length: 120
 
   - migrationTable:
       SourceTable:

@@ -1,10 +1,11 @@
 
 
 
-# __all__ = (
-#     "TableExists"
+__all__ = (
+    "TableExists"
+    "FileDoesNotExists"
 
-# )
+)
 
 
 class TableExists(Exception):
@@ -12,3 +13,9 @@ class TableExists(Exception):
       
         self.message = message
         self.errors = errors
+
+
+class FileDoesNotExists(Exception):
+    def __init__(self, message):
+      
+        self.message = message

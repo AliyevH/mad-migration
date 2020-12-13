@@ -1,6 +1,8 @@
 from datetime import datetime
 from sqlalchemy.schema import DropTable
 from sqlalchemy.ext.compiler import compiles
+import os
+from pathlib import Path
 from sqlalchemy import (
     Integer,
     String,
@@ -11,10 +13,10 @@ from sqlalchemy import (
     Float,
     TIMESTAMP
 )
+from madmigration.errors import FileDoesNotExists
 
 from madmigration.mysqldb.migration import Migrate as mysql_migrate
 from madmigration.postgresqldb.migration import Migrate as postgres_migrate
-
 
 ###########################
 # Get class of cast #
@@ -80,3 +82,12 @@ def _compile_drop_table(element, compiler, **kwargs):
     
     """
     return compiler.visit_drop_table(element) + " CASCADE"
+
+
+def check_file(file):
+    if Path(file).is_file() and os.access(file, os.R_OK):
+        return True
+        
+    
+def file_not_found(file):
+    raise FileDoesNotExists(f"Given file does not exists file: {file}",)
