@@ -10,6 +10,7 @@ from alembic.operations import Operations
 from madmigration.errors import TableExists
 from sqlalchemy import DateTime
 from sqlalchemy_utils import UUIDType
+from madmigration.mysqldb.type_convert import get_type_object
 from sqlalchemy.dialects.mysql import (
     VARCHAR,
     INTEGER,
@@ -70,10 +71,13 @@ class Migrate:
         self.source_column = migration_columns.sourceColumn
         self.destination_column = migration_columns.destinationColumn
         self.dest_options = migration_columns.destinationColumn.options.dict()
+        
         if self.check_column(tablename,self.destination_column.name):
             return False
+        
         self._parse_fk(tablename,self.dest_options.pop("foreign_key"))
         column_type = self._parse_column_type()
+             
                 
         col = Column(
             self.destination_column.name,
@@ -92,6 +96,7 @@ class Migrate:
         update_table = self.check_table(tablename)
     
         temp_columns = []
+        
         for column in self.columns:
             # parse colum and return prepared column
             col = self.parse_migration_columns(tablename,column)
@@ -105,10 +110,15 @@ class Migrate:
 
     def _parse_column_type(self) -> object:
         """ Parse column type and options (length,type and etc.) """
-        column_type = Migrate.get_column_type( 
-            self.dest_options.pop("type_cast")
-        )
-        print(self.dest_options.get("length"))
+        
+        try:
+            column_type = Migrate.get_column_type(
+                self.dest_options.pop("type_cast")
+            )
+        except Exception as err:
+            print(err)
+        
+        # print(self.dest_options.get("length"))
         type_length = self.dest_options.pop("length")
         if type_length:
             column_type = column_type(type_length)
@@ -129,7 +139,7 @@ class Migrate:
             #context config for alembic
             ctx = MigrationContext.configure(conn)
             op = Operations(ctx)
-            print(table_name)
+            # print(table_name)
             op.create_table(table_name,
             *columns,
             )
@@ -172,11 +182,11 @@ class Migrate:
             #context config for alembic
             ctx = MigrationContext.configure(conn)
             op = Operations(ctx)
-            print(table_name)
+            # print(table_name)
             op.drop_table(table_name)
             return True 
         except Exception as err:
-            print(err)
+            print("err: ", err)
         finally:
             conn.close()
         
@@ -186,11 +196,12 @@ class Migrate:
         Using this attribute we can query table using sourceDB.session
         :return table attribute
         """
-        return getattr(self.sourceDB.base.classes, source_table_name)
+        return getattr(self.connection.base.classes, source_table_name)
 
     def get_data_from_source_table(self, source_table_name: str, source_columns: list):
+
         table = self.get_table_attribute_from_base_class(source_table_name.name)
-        rows = self.sourceDB.session.query(table).yield_per(1)
+        rows = self.connection.session.query(table).yield_per(1)
 
         for row in rows:
             data = {}
@@ -206,14 +217,14 @@ class Migrate:
             conn = engine.connect()
             ctx = MigrationContext.configure(conn)
             op = Operations(ctx)
-            print(Migrate.fk_constraints)
+            # print(Migrate.fk_constraints)
             for constraint in Migrate.fk_constraints:
                 dest_table_name = constraint.pop("table_name")
                 column_name = constraint.pop("column_name")
                 source_table = constraint.pop("source_table")
                 dest_column = constraint.pop("dest_column")
                 # if not self.check_column(dest_table_name,column_name):
-                print(constraint)
+                # print(constraint)
                 op.create_foreign_key(None, source_table, dest_table_name, [dest_column], [column_name], **constraint)
             return True 
         except Exception as err:
@@ -252,7 +263,8 @@ class Migrate:
                     continue
                 has_column = True
             return has_column
-        except: 
+        except Exception as err: 
+            print("err in check_column function: ", err)
             return False
 
     def drop_fk(self,table_name:str):
@@ -306,21 +318,46 @@ class Migrate:
             conn.close()
 
     @staticmethod
-    def insert_data(engine,table_name, data: dict):
+    def insert_data(engine, table_name, data: dict):
         try:
             stmt = engine.base.metadata.tables[table_name].insert().values(**data)
             engine.session.execute(stmt)
             engine.session.commit()
         except Exception as err:
-            print("err -> ", err)
+            print("err -> ", err, "data: ", data, "table: ", table_name)
         finally:
-            engine.session.close()       
-        
+            engine.session.close()    
 
+    @staticmethod
+    def type_cast(data_from_source, mt, convert_info: dict):
 
+        for columns in mt.migrationTable.MigrationColumns:
+            source_column = columns.sourceColumn.get("name")
+            destination_column = columns.destinationColumn.name
+            
+            if columns.destinationColumn.options.type_cast:
+                destination_type_cast = columns.destinationColumn.options.type_cast
+            else:
+                destination_type_cast = None
 
+            if convert_info.get(destination_column):
+                # ClassType is Class of data type (int, str, float, etc...)
+                # Using this ClassType we are converting data into format specified in type_cast
+                dataype = get_type_object(destination_type_cast)
 
-
+                try:
+                    if dataype.__name__ == "uuid4":
+                        data_from_source[destination_column] = dataype()
+                    else:
+                        data_from_source[destination_column] = dataype(data_from_source.pop(source_column))
+                       
+                except Exception as err:
+                    print(err)
+                    data_from_source[destination_column] = None
+            else:
+                data_from_source[destination_column] = data_from_source.pop(source_column)
+            
+        return data_from_source
         
 
     @staticmethod

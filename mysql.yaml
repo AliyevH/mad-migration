@@ -40,38 +40,38 @@ migrationTables:
               type_cast: string
               length: 120
 
-  - migrationTable:
-      SourceTable:
-        name: persons
-      DestinationTable:
-        name: automobiles_automobile
+  # - migrationTable:
+  #     SourceTable:
+  #       name: persons
+  #     DestinationTable:
+  #       name: automobiles_automobile
 
-      MigrationColumns:
-        - sourceColumn:
-            name: id
-          destinationColumn:
-            name: id
-            options:
-              primary_key: true
-              autoincrement: true
-              type_cast: Integer
+  #     MigrationColumns:
+  #       - sourceColumn:
+  #           name: id
+  #         destinationColumn:
+  #           name: id
+  #           options:
+  #             primary_key: true
+  #             autoincrement: true
+  #             type_cast: Integer
 
-        - sourceColumn:
-            name: name
-          destinationColumn:
-            name: test_name
-            options:
-              type_cast: String
-              length: 255
-              nullable: False
+  #       - sourceColumn:
+  #           name: name
+  #         destinationColumn:
+  #           name: test_name
+  #           options:
+  #             type_cast: String
+  #             length: 255
+  #             nullable: False
 
-        - sourceColumn:
-            name: voen
-          destinationColumn:
-            name: test_name
-            options:
-              type_cast: String
-              length: 255
-              nullable: False
+  #       - sourceColumn:
+  #           name: voen
+  #         destinationColumn:
+  #           name: test_name
+  #           options:
+  #             type_cast: String
+  #             length: 255
+  #             nullable: False
               
 

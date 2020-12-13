@@ -6,10 +6,3 @@ from sqlalchemy import Table, event
 
 if __name__ == "__main__":
     cli()
-
-    # with Controller(config) as app:
-
-    #     # app = Controller(config)
-    #     app.prepare_tables()
-
-        # app.run()

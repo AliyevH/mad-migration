@@ -54,10 +54,15 @@ class Controller:
 
     def prepare_tables(self):
         # detect migration class
+
         migrate = detect_driver(self.destinationDB_driver)
+        
         for migrate_table in self.migration_tables:
+            
             mig = migrate(migrate_table.migrationTable,self.destinationDB)
             mig.create_tables()
+            
+        
         migrate.create_fk_constraint(self.destinationDB.engine)
 
     def get_column_type_from_source_table(self, table_name, column_name):
@@ -85,6 +90,7 @@ class Controller:
             # Instance of Migrate class
             migrate = Migrate(mt.migrationTable, self.sourceDB)
             migrate.parse_migration_tables()    
+            
                     
 
             # Dictionary is used to keep data about destination column and type_cast format
@@ -101,45 +107,26 @@ class Controller:
                 if column.destinationColumn.options.type_cast:
                     self.convert_info[
                         column.destinationColumn.name] = column.destinationColumn.options.type_cast
-
+            
             # self.source_data is data received (yield) from get_data_from_source_table function
             self.source_data = migrate.get_data_from_source_table(mt.migrationTable.SourceTable, columns)
-            
             count = 0
-            
-            # Looping in self.source_data
-            for data in self.source_data:
-
-                for columns in mt.migrationTable.MigrationColumns:
-                    source_column = columns.sourceColumn.get("name")
-                    destination_column = columns.destinationColumn.name
-
-                    if columns.destinationColumn.options.type_cast:
-                        destination_type_cast = columns.destinationColumn.options.type_cast
-                    else:
-                        destination_type_cast = None
-
-                    if self.convert_info.get(destination_column):
-                        # ClassType is Class of data type (int, str, float, etc...)
-                        # Using this ClassType we are converting data into format specified in type_cast
-                        ClassType = get_type_object(destination_type_cast)
-
-                        try:
-                            if ClassType.__name__ == "uuid4":
-                                data[destination_column] = ClassType()
-                            else:
-                                data[destination_column] = ClassType(data.pop(source_column))
-                        except Exception as err:
-                            print(err)
-                            data[destination_column] = None
-                    else:
-                        data[destination_column] = data.pop(source_column)
-
+            for source_data in self.source_data:
                 count += 1
-               
-                Migrate.insert_data(engine=self.destinationDB, table_name=self.destination_table.name, data=data)
+                new_data = Migrate.type_cast(data_from_source=source_data, mt=mt, convert_info=self.convert_info)
+                Migrate.insert_data(engine=self.destinationDB, table_name=self.destination_table.name, data=new_data)
+            print(count)
+            
+            # count = 0
+            # from time import sleep
+            # for data in Migrate.loop_in_data(self.source_data, mt, self.convert_info):
+            #     count += 1
+            #     print("count: ",count, "id: ", data.get("id"))
+            #     print(self.destination_table.name)
+            #     sleep(1)
+                # Migrate.insert_data(engine=self.destinationDB, table_name=self.destination_table.name, data=data)
         
-        print("inserted: ", count)
+
 
 
                 
