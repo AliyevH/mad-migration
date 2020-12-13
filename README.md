@@ -1,7 +1,7 @@
-<!-- <p align="center">
+<p align="center">
   <a href="" rel="noopener">
- <img width=200px height=200px src="https://avatars1.githubusercontent.com/u/69718719?s=200&v=4" alt="Project logo"></a>
-</p> -->
+ <img width=400px height=400px src="https://github.com/MadeByMads/mad-migration/blob/master/docs/img/mm.jpg" alt="Project logo"></a>
+</p>
 
 <h3 align="center">Database Migration Tool</h3>
 
@@ -30,6 +30,9 @@ pip install madmigration
 
 After installation you should define YAML file where configuration will be taken in order to apply data to target database. Yaml file with list and dictionaries  may contain following structures:
 
+
+![alt text](https://github.com/MadeByMads/mad-migration/blob/master/docs/img/db.jpg)
+
 #### Connection Config
 
 - SourceConfig is intented to be data from source database
@@ -39,58 +42,60 @@ After installation you should define YAML file where configuration will be taken
 version: 1.1
 Configs:
   - SourceConfig:
-      dbURI:  "postgres://YourUserName:YourPassword@YourHostname:5432/SourDB";
+       dbURI: "postgres://root:admin@127.0.0.1/oldDB"
   - DestinationConfig:
-      dbURI:  "postgres://YourUserName:YourPassword@YourHostname:5432/DestinationDB";
+       dbURI: "mysql://root:admin@127.0.0.1/newDB"
 ```
-
-#### Tables Config
-- migrationTables list of tables to addded migration
-- migrationTable dictionary 
-- SourceTable
-- name
-- DestinationTable
-- MigrationColumns
-- sourceColumn
-- options
-- 
-- 
-- 
 
 ```yaml
 migrationTables:
   - migrationTable:
       SourceTable:
-        name: example
+        name: users
       DestinationTable:
-        name: newtable
-        create: True # -> I suggest that we have to define this option that will tell us whether we have to create tables or not
+        name: persons
+        create: True
 
       MigrationColumns:
         - sourceColumn:
             name: id
-          destinationColumn: 
-            name: ID
+          destinationColumn:
+            name: id
             options:
               primary_key: true
-              # autoincrement: true
-              type_cast: uuid
 
         - sourceColumn:
             name: name
           destinationColumn:
-            name: firstname
+            name: fname
             options:
-              length: 120
               type_cast: varchar
+              length: 32
+      
+        - sourceColumn:
+            name: surname
+          destinationColumn:
+            name: lname
+            options:
+              type_cast: varchar
+              length: 32
 
         - sourceColumn:
-            name: email
+            name: age
           destinationColumn:
-            name: EMAIL
+            name: age
             options:
-              type_cast: varchar
-              length: 120
+              type_cast: int
+
+        - sourceColumn:
+            name: createdAT
+          destinationColumn:
+            name: created_at
+
+        - sourceColumn:
+            name: updateddAT
+          destinationColumn:
+            name: updated_at
 
 ```
 
