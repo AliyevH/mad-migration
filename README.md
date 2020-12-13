@@ -44,7 +44,7 @@ Configs:
       dbURI:  "postgres://YourUserName:YourPassword@YourHostname:5432/DestinationDB";
 ```
 
-![alt text](https://github.com/MadeByMads/mad-migration/docs/img/db_example.jpg)
+![alt text](https://github.com/MadeByMads/mad-migration/blob/master/docs/img/db_example.jpg)
 
 ```yaml
 migrationTables:
