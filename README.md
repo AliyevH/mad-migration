@@ -35,51 +35,61 @@ After installation you should define YAML file where configuration will be taken
 - SourceConfig is intented to be data from source database
 - DestinationConfig is intented to be transfered data to target database
 
+![alt text](https://github.com/MadeByMads/mad-migration/blob/master/docs/img/db_example.jpg)
+
 ```yaml
 version: 1.1
 Configs:
   - SourceConfig:
-      dbURI:  "postgres://YourUserName:YourPassword@YourHostname:5432/SourDB";
+       dbURI: "mysql://root:admin@127.0.0.1/oldDB"
   - DestinationConfig:
-      dbURI:  "postgres://YourUserName:YourPassword@YourHostname:5432/DestinationDB";
-```
+       dbURI: "mysql://root:admin@127.0.0.1/newDB"
 
-![alt text](https://github.com/MadeByMads/mad-migration/blob/master/docs/img/db_example.jpg)
-
-```yaml
 migrationTables:
   - migrationTable:
       SourceTable:
-        name: example
+        name: users
       DestinationTable:
-        name: newtable
-        create: True # -> I suggest that we have to define this option that will tell us whether we have to create tables or not
+        name: persons
+        create: True
 
       MigrationColumns:
         - sourceColumn:
             name: id
-          destinationColumn: 
-            name: ID
+          destinationColumn:
+            name: id
             options:
               primary_key: true
-              # autoincrement: true
-              type_cast: uuid
 
+      MigrationColumns:
         - sourceColumn:
             name: name
           destinationColumn:
-            name: firstname
+            name: fname
             options:
-              length: 120
               type_cast: varchar
-
+              length: 32
+      
+      MigrationColumns:
         - sourceColumn:
-            name: email
+            name: surname
           destinationColumn:
-            name: EMAIL
+            name: lname
             options:
               type_cast: varchar
-              length: 120
+              length: 32
+
+      MigrationColumns:
+        - sourceColumn:
+            name: createdAT
+          destinationColumn:
+            name: created_at
+
+      MigrationColumns:
+        - sourceColumn:
+            name: updateddAT
+          destinationColumn:
+            name: updated_at
 
 ```
 
