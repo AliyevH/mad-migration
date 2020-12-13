@@ -42,7 +42,7 @@ After installation you should define YAML file where configuration will be taken
 version: 1.1
 Configs:
   - SourceConfig:
-       dbURI: "mysql://root:admin@127.0.0.1/oldDB"
+       dbURI: "postgres://root:admin@127.0.0.1/oldDB"
   - DestinationConfig:
        dbURI: "mysql://root:admin@127.0.0.1/newDB"
 ```
