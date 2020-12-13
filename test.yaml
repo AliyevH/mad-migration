@@ -22,7 +22,7 @@ migrationTables:
             name: id
             options:
               primary_key: true
-              type_cast: uuid
+              type_cast: bigint
 
         - sourceColumn:
             name: name
@@ -62,7 +62,6 @@ migrationTables:
               primary_key: true
               autoincrement: true
               type_cast: integer
-              length: 30
 
         - sourceColumn:
             name: date
@@ -77,15 +76,8 @@ migrationTables:
           destinationColumn:
             name: userID
             options:
-              type_cast: uuid
+              type_cast: bigint
               foreign_key:
                 table_name: user
                 column_name: id
-        - sourceColumn:
-            name: null
-          destinationColumn:
-            name: notexistcolumn
-            options:
-              type_cast: varchar
-              length: 30
-              default: ""
+        

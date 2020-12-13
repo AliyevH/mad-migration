@@ -23,6 +23,7 @@ class OptionsSchema(BaseModel):
     def validate_cast(cls,v,values): #TODO check types
         if v == "integer" and values["length"] != None:
             raise ValueError(f"Type {v} has no length")
+        return v
 
 
 class SourceConfigSchema(BaseModel):
