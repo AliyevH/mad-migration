@@ -18,6 +18,8 @@ def cli():
 def cli(file):  
 
     if check_file(file):
+        config = Config(file)
+
         with Controller(config) as app:
 
             app.prepare_tables()
