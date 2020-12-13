@@ -18,6 +18,12 @@
 ## 🧐 About <a name = "about"></a>
 
 Database Migration Tool has been designed for those who wants migrate their data from one database to another database. Mainly tool is emphazied on migrating data from diffirent database sturctures. Currently tool chained with with mysql and porstgres drivers, we do believe to add NoSql to SQL databases and wise versa. Our main goal to make possible for all envirnments to able to migrate datas. 
+
+
+---
+**Documentation**: [MadMigration](https://madebymads.github.io/mad-migration/)
+---
+
 ## 🏁 Getting Started <a name = "getting_started"></a>
 
 ### Installing
