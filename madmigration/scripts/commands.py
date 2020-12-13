@@ -3,11 +3,10 @@ import math
 import random
 import time
 import sys
+
 from madmigration.config.conf import  Config
-# from madmigration.config.conf import config
-
 from madmigration.main import Controller
-
+from madmigration.utils.helpers import check_file, file_not_found
 
 @click.group()
 def cli():
@@ -16,19 +15,15 @@ def cli():
 
 @cli.command(help='simple Migrate ready on hand with CLI')
 @click.option('--file',"-f",metavar='YAML file',prompt='YAML file',show_default=True,required=True, help='YAML file')
-def cli(file):
-    config = Config(file)
+def cli(file):  
 
-    with Controller(config) as app:
+    if check_file(file):
+        config = Config(file)
 
-        # app = Controller(config)
-        # app.prepare_tables()
-        app.run()
+        with Controller(config) as app:
 
-    # config = Config("mysql.yaml")
-
-    # a = Controller(config)
-    # a.test_func()
-
+            app.prepare_tables()
+    else:
+        file_not_found(file)
 
     

@@ -1,4 +1,6 @@
 from datetime import datetime
+import os
+from pathlib import Path
 from sqlalchemy import (
     Integer,
     String,
@@ -9,10 +11,10 @@ from sqlalchemy import (
     Float,
     TIMESTAMP
 )
+from madmigration.errors import FileDoesNotExists
 
 from madmigration.mysqldb.migration import Migrate as mysql_migrate
 from madmigration.postgresqldb.migration import Migrate as postgres_migrate
-
 
 ###########################
 # Get class of cast #
@@ -68,3 +70,16 @@ def detect_driver(driver: str) -> object:
         "psycopg2": postgres_migrate  # heleki ozum verdim ki mende error vermesin
 
     }.get(driver)
+
+
+def check_file(file):
+
+    if Path(file).is_file() and os.access(file, os.R_OK):
+        return True
+        
+    
+
+
+def file_not_found(file):
+
+    raise FileDoesNotExists(f"Given file does not exists file: {file}",)

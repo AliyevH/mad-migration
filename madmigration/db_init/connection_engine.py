@@ -2,7 +2,6 @@ from sqlalchemy import create_engine, MetaData, event, Table
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy_utils.functions.database import database_exists, create_database
-# from madmigration.config.conf import config
 import sys
 
 
