@@ -10,7 +10,7 @@ Configs:
 migrationTables:
   - migrationTable:
       SourceTable:
-        name: cars
+        name: old_cars
       DestinationTable:
         name: drivers_drivers
         create: True # -> I suggest that we have to define this option that will tell us whether we have to create tables or not

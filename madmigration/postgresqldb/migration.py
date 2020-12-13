@@ -195,7 +195,7 @@ class Migrate:
 
     def get_data_from_source_table(self, source_table_name: str, source_columns: list):
 
-        table = self.get_table_attribute_from_base_class(source_table_name.get("name"))
+        table = self.get_table_attribute_from_base_class(source_table_name.name)
         rows = self.sourceDB.session.query(table).yield_per(1)
 
         for row in rows:

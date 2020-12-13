@@ -4,6 +4,7 @@ from madmigration.utils.helpers import detect_driver, get_cast_type, get_column_
 from sqlalchemy import Column, MetaData, Table
 from madmigration.config.conf import Config
 from madmigration.mysqldb.type_convert import get_type_object
+from sqlalchemy import insert
 from sqlalchemy import (
     Integer,
     String,
@@ -18,8 +19,6 @@ from time import sleep
 
 
 class Controller:
-  
-
     def __init__(self, migration_config: Config):
         self.config = migration_config
 
@@ -57,7 +56,7 @@ class Controller:
         # detect migration class
         migrate = detect_driver(self.destinationDB_driver)
         for migrate_table in self.migration_tables:
-            mig = migrate(migrate_table.migrationTable,self.destinationDB.engine)
+            mig = migrate(migrate_table.migrationTable,self.destinationDB)
             mig.create_tables()
         migrate.create_fk_constraint(self.destinationDB.engine)
 
@@ -75,18 +74,18 @@ class Controller:
                 return column.type
 
     def run(self):
-
+        
         # Looping in migrationTables
         for mt in self.migration_tables:
             self.destination_table = mt.migrationTable.DestinationTable
-            count = 0
 
             # Migrate class is use based on driver
             Migrate = detect_driver(self.sourceDB_driver)
-
+            
             # Instance of Migrate class
             migrate = Migrate(mt.migrationTable, self.sourceDB)
-            migrate.parse_migration_tables()
+            migrate.parse_migration_tables()    
+                    
 
             # Dictionary is used to keep data about destination column and type_cast format
             self.convert_info = {}
@@ -95,7 +94,7 @@ class Controller:
             # We will send table name and source columns list to function "get_data_from_source_table"
             # get_data_from_source_table function will yield data with specified columns from row
             columns = []
-
+            
             for column in migrate.columns:
                 columns.append(column.sourceColumn.get("name"))
 
@@ -105,38 +104,46 @@ class Controller:
 
             # self.source_data is data received (yield) from get_data_from_source_table function
             self.source_data = migrate.get_data_from_source_table(mt.migrationTable.SourceTable, columns)
-
+            
+            count = 0
+            
             # Looping in self.source_data
             for data in self.source_data:
-                # for columns in mt.migrationTable.MigrationColumns:
-                #     source_column = columns.sourceColumn.get("name")
-                #     destination_column = columns.destinationColumn.name
 
-                #     if columns.destinationColumn.options.type_cast:
-                #         destination_type_cast = columns.destinationColumn.options.type_cast
-                #     else:
-                #         destination_type_cast = None
+                for columns in mt.migrationTable.MigrationColumns:
+                    source_column = columns.sourceColumn.get("name")
+                    destination_column = columns.destinationColumn.name
 
-                #     if self.convert_info.get(destination_column):
-                #         # ClassType is Class of data type (int, str, float, etc...)
-                #         # Using this ClassType we are converting data into format specified in type_cast
-                #         ClassType = get_type_object(destination_type_cast)
+                    if columns.destinationColumn.options.type_cast:
+                        destination_type_cast = columns.destinationColumn.options.type_cast
+                    else:
+                        destination_type_cast = None
 
-                #         try:
-                #             if ClassType.__name__ == "uuid4":
-                #                 data[destination_column] = ClassType()
-                #             else:
-                #                 data[destination_column] = ClassType(data.pop(source_column))
-                #         except Exception as err:
-                #             print(err)
-                #             data[destination_column] = None
-                #     else:
-                #         data[destination_column] = data.pop(source_column)
+                    if self.convert_info.get(destination_column):
+                        # ClassType is Class of data type (int, str, float, etc...)
+                        # Using this ClassType we are converting data into format specified in type_cast
+                        ClassType = get_type_object(destination_type_cast)
 
-                print(data)
+                        try:
+                            if ClassType.__name__ == "uuid4":
+                                data[destination_column] = ClassType()
+                            else:
+                                data[destination_column] = ClassType(data.pop(source_column))
+                        except Exception as err:
+                            print(err)
+                            data[destination_column] = None
+                    else:
+                        data[destination_column] = data.pop(source_column)
 
-            print(getattr(self.destinationDB.base.classes, self.destination_table.get("name")))
-            # print(self.destination_table.get("name"))
+                count += 1
+               
+                Migrate.insert_data(engine=self.destinationDB, table_name=self.destination_table.name, data=data)
+        
+        print("inserted: ", count)
+
+
+                
+
 
 
 

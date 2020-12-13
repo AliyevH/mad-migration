@@ -7,6 +7,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from alembic.migration import MigrationContext
 from sqlalchemy.engine import reflection
 from alembic.operations import Operations
+from sqlalchemy import DateTime
+from sqlalchemy_utils import UUIDType
 from sqlalchemy.dialects.mysql import (
     VARCHAR,
     INTEGER,
@@ -40,26 +42,46 @@ class Migrate:
     def __init__(self, migration_table: TablesInfo, engine):
         self.sourceDB = engine
         self.migration_tables = migration_table
-        self.engine = engine
+        self.connection = engine
+        self.engine = engine.engine
         self.__queue  = []
         self.metadata = MetaData()
         self.parse_migration_tables()
+    
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.engine.session.close()
+        self.sourceDB.session.close()
 
     def parse_migration_tables(self):
         """
         This function parses migrationTables from yaml file
         """
-        self.source_table = self.migration_tables.SourceTable
-        self.destination_table = self.migration_tables.DestinationTable
+        self.source_table = self.migration_tables.SourceTable.dict()
+        self.destination_table = self.migration_tables.DestinationTable.dict()
         self.columns = self.migration_tables.MigrationColumns
 
-    def parse_migration_columns(self, migration_columns: ColumnParametersSchema):
+    def parse_migration_columns(self,tablename:str, migration_columns: ColumnParametersSchema):
         """
-        This function parses migrationColumns from yaml file
+        This function parses migrationColumns schema and prepare column
         """
         self.source_column = migration_columns.sourceColumn
         self.destination_column = migration_columns.destinationColumn
         self.dest_options = migration_columns.destinationColumn.options.dict()
+        print(self.dest_options)
+        if self.check_column(tablename,self.destination_column.name):
+            return False
+        self._parse_fk(tablename,self.dest_options.pop("foreign_key"))
+        column_type = self._parse_column_type()
+                
+        col = Column(
+            self.destination_column.name,
+            column_type,
+            **self.dest_options
+        )
+        return col
 
     def create_tables(self):
         """
@@ -68,77 +90,106 @@ class Migrate:
         """
 
         tablename = self.destination_table.get("name")
+        update_table = self.check_table(tablename)
+    
         temp_columns = []
         for column in self.columns:
-            self.parse_migration_columns(column)
-            fk_key_options = self.dest_options.pop("foreign_key")
-            column_type = Migrate.get_column_type( 
-                self.dest_options.pop("type_cast")
-            )
-            if fk_key_options:
-                fk_key_options["source_table"] = tablename
-                fk_key_options["dest_column"] = self.destination_column.name
-                Migrate.fk_constraints.append(fk_key_options)
+            # parse colum and return prepared column
+            col = self.parse_migration_columns(tablename,column)
+            if col is not False:
+                temp_columns.append(col)
+        if update_table:
+            # if table exist we add column to table
+            return self.add_column(tablename,*temp_columns)
+        else:
+            return self._create_table(tablename, *temp_columns)
 
-            type_length = self.dest_options.pop("length")
-            if type_length:
-                column_type = column_type(type_length)
-                    
-            col = Column(
-                self.destination_column.name,
-                column_type,
-                **self.dest_options
-            )
-            
-            temp_columns.append(col)
-        
-        self.__create_table(tablename, *temp_columns)
+    def _parse_column_type(self) -> object:
+        """ Parse column type and options (length,type and etc.) """
+        column_type = Migrate.get_column_type( 
+            self.dest_options.pop("type_cast")
+        )
+        print(self.dest_options.get("length"))
+        type_length = self.dest_options.pop("length")
+        if type_length:
+            column_type = column_type(type_length)
+        return column_type
 
-    # def create_foreign_key(self,options:dict) -> str:
-    #     fk_name = f'{options.pop("table_name")}.{options.pop("column_name")}'
-    #     return fk_name
+    def _parse_fk(self,tablename, fk_options):
+        """ Parse foreignkey and options (use_alter,colum and etc.) """
+        if fk_options:
+            fk_options["source_table"] = tablename
+            fk_options["dest_column"] = self.destination_column.name
+            Migrate.fk_constraints.append(fk_options)
 
-    def __create_table(self,table_name:str,*columns) -> bool:
+    def _create_table(self,table_name:str,*columns) -> bool:
+        """ create prepared table with alembic """
         try:
             conn = self.engine.connect()
 
             #context config for alembic
             ctx = MigrationContext.configure(conn)
             op = Operations(ctx)
-            op.create_table(
-                table_name,
-                *columns,
+            print(table_name)
+            op.create_table(table_name,
+            *columns,
             )
             return True 
-        except Exception as err:
-            print("__create_table -> ", err)
-        # finally:
-        #     conn.close()
+        except Exception as error:
+            print("ERR,",error)
+            # raise Exception("test")
+            raise TableExists("Exception raised",f"{error}")
+        finally:
+            conn.close()
+    
+    def update_table(self,table_name,*columns):
+        pass
 
     def check_table(self,table_name: str) -> bool:
-        return self.engine.dialect.has_table(self.engine.connect(),table_name)
+        """ Check table exist or not, and wait user input """
+        if self.engine.dialect.has_table(self.engine.connect(),table_name):
+            while True:
+                answ = input(f"Table with name {table_name} already exist, recreate table?(y/n)")
+                if answ.lower() == "y":
+                    msg = f"The table {table_name} will be dropped and recreated,your table data will be lost,process?(yes/no)"
+                    rcv = input(msg)
+                    if rcv.lower() == "yes":
+                        self.drop_table(table_name)
+                        return False
+                    elif rcv.lower() == "no":
+                        return True
+                elif answ.lower() == "n":
+                    return True
+                else:
+                    continue
+        return False
 
-        
+    def drop_table(self,table_name):
+        """ Drop table with given name """
+        try:
+            conn = self.engine.connect()
+
+            #context config for alembic
+            ctx = MigrationContext.configure(conn)
+            op = Operations(ctx)
+            print(table_name)
+            op.drop_table(table_name)
+            return True 
+        except Exception as err:
+            print(err)
+        finally:
+            conn.close()
+    
     def get_table_attribute_from_base_class(self, source_table_name: str):
         """
         This function gets table name attribute from sourceDB.base.classes. Example sourceDB.base.class.(table name)
         Using this attribute we can query table using sourceDB.session
         :return table attribute
         """
-        # for i in dir(self.sourceDB.base.classes):
-        #     print(i)
-
-        # print(" ---------- ")
-
         return getattr(self.sourceDB.base.classes, source_table_name)
 
     def get_data_from_source_table(self, source_table_name: str, source_columns: list):
-        """ 
-        This function yield data from source table and return generator
-
-        """
-        table = self.get_table_attribute_from_base_class(source_table_name.get("name"))
-
+        table = self.get_table_attribute_from_base_class(source_table_name.name)
         rows = self.sourceDB.session.query(table).yield_per(1)
 
         for row in rows:
@@ -155,71 +206,65 @@ class Migrate:
             conn = engine.connect()
             ctx = MigrationContext.configure(conn)
             op = Operations(ctx)
+            print(Migrate.fk_constraints)
             for constraint in Migrate.fk_constraints:
                 dest_table_name = constraint.pop("table_name")
                 column_name = constraint.pop("column_name")
                 source_table = constraint.pop("source_table")
                 dest_column = constraint.pop("dest_column")
-                print("constraint -> ", constraint)
+                # if not self.check_column(dest_table_name,column_name):
+                print(constraint)
                 op.create_foreign_key(None, source_table, dest_table_name, [dest_column], [column_name], **constraint)
             return True 
         except Exception as err:
             print(err)
             return False
-        # finally:
-        #     conn.close()
+        finally:
+            conn.close()
 
-    def add_column(self,table_name:str,column) -> bool:
+    def add_column(self,table_name:str,*column) -> bool:
+        """ Add column to given table """
         try:
             conn = self.engine.connect()
             ctx = MigrationContext.configure(conn)
             op = Operations(ctx)
-
-            op.add_column(
-                table_name,column
-            )
+            for col in column:
+                op.add_column(
+                    table_name,col
+                )
             return True
         except Exception as err:
             print(err)
             return False
-        # finally:
-        #     conn.close()
+        finally:
+            conn.close()
+    
+    def update_column(self,table_name,column_name,**options):
+        """ Updated existing table column with new column """
+        pass
 
-    def check_column(self,table_name:str, column_name: str,column: Column) -> bool:
+    def check_column(self,table_name:str, column_name: str) -> bool:
         """
             Check column exist in destination table or not
             param:: column_name -> is destination column name
         """
-        insp = reflection.Inspector.from_engine(self.engine)
-        has_column = False
-        for col in insp.get_columns(table_name):
-            if column_name not in col['name']:
-                continue
-            has_column = True
-        if not has_column:
-            while True:
-                res = input(f"{column_name} this column does not exist in table {table_name}, add this column to table?(y/n) ")
-                if res.lower() == "y":
-                    self.add_column(table_name,column)
-                    return True
-                elif res.lower() == "n":
-                    return False
-                else:
+        try:
+            insp = reflection.Inspector.from_engine(self.engine)
+            has_column = False
+            for col in insp.get_columns(table_name):
+                if column_name not in col['name']:
                     continue
-        return has_column
-
+                has_column = True
+            return has_column
+        except: 
+            return False
+    
     def db_drop_everything(self,engine):
-        """ 
-        From http://www.sqlalchemy.org/trac/wiki/UsageRecipes/DropEverything
-        """
-        
+        """ From http://www.sqlalchemy.org/trac/wiki/UsageRecipes/DropEverything """
         try:
             conn = engine.connect()
-
             transactional = conn.begin()
-
             inspector = reflection.Inspector.from_engine(engine)
-
             metadata = MetaData()
 
             tables = []
@@ -245,6 +290,25 @@ class Migrate:
         except Exception as err:
             print(err)
             return False
+        finally:
+            conn.close()
+
+    @staticmethod
+    def insert_data(engine,table_name, data: dict):
+        try:
+            stmt = engine.base.metadata.tables[table_name].insert().values(**data)
+            engine.session.execute(stmt)
+            engine.session.commit()
+        except Exception as err:
+            print("err -> ", err)
+        finally:
+            engine.session.close()       
+        
+
+
+
+
+
         
 
     @staticmethod
@@ -273,5 +337,6 @@ class Migrate:
             "json": JSON,
             "numeric": NUMERIC,
             "text": TEXT,
+            "uuid": UUIDType
         }.get(type_name.lower())
 

@@ -22,7 +22,7 @@ def cli(file):
     with Controller(config) as app:
 
         # app = Controller(config)
-        app.prepare_tables()
+        # app.prepare_tables()
         app.run()
 
     # config = Config("mysql.yaml")
