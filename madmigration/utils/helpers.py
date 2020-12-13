@@ -1,4 +1,6 @@
 from datetime import datetime
+from sqlalchemy.schema import DropTable
+from sqlalchemy.ext.compiler import compiles
 import os
 from pathlib import Path
 from sqlalchemy import (
@@ -72,14 +74,20 @@ def detect_driver(driver: str) -> object:
     }.get(driver)
 
 
-def check_file(file):
+@compiles(DropTable, "postgresql")
+def _compile_drop_table(element, compiler, **kwargs):
+    """ 
+    Drop table cascade with foreignkeys
+    https://stackoverflow.com/questions/38678336/sqlalchemy-how-to-implement-drop-table-cascade# 
+    
+    """
+    return compiler.visit_drop_table(element) + " CASCADE"
 
+
+def check_file(file):
     if Path(file).is_file() and os.access(file, os.R_OK):
         return True
         
     
-
-
 def file_not_found(file):
-
     raise FileDoesNotExists(f"Given file does not exists file: {file}",)

@@ -34,17 +34,16 @@ from alembic import op
 
 class Migrate: 
     # keep all tables for deleting on problem, or create all tables in end
-    tables = []
+    # tables = []
     
     #for table foreign keys,collect all fk options ti this list
     fk_constraints = []
 
 
     def __init__(self, migration_table: TablesInfo, engine):
-        self.sourceDB = engine
         self.migration_tables = migration_table
-        self.engine = engine
-        self.__queue  = []
+        self.engine = engine.engine
+        self.connection = engine
         self.metadata = MetaData()
         self.parse_migration_tables()
     
@@ -53,7 +52,6 @@ class Migrate:
 
     def __exit__(self, type, value, traceback):
         self.engine.session.close()
-        self.sourceDB.session.close()
 
     def parse_migration_tables(self):
         """
@@ -70,7 +68,6 @@ class Migrate:
         self.source_column = migration_columns.sourceColumn
         self.destination_column = migration_columns.destinationColumn
         self.dest_options = migration_columns.destinationColumn.options.dict()
-        print(self.dest_options)
         if self.check_column(tablename,self.destination_column.name):
             return False
         self._parse_fk(tablename,self.dest_options.pop("foreign_key"))
@@ -137,7 +134,6 @@ class Migrate:
             return True 
         except Exception as error:
             print("ERR,",error)
-            # raise Exception("test")
             raise TableExists("Exception raised",f"{error}")
         finally:
             conn.close()
@@ -154,6 +150,7 @@ class Migrate:
                     msg = f"The table {table_name} will be dropped and recreated,your table data will be lost,process?(yes/no)"
                     rcv = input(msg)
                     if rcv.lower() == "yes":
+                        self.drop_fk(table_name)
                         self.drop_table(table_name)
                         return False
                     elif rcv.lower() == "no":
@@ -186,12 +183,8 @@ class Migrate:
         Using this attribute we can query table using sourceDB.session
         :return table attribute
         """
-        # for i in dir(self.sourceDB.base.classes):
-        #     print(i)
 
-        # print(" ---------- ")
-
-        return getattr(self.sourceDB.base.classes, source_table_name)
+        return getattr(self.engine.base.classes, source_table_name)
 
     def get_data_from_source_table(self, source_table_name: str, source_columns: list):
 
@@ -258,13 +251,31 @@ class Migrate:
             insp = reflection.Inspector.from_engine(self.engine)
             has_column = False
             for col in insp.get_columns(table_name):
-                if column_name not in col['name']:
+                if column_name not in col['name'] :
                     continue
                 has_column = True
             return has_column
         except: 
             return False
     
+    def drop_fk(self,table_name:str):
+        try:
+            conn = self.engine.connect()
+            transactional = conn.begin()
+            meta = MetaData()
+            meta.reflect(bind=self.engine)
+            fk_constraints = [ForeignKeyConstraint((), (), name=e.target_fullname) for e in meta.tables[table_name].foreign_keys if e.target_fullname]
+            for fk in fk_constraints:
+                conn.execute(DropConstraint(fk))
+            
+            transactional.commit()
+        except Exception as err:
+            print(err)
+        finally:
+            conn.close()
+
+
+
     def db_drop_everything(self,engine):
         """ From http://www.sqlalchemy.org/trac/wiki/UsageRecipes/DropEverything """
         try:
