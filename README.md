@@ -35,7 +35,7 @@ After installation you should define YAML file where configuration will be taken
 - SourceConfig is intented to be data from source database
 - DestinationConfig is intented to be transfered data to target database
 
-![alt text](https://github.com/MadeByMads/mad-migration/blob/master/docs/img/db_example.jpg)
+![alt text](https://github.com/MadeByMads/mad-migration/blob/master/docs/img/db.jpg)
 
 ```yaml
 version: 1.1
