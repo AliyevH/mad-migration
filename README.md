@@ -61,7 +61,6 @@ migrationTables:
             options:
               primary_key: true
 
-      MigrationColumns:
         - sourceColumn:
             name: name
           destinationColumn:
@@ -70,7 +69,6 @@ migrationTables:
               type_cast: varchar
               length: 32
       
-      MigrationColumns:
         - sourceColumn:
             name: surname
           destinationColumn:
@@ -79,13 +77,18 @@ migrationTables:
               type_cast: varchar
               length: 32
 
-      MigrationColumns:
+        - sourceColumn:
+            name: age
+          destinationColumn:
+            name: age
+            options:
+              type_cast: int
+
         - sourceColumn:
             name: createdAT
           destinationColumn:
             name: created_at
 
-      MigrationColumns:
         - sourceColumn:
             name: updateddAT
           destinationColumn:
