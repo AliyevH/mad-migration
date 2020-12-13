@@ -44,7 +44,9 @@ Configs:
        dbURI: "mysql://root:admin@127.0.0.1/oldDB"
   - DestinationConfig:
        dbURI: "mysql://root:admin@127.0.0.1/newDB"
+```
 
+```yaml
 migrationTables:
   - migrationTable:
       SourceTable:
