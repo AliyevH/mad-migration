@@ -1,7 +1,7 @@
-<!-- <p align="center">
+<p align="center">
   <a href="" rel="noopener">
- <img width=200px height=200px src="https://avatars1.githubusercontent.com/u/69718719?s=200&v=4" alt="Project logo"></a>
-</p> -->
+ <img width=200px height=200px src="https://github.com/MadeByMads/mad-migration/blob/master/docs/img/mm.jpg" alt="Project logo"></a>
+</p>
 
 <h3 align="center">Database Migration Tool</h3>
 
