@@ -17,11 +17,11 @@
 
 ## 🧐 About <a name = "about"></a>
 
-Database Migration Tool has been designed for those who wants migrate their data from one database to another database. Mainly tool is emphazied on migrating data from diffirent database sturctures. Currently tool chained with with mysql and porstgres drivers, we do believe to add NoSql to SQL databases and wise versa. Our main goal to make possible for all envirnments to able to migrate datas. 
+The Database Migration Tool was designed for those looking to migrate their data from one database to another. Basically, the tool is focused on transferring data from different database structures. Currently, the MySQL and Postgres driver related tool allows us to add NoSQL to SQL databases and vice versa. Our main goal is to make data migration possible in all environments.
 
 
 ---
-**Documentation**: [MadMigration](https://madebymads.github.io/mad-migration/)
+**Documentation**: [Documentation](https://madebymads.github.io/mad-migration/)
 ---
 
 ## 🏁 Getting Started <a name = "getting_started"></a>
@@ -51,9 +51,7 @@ Configs:
        dbURI: "postgres://root:admin@127.0.0.1/oldDB"
   - DestinationConfig:
        dbURI: "mysql://root:admin@127.0.0.1/newDB"
-```
 
-```yaml
 migrationTables:
   - migrationTable:
       SourceTable:
@@ -111,7 +109,14 @@ migrationTables:
 
 ```
 
-madmigrate -f migrate.yaml
+- DestinationConfig - set the destination database, if the specified database does not exist we will create it.
+- migrationTables - under this config, you will write the source of the table that you should migrate and the destination tables that will migrate the data.
+  - migrationTable - specify the source and destination table name
+    - MigrationColumns - specify source and destination column
+
+### We will create all tables and database on the destination server if they do not exist
+
+madmigrate -f migration_schema.yaml
 
 
 ## ✍️ Authors <a name = "authors"></a>
