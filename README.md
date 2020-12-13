@@ -68,7 +68,9 @@ migrationTables:
           destinationColumn:
             name: id
             options:
+              type_cast: bigint
               primary_key: true
+              autoincrement: true
 
         - sourceColumn:
             name: name
@@ -97,11 +99,15 @@ migrationTables:
             name: createdAT
           destinationColumn:
             name: created_at
+            options:
+              type_cast: datetime
 
         - sourceColumn:
             name: updateddAT
           destinationColumn:
             name: updated_at
+            options:
+              type_cast: datetime
 
 ```
 
