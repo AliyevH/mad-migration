@@ -13,6 +13,7 @@ from sqlalchemy import (
 )
 from datetime import  datetime
 from madmigration.mysqldb.migration import Migrate as mysql_migrate
+from madmigration.postgresqldb.migration import Migrate as postgres_migrate
 
 
 def get_cast_type_test(temp_data):
@@ -23,7 +24,6 @@ def get_cast_type_test(temp_data):
     assert get_cast_type(temp_data[3]) == int
     assert get_cast_type(temp_data[5]) == float
     assert get_cast_type(temp_data[6]) == datetime
-    assert get_cast_type(temp_data[7]) == VARCHAR
 
 
 def get_column_type_test(temp_data):
@@ -33,13 +33,14 @@ def get_column_type_test(temp_data):
     assert get_column_type(temp_data[4]) == BigInteger
     assert get_column_type(temp_data[5]) == Float
     assert get_column_type(temp_data[6]) == DateTime
-    assert get_column_type(temp_data[8]) == Date
-    assert get_column_type(temp_data[9]) == TIMESTAMP
-    assert get_column_type(temp_data[7]) == VARCHAR
+    assert get_column_type(temp_data[8]) == TIMESTAMP
+    assert get_column_type(temp_data[9]) == VARCHAR
 
 
 def detect_driver_test():
       
     assert detect_driver("mysqldb") == mysql_migrate
-    assert detect_driver("psycopg2") == mysql_migrate
+    assert detect_driver("psycopg2") == postgres_migrate
+
+
 
