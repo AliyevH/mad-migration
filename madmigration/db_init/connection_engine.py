@@ -10,33 +10,35 @@ def before_parent_attach(target, parent):
     if not target.primary_key and "id" in target.c:
         print(target)
 
-
+def goodby_message(message, exit_code=0):
+    print(message)
+    sys.exit(int(exit_code))
 
 class SourceDB:
     def __init__(self, config):
         self.base = automap_base()
         if not database_exists(config.source_uri):
-            print("Source database does not exit \nExiting ..")
-            sys.exit(0)
+            goodby_message("Source database does not exit \nExiting ..", 0)
         self.engine = create_engine(config.source_uri, echo=False)
         self.base.prepare(self.engine, reflect=True)
         self.session = Session(self.engine, autocommit=False, autoflush=False)
-
 
 class DestinationDB:
     def __init__(self, config):
         self.base = automap_base()
         if not database_exists(config.destination_uri):
-            msg = input(f"{config.destination_uri} db does not exist, create destination database?(y/n) ")
-            if msg.lower() == "y":
-                try:
-                    create_database(config.destination_uri)
-                    print("database creted ..")
-                except Exception as err:
-                    print(err)
-                    sys.exit(1)
-            else:
-                sys.exit(0)
+            while True:
+                msg = input(f"{config.destination_uri} db does not exist, create destination database?(y/n) ")
+                if msg.lower() == "y":
+                    try:
+                        create_database(config.destination_uri)
+                        print("database creted ..")
+                    except Exception as err:
+                        goodby_message(err, 1)
+                        break
+                elif msg.lower() == "n":
+                    goodby_message("Destination database does not exit \nExiting ..", 0)
+                    break
 
         self.engine = create_engine(config.destination_uri)
         self.base.prepare(self.engine, reflect=True)
