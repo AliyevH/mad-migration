@@ -69,8 +69,11 @@ def detect_driver(driver: str) -> object:
         "mysqldb" : mysql_migrate,
         "pymysql": mysql_migrate,
         "mysql+pymysql" : mysql_migrate,
-        "psycopg2": postgres_migrate  # heleki ozum verdim ki mende error vermesin
-
+        "psycopg2": postgres_migrate,  
+        "postgresql+psycopg2": postgres_migrate,
+        "postgresql+pg8000": postgres_migrate,
+       # "postgresql+asyncpg": postgres_migrate,
+       # "asyncpg": postgres_migrate
     }.get(driver)
 
 

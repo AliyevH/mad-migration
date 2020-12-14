@@ -19,11 +19,11 @@ class OptionsSchema(BaseModel):
     length: Union[int,None] = None
     type_cast: Union[str,None] = None
 
-    @validator("type_cast")
-    def validate_cast(cls,v,values): #TODO check types
-        if v == "integer" and values["length"] != None:
-            raise ValueError(f"Type {v} has no length")
-        return v
+    # @validator("type_cast")   #TODO check types
+    # def validate_cast(cls,v,values): 
+    #     if v == "integer" and values["length"] != None:
+    #         raise ValueError(f"Type {v} has no length")
+    #     return v
 
 
 class SourceConfigSchema(BaseModel):

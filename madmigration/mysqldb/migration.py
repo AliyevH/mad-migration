@@ -45,7 +45,6 @@ class Migrate:
         self.migration_tables = migration_table
         self.connection = engine
         self.engine = engine.engine
-        self.__queue  = []
         self.metadata = MetaData()
         self.parse_migration_tables()
     
@@ -54,7 +53,6 @@ class Migrate:
 
     def __exit__(self, type, value, traceback):
         self.engine.session.close()
-        self.sourceDB.session.close()
 
     def parse_migration_tables(self):
         """
