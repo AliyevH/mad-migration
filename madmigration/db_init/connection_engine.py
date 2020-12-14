@@ -35,7 +35,7 @@ class DestinationDB:
                         print("database creted ..")
                     except Exception as err:
                         goodby_message(err, 1)
-                        break
+                    break
                 elif msg.lower() == "n":
                     goodby_message("Destination database does not exit \nExiting ..", 0)
                     break
