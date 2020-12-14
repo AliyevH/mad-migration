@@ -1,6 +1,7 @@
 from datetime import datetime
 from sqlalchemy.schema import DropTable
 from sqlalchemy.ext.compiler import compiles
+from typing import Union
 import os
 from pathlib import Path
 from sqlalchemy import (
@@ -60,7 +61,7 @@ def get_column_type(type_name: str) -> object:
 ###########################
 # Detect db driver fro migration #
 ###########################
-def detect_driver(driver: str) -> object:
+def detect_driver(driver: str) -> Union[mysql_migrate, postgres_migrate]:
     """
     :param driver: str
     :return: object class

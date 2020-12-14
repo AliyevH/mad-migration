@@ -77,5 +77,5 @@ class DestinationDB:
                 sys.exit(0)
 
         self.engine = create_engine(config.destination_uri)
-        self.base.prepare(self.engine, reflect=True)
+        self.base.prepare(self.engine)
         self.session = Session(self.engine, autocommit=False, autoflush=False)
