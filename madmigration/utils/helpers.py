@@ -91,3 +91,19 @@ def check_file(file):
     
 def file_not_found(file):
     raise FileDoesNotExists(f"Given file does not exists file: {file}",)
+
+
+def issue_url():
+    return "https://github.com/MadeByMads/mad-migration/issues"
+
+def app_name():
+    return "madmigrate"
+
+
+def parse_uri(uri):
+    if "///" in uri:
+        database_name  = uri.split("///")[-1]
+    else:
+        database_name = uri.split("/")[-1]
+
+    return database_name
