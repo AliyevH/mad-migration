@@ -79,18 +79,31 @@ def detect_driver(driver: str) -> object:
 
 @compiles(DropTable, "postgresql")
 def _compile_drop_table(element, compiler, **kwargs):
-    """ 
+    """
     Drop table cascade with foreignkeys
     https://stackoverflow.com/questions/38678336/sqlalchemy-how-to-implement-drop-table-cascade# 
-    
     """
     return compiler.visit_drop_table(element) + " CASCADE"
 
 
 def check_file(file):
-    if Path(file).is_file() and os.access(file, os.R_OK):
-        return True
-        
-    
+    return Path(file).is_file() and os.access(file, os.R_OK)
+
 def file_not_found(file):
     raise FileDoesNotExists(f"Given file does not exists file: {file}",)
+
+
+def issue_url():
+    return "https://github.com/MadeByMads/mad-migration/issues"
+
+def app_name():
+    return "madmigrate"
+
+
+def parse_uri(uri):
+    if "///" in uri:
+        database_name  = uri.split("///")[-1]
+    else:
+        database_name = uri.split("/")[-1]
+
+    return database_name

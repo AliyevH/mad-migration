@@ -90,8 +90,6 @@ class Controller:
             # Instance of Migrate class
             migrate = Migrate(mt.migrationTable, self.sourceDB)
             migrate.parse_migration_tables()    
-            
-                    
 
             # Dictionary is used to keep data about destination column and type_cast format
             self.convert_info = {}
@@ -110,12 +108,10 @@ class Controller:
             
             # self.source_data is data received (yield) from get_data_from_source_table function
             self.source_data = migrate.get_data_from_source_table(mt.migrationTable.SourceTable, columns)
-            count = 0
+
             for source_data in self.source_data:
-                count += 1
                 new_data = Migrate.type_cast(data_from_source=source_data, mt=mt, convert_info=self.convert_info)
                 Migrate.insert_data(engine=self.destinationDB, table_name=self.destination_table.name, data=new_data)
-            print(count)
             
             # count = 0
             # from time import sleep
