@@ -21,8 +21,8 @@ def cli(file):
 
         with Controller(config) as app:
 
-            # app.prepare_tables()
-            app.run()
+            app.prepare_tables()
+            # app.run()
     else:
         file_not_found(file)
 
