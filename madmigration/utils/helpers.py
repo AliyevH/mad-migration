@@ -67,6 +67,7 @@ def detect_driver(driver: str) -> object:
     """
     return {
         "mysqldb" : mysql_migrate,
+        "mysql+mysqldb": mysql_migrate,
         "pymysql": mysql_migrate,
         "mysql+pymysql" : mysql_migrate,
         "psycopg2": postgres_migrate,  

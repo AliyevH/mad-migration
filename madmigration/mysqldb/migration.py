@@ -161,8 +161,9 @@ class Migrate:
                     msg = f"The table {table_name} will be dropped and recreated,your table data will be lost,process?(yes/no)"
                     rcv = input(msg)
                     if rcv.lower() == "yes":
-                        self.drop_fk(table_name)
-                        self.drop_table(table_name)
+                        self.db_drop_everything(self.engine)
+                        # self.drop_fk(table_name)
+                        # self.drop_table(table_name)
                         return False
                     elif rcv.lower() == "no":
                         return True
@@ -256,6 +257,7 @@ class Migrate:
         try:
             insp = reflection.Inspector.from_engine(self.engine)
             has_column = False
+            
             for col in insp.get_columns(table_name):
                 if column_name not in col['name'] :
                     continue
@@ -271,11 +273,15 @@ class Migrate:
             transactional = conn.begin()
             meta = MetaData()
             meta.reflect(bind=self.engine)
+            # self.connection.session.execute("SET FOREIGN_KEY_CHECKS = 0;")
             fk_constraints = [ForeignKeyConstraint((), (), name=e.target_fullname) for e in meta.tables[table_name].foreign_keys if e.target_fullname]
+            
+            print(fk_constraints)
             for fk in fk_constraints:
                 conn.execute(DropConstraint(fk))
             
             transactional.commit()
+            # self.connection.session.execute("SET FOREIGN_KEY_CHECKS = 1;")
         except Exception as err:
             print(err)
         finally:

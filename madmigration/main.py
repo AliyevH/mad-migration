@@ -57,7 +57,7 @@ class Controller:
 
         migrate = detect_driver(self.destinationDB_driver)
         
-        for migrate_table in self.migration_tables:
+        for migrate_table in self.migration_tables: #FIXME kecirtmek lazimdi classin icine fk-lar olan tablelar ferqli gelende error verir drop_fk metodu
             
             mig = migrate(migrate_table.migrationTable,self.destinationDB)
             mig.create_tables()

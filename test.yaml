@@ -4,7 +4,7 @@ Configs:
       dbURI: "postgresql:///userTodoDb"
       # dbURI: "mysql://root:admin@127.0.0.1/old"
   - DestinationConfig:
-      dbURI: "postgresql:///tural"
+      dbURI: "mysql+mysqldb://tural:12bizimki@localhost/testdb"
       # dbURI: "mysql://root:admin@127.0.0.1/madmigration"
 
 migrationTables:
@@ -22,7 +22,8 @@ migrationTables:
             name: id
             options:
               primary_key: true
-              type_cast: uuid
+              autoincrement: true
+              type_cast: integer
 
         - sourceColumn:
             name: name
@@ -37,8 +38,8 @@ migrationTables:
           destinationColumn:
             name: lastname
             options:
-              type_cast: string
-              # length: 120
+              type_cast: varchar
+              length: 120
         - sourceColumn:
             name: nickname
           destinationColumn:
@@ -60,25 +61,33 @@ migrationTables:
             name: id
             options:
               primary_key: true
-              # autoincrement: true
-              type_cast: uuid
+              autoincrement: true
+              type_cast: integer
 
         - sourceColumn:
             name: date
           destinationColumn:
             name: time
             options:
-              type_cast: time
+              type_cast: datetime
               nullable: False
+
+        - sourceColumn:
+            name: nickname
+          destinationColumn:
+            name: nick
+            options:
+              type_cast: varchar
+              length: 60
               
         - sourceColumn:
             name: user_id
           destinationColumn:
             name: userID
             options:
-              type_cast: uuid
+              type_cast: integer
               foreign_key:
                 table_name: user
                 column_name: id
-                ondelete: set null
+                ondelete: cascade
         
