@@ -20,8 +20,6 @@ class SourceDB:
         if not database_exists(config.source_uri):
             goodby_message(self.database_not_exists(config.source_uri), 0)
 
-            # sys.stdout.write(self.database_not_exists(config.source_uri))
-            # sys.exit(0)
         self.engine = create_engine(config.source_uri, echo=False)
         self.base.prepare(self.engine, reflect=True)
         self.session = Session(self.engine, autocommit=False, autoflush=False)
