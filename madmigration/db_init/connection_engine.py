@@ -11,17 +11,17 @@ def before_parent_attach(target, parent):
         print(target)
 
 def goodby_message(message, exit_code=0):
-    print(message)
+    print(message, flush=True)
     sys.exit(int(exit_code))
 
 class SourceDB:
     def __init__(self, config):
         self.base = automap_base()
         if not database_exists(config.source_uri):
-            goodby_message("Source database does not exit \nExiting ..", 0)
+            goodby_message(self.database_not_exists(config.source_uri), 0)
 
-            sys.stdout.write(self.database_not_exists(config.source_uri))
-            sys.exit(0)
+            # sys.stdout.write(self.database_not_exists(config.source_uri))
+            # sys.exit(0)
         self.engine = create_engine(config.source_uri, echo=False)
         self.base.prepare(self.engine, reflect=True)
         self.session = Session(self.engine, autocommit=False, autoflush=False)
