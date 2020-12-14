@@ -343,13 +343,13 @@ class Migrate:
             if convert_info.get(destination_column):
                 # ClassType is Class of data type (int, str, float, etc...)
                 # Using this ClassType we are converting data into format specified in type_cast
-                dataype = get_type_object(destination_type_cast)
+                datatype = get_type_object(destination_type_cast)
 
                 try:
-                    if dataype.__name__ == "uuid4":
-                        data_from_source[destination_column] = dataype()
+                    if datatype.__name__ == "uuid4":
+                        data_from_source[destination_column] = datatype()
                     else:
-                        data_from_source[destination_column] = dataype(data_from_source.pop(source_column))
+                        data_from_source[destination_column] = datatype(data_from_source.pop(source_column))
                        
                 except Exception as err:
                     print(err)
