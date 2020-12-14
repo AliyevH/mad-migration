@@ -36,7 +36,7 @@ from madmigration.config.conf import Config
 from pprint import pprint
 
 
-class Migrate: 
+class Migrate: #FIXME check table exist in parse_migration_tables function
     def __init__(self, config: Config,destination_db):
         self.global_config = config
         self.migration_tables = config.migrationTables
@@ -219,7 +219,7 @@ class Migrate:
                         msg = f"The table {table_name} will be dropped and recreated,your table data will be lost,process?(yes/no)"
                         rcv = input(msg)
                         if rcv.lower() == "yes":
-                            self.drop_table_and_fk(table_name)
+                            self.db_drop_everything(table_name)
                             return False
                         elif rcv.lower() == "no":
                             return True
@@ -332,6 +332,7 @@ class Migrate:
 
     def drop_fk(self, fk_constraints: str):
         try:
+            print("DROOOOP")
             conn = self.engine.connect()
             transactional = conn.begin()
             
@@ -346,6 +347,7 @@ class Migrate:
 
     def drop_table_and_fk(self,table_name):
         try:
+            print(self.fk_tables)
             for _, constraint in self.fk_tables.items():
                 self.drop_fk(constraint)
             self.drop_tables(*[table_name])
@@ -354,13 +356,12 @@ class Migrate:
             print("err -> ",err)
             return False
 
-    def db_drop_everything(self,engine):
+    def db_drop_everything(self,tablename: str):
         """ From http://www.sqlalchemy.org/trac/wiki/UsageRecipes/DropEverything """
         try:
-            conn = engine.connect()
+            conn = self.engine.connect()
             transactional = conn.begin()
-            inspector = reflection.Inspector.from_engine(engine)
-            metadata = MetaData()
+            inspector = reflection.Inspector.from_engine(self.engine)
 
             tables = []
             all_foreign_keys = []
@@ -371,7 +372,7 @@ class Migrate:
                     if not fk["name"]:
                         continue
                     fks.append(ForeignKeyConstraint((), (), name=fk["name"]))
-                t = Table(table_name, metadata, *fks)
+                t = Table(table_name, self.metadata, *fks)
                 tables.append(t)
                 all_foreign_keys.extend(fks)
 
@@ -379,11 +380,13 @@ class Migrate:
                 conn.execute(DropConstraint(foreignkey))
 
             for table in tables:
-                conn.execute(DropTable(table))
+                if tablename == table.name:
+                
+                    conn.execute(DropTable(table))
 
             transactional.commit()
         except Exception as err:
-            print(err)
+            print("err -> ",err)
             return False
         finally:
             conn.close()
