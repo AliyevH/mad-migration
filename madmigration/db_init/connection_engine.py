@@ -39,6 +39,7 @@ class DestinationDB:
                 elif msg.lower() == "n":
                     goodby_message("Destination database does not exit \nExiting ..", 0)
                     break
+                print("Please, select command")
 
         self.engine = create_engine(config.destination_uri)
         self.base.prepare(self.engine, reflect=True)
