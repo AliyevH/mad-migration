@@ -39,26 +39,6 @@ def get_cast_type(type_name: str) -> object:
 
 
 ###########################
-# Get class of db type #
-###########################
-def get_column_type(type_name: str) -> object:
-    """
-    :param type_name: str
-    :return: object class
-    """
-    return {
-        'string': String,
-        'integer': Integer,
-        'biginteger': BigInteger,
-        'float': Float,
-        'datetime': DateTime,
-        'date' : Date,
-        'timestamp' : TIMESTAMP,
-        'varchar': VARCHAR
-    }.get(type_name.lower())
-
-
-###########################
 # Detect db driver fro migration #
 ###########################
 def detect_driver(driver: str) -> Union[mysql_migrate, postgres_migrate]:

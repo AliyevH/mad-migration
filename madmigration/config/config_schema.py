@@ -40,7 +40,8 @@ class SourceTableSchema(BaseModel):
 
 class DestTableSchema(BaseModel):
     name: str
-    create: bool = True
+    create: bool = False
+    
 class DestinationColumn(BaseModel):
     name: str
     options: OptionsSchema

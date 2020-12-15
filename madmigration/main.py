@@ -1,6 +1,6 @@
 from madmigration.db_init.connection_engine import SourceDB
 from madmigration.db_init.connection_engine import DestinationDB
-from madmigration.utils.helpers import detect_driver, get_cast_type, get_column_type
+from madmigration.utils.helpers import detect_driver, get_cast_type
 from sqlalchemy import Column, MetaData, Table
 from madmigration.config.conf import Config
 from madmigration.mysqldb.type_convert import get_type_object
@@ -60,8 +60,8 @@ class Controller:
         mig.prepare_tables()
         # print(mig.tables_must_create)
         # print(mig.table_list)
-        mig.create_tables()
-        mig.create_fk_constraint()
+        mig.process()
+        # mig.create_fk_constraint()
             
         
         # migrate.create_fk_constraint(self.destination_db.engine)

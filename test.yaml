@@ -4,6 +4,7 @@ Configs:
       dbURI: "postgresql:///userTodoDb"
       # dbURI: "mysql://root:admin@127.0.0.1/old"
   - DestinationConfig:
+      # dbURI: "postgresql:///tural"
       dbURI: "mysql+mysqldb://tural:12bizimki@localhost/testdb"
       # dbURI: "mysql://root:admin@127.0.0.1/madmigration"
 
@@ -13,7 +14,7 @@ migrationTables:
         name: User
       DestinationTable:
         name: user
-        create: True # -> I suggest that we have to define this option that will tell us whether we have to create tables or not
+        create: true # -> I suggest that we have to define this option that will tell us whether we have to create tables or not
 
       MigrationColumns:
         - sourceColumn:
@@ -90,5 +91,4 @@ migrationTables:
               foreign_key:
                 table_name: user
                 column_name: id
-                ondelete: cascade
         
