@@ -16,8 +16,8 @@ from sqlalchemy import (
 )
 from madmigration.errors import FileDoesNotExists
 
-from madmigration.mysqldb.migration import Migrate as mysql_migrate
-from madmigration.postgresqldb.migration import Migrate as postgres_migrate
+from madmigration.mysqldb.migration import MysqlMigrate
+from madmigration.postgresqldb.migration import PgMigrate
 
 ###########################
 # Get class of cast #
@@ -41,19 +41,19 @@ def get_cast_type(type_name: str) -> object:
 ###########################
 # Detect db driver fro migration #
 ###########################
-def detect_driver(driver: str) -> Union[mysql_migrate, postgres_migrate]:
+def detect_driver(driver: str) -> Union[MysqlMigrate, PgMigrate]:
     """
     :param driver: str
     :return: object class
     """
     return {
-        "mysqldb" : mysql_migrate,
-        "mysql+mysqldb": mysql_migrate,
-        "pymysql": mysql_migrate,
-        "mysql+pymysql" : mysql_migrate,
-        "psycopg2": postgres_migrate,  
-        "postgresql+psycopg2": postgres_migrate,
-        "postgresql+pg8000": postgres_migrate,
+        "mysqldb" : MysqlMigrate,
+        "mysql+mysqldb": MysqlMigrate,
+        "pymysql": MysqlMigrate,
+        "mysql+pymysql" : MysqlMigrate,
+        "psycopg2": PgMigrate,  
+        "postgresql+psycopg2": PgMigrate,
+        "postgresql+pg8000": PgMigrate,
        # "postgresql+asyncpg": postgres_migrate,
        # "asyncpg": postgres_migrate
     }.get(driver)
