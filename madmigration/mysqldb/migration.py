@@ -1,15 +1,9 @@
-from madmigration.config.config_schema import MigrationTablesSchema
-from madmigration.config.config_schema import ColumnParametersSchema
-from madmigration.config.config_schema import TablesInfo
-from sqlalchemy import Column, Table, MetaData, ForeignKey,ForeignKeyConstraint
 from sqlalchemy.schema import DropConstraint, DropTable
 from sqlalchemy.engine import reflection
 from madmigration.errors import TableExists
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
 from sqlalchemy import DateTime
-from sqlalchemy_utils import UUIDType
-from madmigration.mysqldb.type_convert import get_type_object
 from sqlalchemy.dialects.mysql import (
     VARCHAR,
     INTEGER,
