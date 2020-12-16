@@ -18,31 +18,14 @@ class SourceDB:
     def __init__(self, config):
         self.base = automap_base()
         if not database_exists(config.source_uri):
-            goodby_message(self.database_not_exists(config.source_uri), 0)
+            goodby_message(database_not_exists(config.source_uri), 0)
 
         self.engine = create_engine(config.source_uri, echo=False)
         self.base.prepare(self.engine, reflect=True)
         self.session = Session(self.engine, autocommit=False, autoflush=False)
 
 
-    def database_not_exists(self,database):
-        
-        """This function will be executed if there is no database exists """
 
-        database = parse_uri(database)
-
-        usage = [
-            "",
-            f"😭 Error: Source database '{database}'  does not exists",
-            "",
-            f"Run '{app_name()} --help' for usage.",
-            "",
-            f"🥳  if you think something is wrong please feel free to open issues 👉'{issue_url()}'👈 ",
-            "",
-            "Exiting ...",
-            ""
-        ]
-        return "\n".join(usage)
 
 
 class DestinationDB:
@@ -54,28 +37,39 @@ class DestinationDB:
                 if msg.lower() == "y":
                     try:
                         create_database(config.destination_uri)
-                        print("database creted ..")
+                        print("database created ..")
+                        break
                     except Exception as err:
-                        goodby_message(err, 1)
+                        goodby_message(database_not_exists(config.source_uri), 1)
                     break
                 elif msg.lower() == "n":
                     goodby_message("Destination database does not exit \nExiting ..", 0)
                     break
                 print("Please, select command")
 
-            database_name = parse_uri(config.destination_uri)
+            
            
-            msg = input(f"The database {database_name} does not exists, would you like to create it in the destination?(y/n) ")
-            if msg.lower() == "y":
-                try:
-                    create_database(config.destination_uri)
-                    sys.stdout.write("Database created ..")
-                except Exception as err:
-                    print(err)
-                    sys.exit(1)
-            else:
-                sys.exit(0)
 
         self.engine = create_engine(config.destination_uri)
-        self.base.prepare(self.engine, reflect=True)
+        self.base.prepare(self.engine)
         self.session = Session(self.engine, autocommit=False, autoflush=False)
+
+
+def database_not_exists(database):
+    
+    """This function will be executed if there is no database exists """
+
+    database = parse_uri(database)
+
+    usage = [
+        "",
+        f"😭 Error: Source database '{database}'  does not exists",
+        "",
+        f"Run '{app_name()} --help' for usage.",
+        "",
+        f"🥳  if you think something is wrong please feel free to open issues 👉'{issue_url()}'👈 ",
+        "",
+        "Exiting ...",
+        ""
+    ]
+    return "\n".join(usage)

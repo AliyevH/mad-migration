@@ -1,6 +1,7 @@
 from datetime import datetime
 from sqlalchemy.schema import DropTable
 from sqlalchemy.ext.compiler import compiles
+from typing import Union
 import os
 from pathlib import Path
 from sqlalchemy import (
@@ -15,8 +16,8 @@ from sqlalchemy import (
 )
 from madmigration.errors import FileDoesNotExists
 
-from madmigration.mysqldb.migration import Migrate as mysql_migrate
-from madmigration.postgresqldb.migration import Migrate as postgres_migrate
+from madmigration.mysqldb.migration import MysqlMigrate
+from madmigration.postgresqldb.migration import PgMigrate
 
 ###########################
 # Get class of cast #
@@ -38,40 +39,21 @@ def get_cast_type(type_name: str) -> object:
 
 
 ###########################
-# Get class of db type #
-###########################
-def get_column_type(type_name: str) -> object:
-    """
-    :param type_name: str
-    :return: object class
-    """
-    return {
-        'string': String,
-        'integer': Integer,
-        'biginteger': BigInteger,
-        'float': Float,
-        'datetime': DateTime,
-        'date' : Date,
-        'timestamp' : TIMESTAMP,
-        'varchar': VARCHAR
-    }.get(type_name.lower())
-
-
-###########################
 # Detect db driver fro migration #
 ###########################
-def detect_driver(driver: str) -> object:
+def detect_driver(driver: str) -> Union[MysqlMigrate, PgMigrate]:
     """
     :param driver: str
     :return: object class
     """
     return {
-        "mysqldb" : mysql_migrate,
-        "pymysql": mysql_migrate,
-        "mysql+pymysql" : mysql_migrate,
-        "psycopg2": postgres_migrate,  
-        "postgresql+psycopg2": postgres_migrate,
-        "postgresql+pg8000": postgres_migrate,
+        "mysqldb" : MysqlMigrate,
+        "mysql+mysqldb": MysqlMigrate,
+        "pymysql": MysqlMigrate,
+        "mysql+pymysql" : MysqlMigrate,
+        "psycopg2": PgMigrate,  
+        "postgresql+psycopg2": PgMigrate,
+        "postgresql+pg8000": PgMigrate,
        # "postgresql+asyncpg": postgres_migrate,
        # "asyncpg": postgres_migrate
     }.get(driver)
