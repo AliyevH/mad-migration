@@ -196,7 +196,7 @@ class BaseMigrate:
                 while True:
                     answ = input(
                         f"Table with name '{table_name}' already exist,\
-'{table_name}' table will be dropped and recreated,your table data will be lost,process?(yes/no) ")
+'{table_name}' table will be dropped and recreated,your table data will be lost,process?(y/n) ")
                     if answ.lower() == "y":
                         self.db_operations.drop_fk(self.dest_fk)
                         self.db_operations.drop_table(table_name)
