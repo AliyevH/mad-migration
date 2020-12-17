@@ -23,7 +23,7 @@ def cli(file):
         with Controller(config) as app:
 
             app.run_table_migrations()
-            # app.run()
+            app.run()
     else:
         file_not_found(file)
 

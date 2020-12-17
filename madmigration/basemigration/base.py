@@ -256,15 +256,14 @@ class BaseMigrate:
             engine.session.execute(stmt)
             engine.session.commit()
         except Exception as err:
-            print("err -> ", err, "data: ", data, "table: ", table_name)
+            print("insert_data: err -> ", err)#, "data: ", data, "table: ", table_name)
         finally:
             engine.session.close()    
 
     @staticmethod
     def type_cast(data_from_source, mt, convert_info: dict):
-
         for columns in mt.migrationTable.MigrationColumns:
-            source_column = columns.sourceColumn.get("name")
+            source_column = columns.sourceColumn.name
             destination_column = columns.destinationColumn.name
             
             if columns.destinationColumn.options.type_cast:

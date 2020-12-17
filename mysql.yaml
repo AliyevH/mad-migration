@@ -5,14 +5,14 @@ Configs:
        dbURI: "mysql://root:admin@127.0.0.1/old"
   - DestinationConfig:
 #      dbURI: "postgresql:///caruserdb"
-       dbURI: "mysql://root:admin@127.0.0.1/new"
+       dbURI: "postgresql://postgres:postgres@127.0.0.1/new"
 
 migrationTables:
   - migrationTable:
       SourceTable:
         name: old_cars
       DestinationTable:
-        name: drivers_drivers
+        name: drivers
         create: True # -> I suggest that we have to define this option that will tell us whether we have to create tables or not
 
       MigrationColumns:

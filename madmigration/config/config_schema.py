@@ -46,10 +46,13 @@ class DestinationColumn(BaseModel):
     name: str
     options: OptionsSchema
 
+class SourceColumn(BaseModel):
+    name: str
+
 
 class ColumnParametersSchema(BaseModel):
     destinationColumn: DestinationColumn
-    sourceColumn: Any
+    sourceColumn: SourceColumn
 
 
 class TablesInfo(BaseModel):

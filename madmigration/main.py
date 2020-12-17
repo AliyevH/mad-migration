@@ -99,7 +99,7 @@ class Controller:
                 columns = []
                 
                 for column in migrate.columns:
-                    columns.append(column.sourceColumn.get("name"))
+                    columns.append(column.sourceColumn.name)
 
                     if column.destinationColumn.options.type_cast:
                         self.convert_info[
@@ -112,15 +112,7 @@ class Controller:
                     new_data = Migrate.type_cast(data_from_source=source_data, mt=mt, convert_info=self.convert_info)
                     Migrate.insert_data(engine=self.destination_db, table_name=self.destination_table.name, data=new_data)
                 
-                # count = 0
-                # from time import sleep
-                # for data in Migrate.loop_in_data(self.source_data, mt, self.convert_info):
-                #     count += 1
-                #     print("count: ",count, "id: ", data.get("id"))
-                #     print(self.destination_table.name)
-                #     sleep(1)
-                    # Migrate.insert_data(engine=self.destination_db, table_name=self.destination_table.name, data=data)
-            
+
         except Exception as err:
             print(err)
 

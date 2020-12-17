@@ -45,9 +45,10 @@ class DestinationDB:
                     break
                 print("Please, select command")
 
+        
         self.base = automap_base()
         self.engine = create_engine(destination_uri)
-        self.base.prepare(self.engine)
+        self.base.prepare(self.engine, reflect=True)
         self.session = Session(self.engine, autocommit=False, autoflush=False)
 
 
