@@ -1,5 +1,6 @@
 from datetime import datetime
 from sqlalchemy.schema import DropTable
+from sqlalchemy.schema import ForeignKeyConstraint
 from sqlalchemy.ext.compiler import compiles
 from typing import Union
 import os
@@ -51,6 +52,7 @@ def detect_driver(driver: str) -> Union[MysqlMigrate, PgMigrate]:
         "mysql+mysqldb": MysqlMigrate,
         "pymysql": MysqlMigrate,
         "mysql+pymysql" : MysqlMigrate,
+        "mariadb+pymsql" : MysqlMigrate,
         "psycopg2": PgMigrate,  
         "postgresql+psycopg2": PgMigrate,
         "postgresql+pg8000": PgMigrate,
@@ -66,6 +68,13 @@ def _compile_drop_table(element, compiler, **kwargs):
     https://stackoverflow.com/questions/38678336/sqlalchemy-how-to-implement-drop-table-cascade# 
     """
     return compiler.visit_drop_table(element) + " CASCADE"
+
+
+
+@compiles(ForeignKeyConstraint, "mysql", "mariadb")
+def process(element, compiler, **kw):
+    element.deferrable = element.initially = None
+    return compiler.visit_foreign_key_constraint(element, **kw)
 
 
 def check_file(file):

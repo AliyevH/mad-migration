@@ -23,8 +23,8 @@ class Controller:
         self.config = migration_config
 
         # Source and Destination DB Initialization with session
-        self.source_db = SourceDB(self.config)
-        self.destination_db = DestinationDB(self.config)
+        self.source_db = SourceDB(self.config.source_uri)
+        self.destination_db = DestinationDB(self.config.destination_uri)
         self.metadata = MetaData()
 
         # Source and Destination Database - all tables (NOT MIGRATION TABLES!!!)
@@ -58,10 +58,7 @@ class Controller:
         
         mig = migrate(self.config,self.destination_db)
         mig.prepare_tables()
-        # print(mig.tables_must_create)
-        # print(mig.table_list)
         mig.process()
-        # mig.create_fk_constraint()
             
         
         # migrate.create_fk_constraint(self.destination_db.engine)

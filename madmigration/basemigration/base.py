@@ -24,9 +24,9 @@ class BaseMigrate:
         self.alter_col = defaultdict(list)
         self.fk_constraints = []
         self.dest_fk = []
+        self.contraints_columns = defaultdict(set)
         self.db_operations = DbOperations(self.engine)
-        self.collect_table_names()
-        self.collect_drop_fk()
+
     
     def __enter__(self):
         return self
@@ -59,6 +59,7 @@ class BaseMigrate:
                         if not fk["name"]:
                             continue
                         self.dest_fk.append(ForeignKeyConstraint((), (), name=fk["name"]))
+                        self.contraints_columns[table_name].add(*fk["constrained_columns"])
             transactional.commit()
         except Exception as err:
             print("err -> ",err)
@@ -153,7 +154,7 @@ class BaseMigrate:
             # self.alter_columns()
             self.update_table()
             self.create_tables()
-            self.db_operations.create_fk_constraint(self.fk_constraints)
+            self.db_operations.create_fk_constraint(self.fk_constraints,self.contraints_columns)
             return True
         except Exception as err:
             print("create_tables err -> ", err)

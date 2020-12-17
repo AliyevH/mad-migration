@@ -31,12 +31,12 @@ from madmigration.db_operations.operations import DbOperations
 from madmigration.basemigration.base import BaseMigrate
 from pprint import pprint
 
-
 class MysqlMigrate(BaseMigrate): 
     def __init__(self, config: Config,destination_db):
         super().__init__(config,destination_db)
         self.dest_fk = defaultdict(list)
         self.db_operations = MysqlDbOperations(self.engine)
+        self._drop_tables = []
         self.collect_table_names()
         self.collect_drop_fk()
     
@@ -56,12 +56,11 @@ class MysqlMigrate(BaseMigrate):
                     for fk in inspector.get_foreign_keys(table_name):
                         if not fk["name"]:
                             continue
-                        print(fk)
-                        print("TT -> ", table_name)
                         self.dest_fk[fk["referred_table"]].append((table_name,fk["name"]))
+                        self.contraints_columns[table_name].add(*fk["constrained_columns"])
             transactional.commit()
         except Exception as err:
-            print("err -> ",err)
+            print("collect_drop_fk own -> ",err)
             return False
         finally:
             conn.close()
@@ -73,12 +72,12 @@ class MysqlMigrate(BaseMigrate):
                 while True:
                     answ = input(
                         f"Table with name '{table_name}' already exist,\
-'{table_name}' table will be dropped and recreated,your table data will be lost,process?(yes/no) "
+'{table_name}' table will be dropped and recreated,your table data will be lost,process?(y/n) "
                     )
-                    if answ.lower() == "yes":
+                    if answ.lower() == "y":
                         if self.dest_fk[table_name]:
                             self.db_operations.drop_fk(self.dest_fk[table_name])
-                        self.db_operations.drop_table(table_name)
+                        self._drop_tables.append(table_name)
                         return False
                     elif answ.lower() == "n":
                         return True
@@ -86,8 +85,23 @@ class MysqlMigrate(BaseMigrate):
                         continue
             return False
         except Exception as err:
-            print(err)
+            print("check_table -> ",err)
             return False
+
+    def process(self):
+        """
+        Create and check existing tables. 
+        Collect foreign key constraints
+        """
+        try:
+            if self._drop_tables:
+                self.db_operations.bulk_drop_tables(*self._drop_tables)
+            self.update_table()
+            self.create_tables()
+            self.db_operations.create_fk_constraint(self.fk_constraints,self.contraints_columns)
+            return True
+        except Exception as err:
+            print("create_tables err -> ", err)
 
     @staticmethod
     def get_column_type(type_name: str) -> object:
@@ -127,7 +141,7 @@ class MysqlDbOperations(DbOperations):
             op = Operations(ctx)
             # [('todo', 'todo_ibfk_1')]
             for fk in fk_constraints:
-                op.drop_constraint(fk[1], fk[0], type_="foreignkey", schema=None)
+                op.drop_constraint(fk[1], fk[0], type_="foreignkey")
         except Exception as err:
             print("fk_drop -> ",err)
         finally:

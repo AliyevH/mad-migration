@@ -15,42 +15,38 @@ def goodby_message(message, exit_code=0):
     sys.exit(int(exit_code))
 
 class SourceDB:
-    def __init__(self, config):
+    def __init__(self, source_uri):
+        if not database_exists(source_uri):
+            goodby_message(database_not_exists(source_uri), 0)
         self.base = automap_base()
-        if not database_exists(config.source_uri):
-            goodby_message(database_not_exists(config.source_uri), 0)
-
-        self.engine = create_engine(config.source_uri, echo=False)
+        self.engine = create_engine(source_uri, echo=False)
         self.base.prepare(self.engine, reflect=True)
         self.session = Session(self.engine, autocommit=False, autoflush=False)
-
-
+        
 
 
 
 class DestinationDB:
-    def __init__(self, config):
-        self.base = automap_base()
-        if not database_exists(config.destination_uri):
+    def __init__(self, destination_uri):
+        if not database_exists(destination_uri):
             while True:
-                msg = input(f"{config.destination_uri} db does not exist, create destination database?(y/n) ")
+                database = parse_uri(destination_uri)
+                msg = input(f"{database} db does not exist, create destination database?(y/n) ")
                 if msg.lower() == "y":
                     try:
-                        create_database(config.destination_uri)
+                        create_database(destination_uri)
                         print("database created ..")
                         break
                     except Exception as err:
-                        goodby_message(database_not_exists(config.source_uri), 1)
+                        goodby_message(database_not_exists(err), 1)
                     break
                 elif msg.lower() == "n":
                     goodby_message("Destination database does not exit \nExiting ..", 0)
                     break
                 print("Please, select command")
 
-            
-           
-
-        self.engine = create_engine(config.destination_uri)
+        self.base = automap_base()
+        self.engine = create_engine(destination_uri)
         self.base.prepare(self.engine)
         self.session = Session(self.engine, autocommit=False, autoflush=False)
 
