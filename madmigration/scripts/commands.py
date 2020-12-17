@@ -20,7 +20,6 @@ def cli(file):
 
     if check_file(file):
         config = Config(file)
-        print(config.destination_uri)
         with Controller(config) as app:
 
             app.run_table_migrations()
