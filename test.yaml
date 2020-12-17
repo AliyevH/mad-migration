@@ -4,8 +4,8 @@ Configs:
       dbURI: "postgresql:///company_service"
       # dbURI: "mysql://root:admin@127.0.0.1/old"
   - DestinationConfig:
-      dbURI: "postgresql:///tural"
-      # dbURI: "mysql://root:admin@127.0.0.1/madmigration"
+      # dbURI: "mysql+pymysql://root:admin@127.0.0.1:3308/madmigration"
+      dbURI: "postgresql:///test"
 
 migrationTables:
   - migrationTable:

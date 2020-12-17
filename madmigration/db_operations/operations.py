@@ -87,26 +87,28 @@ class DbOperations:
         finally:
             conn.close()
 
-    def create_fk_constraint(self,fk_constraints:list) -> bool:
+    def create_fk_constraint(self,fk_constraints:list,const_columns:dict) -> bool:
         """ Get list of foreign keys from static list `fk_constraints` and created it  """
         try:
             conn = self.engine.connect()
             ctx = MigrationContext.configure(conn)
             op = Operations(ctx)
-            print(fk_constraints)
+            print("COLS FK -> ",const_columns)
             for constraint in fk_constraints:
                 dest_table_name = constraint.pop("table_name")
                 column_name = constraint.pop("column_name")
                 source_table = constraint.pop("source_table")
                 dest_column = constraint.pop("dest_column")
-                op.create_foreign_key(
-                    None,
-                    source_table,
-                    dest_table_name,
-                    [dest_column],
-                    [column_name],
-                    **constraint,
-                )
+                temp = [i for i in const_columns[source_table]]
+                if not dest_column in temp:
+                    op.create_foreign_key(
+                        None,
+                        source_table,
+                        dest_table_name,
+                        [dest_column],
+                        [column_name],
+                        **constraint,
+                    )
             return True
         except Exception as err:
             print("create_fk_constraint err -> ",err)
@@ -120,7 +122,7 @@ class DbOperations:
             transactional = conn.begin()
             
             for fk in fk_constraints:
-                r =conn.execute(DropConstraint(fk,cascade=True)) # maybe set cascade=True in future
+                conn.execute(DropConstraint(fk,cascade=True)) # maybe set cascade=True in future
 
             transactional.commit()
         except Exception as err:
