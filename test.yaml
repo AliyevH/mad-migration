@@ -1,19 +1,19 @@
 version: 1.1
 Configs:
   - SourceConfig:
-      dbURI: "postgresql:///userTodoDb"
+      dbURI: "postgresql:///company_service"
       # dbURI: "mysql://root:admin@127.0.0.1/old"
   - DestinationConfig:
-      dbURI: "postgresql:///tural"
-      # dbURI: "mysql://root:admin@127.0.0.1/madmigration"
+      # dbURI: "mysql+pymysql://root:admin@127.0.0.1:3308/madmigration"
+      dbURI: "postgresql:///test"
 
 migrationTables:
   - migrationTable:
       SourceTable:
-        name: User
+        name: company
       DestinationTable:
-        name: user
-        create: True # -> I suggest that we have to define this option that will tell us whether we have to create tables or not
+        name: company
+        create: true # -> I suggest that we have to define this option that will tell us whether we have to create tables or not
 
       MigrationColumns:
         - sourceColumn:
@@ -27,31 +27,32 @@ migrationTables:
         - sourceColumn:
             name: name
           destinationColumn:
-            name: firstname
+            name: name
             options:
               length: 120
               type_cast: varchar
+              nullable: false
 
         - sourceColumn:
-            name: surname
+            name: created
           destinationColumn:
-            name: lastname
+            name: created
             options:
-              type_cast: string
-              # length: 120
+              type_cast: datetime
         - sourceColumn:
-            name: nickname
+            name: updated
           destinationColumn:
-            name: nick
+            name: updated
             options:
-              length: 120
-              type_cast: varchar
+              type_cast: datetime
+              nullable: true
 
   - migrationTable:
       SourceTable:
-        name: Todo
+        name: branch
       DestinationTable:
-        name: todo
+        name: branch
+        create: true
 
       MigrationColumns:
         - sourceColumn:
@@ -60,25 +61,364 @@ migrationTables:
             name: id
             options:
               primary_key: true
-              # autoincrement: true
               type_cast: uuid
 
         - sourceColumn:
-            name: date
+            name: name
           destinationColumn:
-            name: time
+            name: name
             options:
-              type_cast: time
+              type_cast: varchar
+              length: 120
               nullable: False
-              
+
         - sourceColumn:
-            name: user_id
+            name: company_id
           destinationColumn:
-            name: userID
+            name: company_id
             options:
               type_cast: uuid
               foreign_key:
-                table_name: user
+                table_name: company
                 column_name: id
-                ondelete: set null
+                ondelete: CASCADE
+
+        - sourceColumn:
+            name: deactivated
+          destinationColumn:
+            name: deactivated
+            options:
+              type_cast: bool
         
+        - sourceColumn:
+            name: created
+          destinationColumn:
+            name: created
+            options:
+              type_cast: datetime
+        - sourceColumn:
+            name: updated
+          destinationColumn:
+            name: updated
+            options:
+              type_cast: datetime
+              nullable: true
+
+  - migrationTable:
+      SourceTable:
+        name: agents
+      DestinationTable:
+        name: agents
+        create: True
+
+      MigrationColumns:
+        - sourceColumn:
+            name: id
+          destinationColumn:
+            name: id
+            options:
+              primary_key: true
+              type_cast: uuid
+        - sourceColumn:
+            name: company_id
+          destinationColumn:
+            name: company_id
+            options:
+              type_cast: uuid
+              foreign_key:
+                table_name: company
+                column_name: id
+        - sourceColumn:
+            name: branch_id
+          destinationColumn:
+            name: branch_id
+            options:
+              type_cast: uuid
+              foreign_key:
+                table_name: branch
+                column_name: id
+        - sourceColumn:
+            name: user_id
+          destinationColumn:
+            name: user_id
+            options:
+              type_cast: uuid
+              nullable: false
+        - sourceColumn:
+              name: created
+          destinationColumn:
+            name: created
+            options:
+              type_cast: datetime
+        - sourceColumn:
+            name: updated
+          destinationColumn:
+            name: updated
+            options:
+              type_cast: datetime
+              nullable: true
+
+  - migrationTable:
+      SourceTable:
+        name: operations
+      DestinationTable:
+        name: operations
+        create: true
+    
+      MigrationColumns:
+        - sourceColumn:
+            name: id
+          destinationColumn:
+            name: id
+            options:
+              primary_key: true
+              type_cast: uuid
+        - sourceColumn:
+            name: operation_type_id
+          destinationColumn:
+            name: operation_type_id
+            options:
+              type_cast: uuid
+              foreign_key:
+                table_name: operation_types
+                column_name: id
+        - sourceColumn:
+            name: lender_id
+          destinationColumn:
+            name: lender_id
+            options:
+              type_cast: uuid
+              foreign_key:
+                table_name: lenders
+                column_name: id
+        - sourceColumn:
+            name: condition_id
+          destinationColumn:
+            name: condition_id
+            options:
+              type_cast: uuid
+              foreign_key:
+                table_name: operation_conditions
+                column_name: id
+        - sourceColumn:
+              name: created
+          destinationColumn:
+            name: created
+            options:
+              type_cast: datetime
+        - sourceColumn:
+            name: updated
+          destinationColumn:
+            name: updated
+            options:
+              type_cast: datetime
+              nullable: true
+
+  - migrationTable:
+      SourceTable:
+        name: lenders
+      DestinationTable:
+        name: lenders
+        create: true
+    
+      MigrationColumns:
+        - sourceColumn:
+            name: id
+          destinationColumn:
+            name: id
+            options:
+              primary_key: true
+              type_cast: uuid
+        - sourceColumn:
+            name: name
+          destinationColumn:
+            name: name
+            options:
+              type_cast: varchar
+              length: 120
+        - sourceColumn:
+              name: created
+          destinationColumn:
+            name: created
+            options:
+              type_cast: datetime
+        - sourceColumn:
+            name: updated
+          destinationColumn:
+            name: updated
+            options:
+              type_cast: datetime
+              nullable: true 
+
+  - migrationTable:
+      SourceTable:
+        name: operation_types
+      DestinationTable:
+        name: operation_types
+        create: true
+
+      MigrationColumns:
+        - sourceColumn:
+            name: id
+          destinationColumn:
+            name: id
+            options:
+              primary_key: true
+              type_cast: uuid
+        - sourceColumn:
+            name: name
+          destinationColumn:
+            name: name
+            options:
+              type_cast: varchar
+              length: 120
+        - sourceColumn:
+              name: created
+          destinationColumn:
+            name: created
+            options:
+              type_cast: datetime
+        - sourceColumn:
+            name: updated
+          destinationColumn:
+            name: updated
+            options:
+              type_cast: datetime
+              nullable: true 
+
+  - migrationTable:
+      SourceTable:
+        name: operators
+      DestinationTable:
+        name: operators
+        create: true
+
+      MigrationColumns:
+        - sourceColumn:
+            name: id
+          destinationColumn:
+            name: id
+            options:
+              primary_key: true
+              type_cast: uuid
+        - sourceColumn:
+            name: lender_id
+          destinationColumn:
+            name: lender_id
+            options:
+              type_cast: uuid
+              foreign_key:
+                table_name: lenders
+                column_name: id
+        - sourceColumn:
+            name: user_id
+          destinationColumn:
+            name: user_id
+            options:
+              type_cast: uuid
+              nullable: false
+        - sourceColumn:
+              name: created
+          destinationColumn:
+            name: created
+            options:
+              type_cast: datetime
+        - sourceColumn:
+            name: updated
+          destinationColumn:
+            name: updated
+            options:
+              type_cast: datetime
+              nullable: true 
+
+  - migrationTable:
+      SourceTable:
+        name: operation_conditions
+      DestinationTable:
+        name: operation_conditions
+        create: true
+
+      MigrationColumns:
+        - sourceColumn:
+            name: id
+          destinationColumn:
+            name: id
+            options:
+              primary_key: true
+              type_cast: uuid
+        - sourceColumn:
+            name: interest
+          destinationColumn:
+            name: interest
+            options:
+              type_cast: varchar
+              length: 30
+              nullable: false
+        - sourceColumn:
+            name: FIFD
+          destinationColumn:
+            name: FIFD
+            options:
+              type_cast: varchar
+              length: 30
+              nullable: false
+        - sourceColumn:
+            name: comission
+          destinationColumn:
+            name: comission
+            options:
+              type_cast: varchar
+              length: 30
+              nullable: false
+        - sourceColumn:
+            name: min_term
+          destinationColumn:
+            name: min_term
+            options:
+              type_cast: varchar
+              length: 30
+              nullable: false
+        - sourceColumn:
+            name: max_term
+          destinationColumn:
+            name: max_term
+            options:
+              type_cast: varchar
+              length: 30
+              nullable: false
+        - sourceColumn:
+            name: min_amount
+          destinationColumn:
+            name: min_amount
+            options:
+              type_cast: varchar
+              length: 30
+              nullable: false
+        - sourceColumn:
+            name: max_amount
+          destinationColumn:
+            name: max_amount
+            options:
+              type_cast: varchar
+              length: 30
+              nullable: false
+        - sourceColumn:
+            name: other_conditions
+          destinationColumn:
+            name: other_conditions
+            options:
+              type_cast: varchar
+              length: 30
+        - sourceColumn:
+              name: created
+          destinationColumn:
+            name: created
+            options:
+              type_cast: datetime
+        - sourceColumn:
+            name: updated
+          destinationColumn:
+            name: updated
+            options:
+              type_cast: datetime
+              nullable: true 
