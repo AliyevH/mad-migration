@@ -34,8 +34,8 @@ from pprint import pprint
 
 
 class PgMigrate(BaseMigrate): 
-    def __init__(self, config: Config,destination_db):
-        super().__init__(config,destination_db)
+    def __init__(self, config: Config, destination_db):
+        super().__init__(config, destination_db)
         self.collect_table_names()
         self.collect_drop_fk()
 

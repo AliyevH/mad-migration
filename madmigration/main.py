@@ -97,7 +97,7 @@ class Controller:
                 # We will send table name and source columns list to function "get_data_from_source_table"
                 # get_data_from_source_table function will yield data with specified columns from row
                 columns = []
-                
+               
                 for column in migrate.columns:
                     columns.append(column.sourceColumn.name)
 
@@ -111,10 +111,12 @@ class Controller:
                 for source_data in self.source_data:
                     new_data = Migrate.type_cast(data_from_source=source_data, mt=mt, convert_info=self.convert_info)
                     Migrate.insert_data(engine=self.destination_db, table_name=self.destination_table.name, data=new_data)
-                
 
         except Exception as err:
             print(err)
+        
+        # Queue is used to hold data that could not be inserted with foreignkey error. Loop from queue again to insert data with fk
+        Migrate.insert_queue(self.destination_db)
 
 
                 

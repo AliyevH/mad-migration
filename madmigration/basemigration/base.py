@@ -10,8 +10,14 @@ from madmigration.postgresqldb.type_convert import get_type_object
 from madmigration.config.conf import Config
 from madmigration.db_operations.operations import DbOperations
 
+from psycopg2 import errors
+from sqlalchemy import exc
 
-class BaseMigrate: 
+from queue import Queue
+
+
+class BaseMigrate():
+    q = Queue()
     def __init__(self, config: Config,destination_db):
         self.global_config = config
         self.migration_tables = config.migrationTables
@@ -253,12 +259,42 @@ class BaseMigrate:
     def insert_data(engine, table_name, data: dict):
         try:
             stmt = engine.base.metadata.tables[table_name].insert().values(**data)
+        except Exception as err:
+            print('stmt: ', stmt)
+            print("stmt err: ", err)
+        
+        try:
             engine.session.execute(stmt)
+        except Exception as err:
+            print("Passing stmt into queue")
+            BaseMigrate.put_queue(stmt)
+
+        try:
             engine.session.commit()
         except Exception as err:
-            print("insert_data: err -> ", err)#, "data: ", data, "table: ", table_name)
+            print("Commit error: ", err)
+            engine.session.rollback()
         finally:
-            engine.session.close()    
+            engine.session.close()
+
+    @staticmethod
+    def insert_queue(engine):
+        for stmt in BaseMigrate.q.queue:
+            try:
+                engine.session.execute(stmt)
+                engine.session.commit()
+                engine.session.close()
+            except Exception as err:
+                print("insert_queue err: ", err)
+
+
+    @staticmethod
+    def put_queue(data):
+        BaseMigrate.q.put(data)
+
+    @staticmethod
+    def get_queue():
+        return BaseMigrate.q.get()
 
     @staticmethod
     def type_cast(data_from_source, mt, convert_info: dict):
@@ -274,16 +310,21 @@ class BaseMigrate:
             if convert_info.get(destination_column):
                 # ClassType is Class of data type (int, str, float, etc...)
                 # Using this ClassType we are converting data into format specified in type_cast
-                datatype = get_type_object(destination_type_cast)
+                datatype = get_type_object(destination_type_cast)               
 
                 try:
-                    if datatype.__name__ == "uuid4":
-                        data_from_source[destination_column] = datatype()
+                    if datatype == type(data_from_source.get(source_column)):
+                        data_from_source[destination_column] = data_from_source.pop(source_column)
+
+                    elif datatype.__name__ == "UUID":
+                        data_from_source[destination_column] = str(data_from_source.pop(source_column))
                     else:
-                        data_from_source[destination_column] = datatype(data_from_source.pop(source_column))
+                        try:
+                            data_from_source[destination_column] = datatype(data_from_source.pop(source_column))
+                        except Exception as err:
+                            data_from_source[destination_column] = None
                        
                 except Exception as err:
-                    print(err)
                     data_from_source[destination_column] = None
             else:
                 data_from_source[destination_column] = data_from_source.pop(source_column)

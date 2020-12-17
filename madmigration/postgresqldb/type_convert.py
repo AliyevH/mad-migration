@@ -1,7 +1,7 @@
 from datetime import datetime, date
 from enum import Enum
 import json
-from uuid import uuid4
+from uuid import uuid4, UUID
 
 def get_type_object(data_type):
     """
@@ -9,7 +9,7 @@ def get_type_object(data_type):
     :return: object class
     """
     return {
-        "uuid": uuid4,
+        "uuid": UUID,
         "string": str,
         "str": str,
         "varchar": str,
