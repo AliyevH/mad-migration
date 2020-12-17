@@ -31,11 +31,11 @@ class DestinationDB:
         if not database_exists(destination_uri):
             while True:
                 database = parse_uri(destination_uri)
-                msg = input(f"{database} db does not exist, create destination database?(y/n) ")
+                msg = input(f"The database {database} does not exists, would you like to create it in the destination?(y/n) ")
                 if msg.lower() == "y":
                     try:
                         create_database(destination_uri)
-                        print("database created ..")
+                        sys.stdout.write("Database created ..")
                         break
                     except Exception as err:
                         goodby_message(database_not_exists(err), 1)
