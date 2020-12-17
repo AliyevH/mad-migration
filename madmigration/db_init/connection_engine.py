@@ -50,11 +50,13 @@ class DestinationDB:
         self.base = automap_base()
         if not database_exists(config.destination_uri):
             while True:
-                msg = input(f"{config.destination_uri} db does not exist, create destination database?(y/n) ")
+                database_name = parse_uri(config.destination_uri)
+
+                msg = input(f"The database {database_name} does not exists, would you like to create it in the destination?(y/n) ")
                 if msg.lower() == "y":
                     try:
                         create_database(config.destination_uri)
-                        print("database creted ..")
+                        sys.stdout.write("Database created ..")
                     except Exception as err:
                         goodby_message(err, 1)
                     break
@@ -63,18 +65,7 @@ class DestinationDB:
                     break
                 print("Please, select command")
 
-            database_name = parse_uri(config.destination_uri)
-           
-            msg = input(f"The database {database_name} does not exists, would you like to create it in the destination?(y/n) ")
-            if msg.lower() == "y":
-                try:
-                    create_database(config.destination_uri)
-                    sys.stdout.write("Database created ..")
-                except Exception as err:
-                    print(err)
-                    sys.exit(1)
-            else:
-                sys.exit(0)
+              
 
         self.engine = create_engine(config.destination_uri)
         self.base.prepare(self.engine, reflect=True)
