@@ -283,6 +283,7 @@ class BaseMigrate():
     def insert_queue(engine):
         for stmt in BaseMigrate.q.queue:
             try:
+                print("Inserting from queue: ")
                 engine.session.execute(stmt)
                 engine.session.commit()
             except Exception as err:
