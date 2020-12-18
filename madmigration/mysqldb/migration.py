@@ -65,24 +65,26 @@ class MysqlMigrate(BaseMigrate):
         finally:
             conn.close()
 
+    def get_input(self,table_name):
+        while True:
+            answ = input(
+                f"Table with name '{table_name}' already exist,\
+'{table_name}' table will be dropped and recreated,your table data will be lost,process?(y/n) ")
+            if answ.lower() == "y":
+                if self.dest_fk[table_name]:
+                    self.db_operations.drop_fk(self.dest_fk[table_name])
+                self._drop_tables.append(table_name)
+                return False
+            elif answ.lower() == "n":
+                return True
+            else:
+                continue
+
     def check_table(self, table_name: str) -> bool:
         """ Check table exist or not, and wait user input """
         try:
             if self.engine.dialect.has_table(self.engine.connect(), table_name):
-                while True:
-                    answ = input(
-                        f"Table with name '{table_name}' already exist,\
-'{table_name}' table will be dropped and recreated,your table data will be lost,process?(y/n) "
-                    )
-                    if answ.lower() == "y":
-                        if self.dest_fk[table_name]:
-                            self.db_operations.drop_fk(self.dest_fk[table_name])
-                        self._drop_tables.append(table_name)
-                        return False
-                    elif answ.lower() == "n":
-                        return True
-                    else:
-                        continue
+                return self.get_input(table_name)
             return False
         except Exception as err:
             print("check_table -> ",err)

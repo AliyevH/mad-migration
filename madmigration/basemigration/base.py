@@ -199,23 +199,25 @@ class BaseMigrate():
         """ Check table exist or not, and wait user input """
         try:
             if self.engine.dialect.has_table(self.engine.connect(), table_name):
-                while True:
-                    answ = input(
-                        f"Table with name '{table_name}' already exist,\
-'{table_name}' table will be dropped and recreated,your table data will be lost,process?(y/n) ")
-                    if answ.lower() == "y":
-                        self.db_operations.drop_fk(self.dest_fk)
-                        self.db_operations.drop_table(table_name)
-                        return False
-                    elif answ.lower() == "n":
-                        return True
-                    else:
-                        continue
+                return self.get_input(table_name)
             return False
         except Exception as err:
             print(err)
             return False
 
+    def get_input(self,table_name):
+        while True:
+            answ = input(
+                f"Table with name '{table_name}' already exist,\
+'{table_name}' table will be dropped and recreated,your table data will be lost,process?(y/n) ")
+            if answ.lower() == "y":
+                self.db_operations.drop_fk(self.dest_fk)
+                self.db_operations.drop_table(table_name)
+                return False
+            elif answ.lower() == "n":
+                return True
+            else:
+                continue
         
     def get_table_attribute_from_base_class(self, source_table_name: str):
         """
@@ -283,9 +285,11 @@ class BaseMigrate():
             try:
                 engine.session.execute(stmt)
                 engine.session.commit()
-                engine.session.close()
             except Exception as err:
                 print("insert_queue err: ", err)
+                engine.session.rollback()
+            finally:
+                engine.session.close()
 
 
     @staticmethod
