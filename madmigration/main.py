@@ -26,7 +26,6 @@ class Controller:
         self.source_db = SourceDB(self.config.source_uri)
         self.destination_db = DestinationDB(self.config.destination_uri)
         self.metadata = MetaData()
-
         # Source and Destination Database - all tables (NOT MIGRATION TABLES!!!)
         self.sourcedb_all_tables_names = self.source_db.engine.table_names()
         self.destinationdb_all_tables_names = self.destination_db.engine.table_names()
@@ -40,6 +39,7 @@ class Controller:
 
         # Source DB Driver
         self.sourcedb_driver = self.source_db.engine.driver
+
     
 
     def __enter__(self):
@@ -54,11 +54,15 @@ class Controller:
 
     def run_table_migrations(self):
         # detect migration class
-        migrate = detect_driver(self.destinationdb_driver)
-        
-        mig = migrate(self.config,self.destination_db)
-        mig.prepare_tables()
-        mig.process()
+        try:
+            
+            migrate = detect_driver(self.destinationdb_driver)
+            
+            mig = migrate(self.config,self.destination_db)
+            mig.prepare_tables()
+            mig.process()
+        except Exception as err:
+            print(err)
             
         
         # migrate.create_fk_constraint(self.destination_db.engine)
@@ -79,41 +83,45 @@ class Controller:
     def run(self):
         
         # Looping in migrationTables
-        try:
-            for mt in self.migration_tables:
-                self.destination_table = mt.migrationTable.DestinationTable
+        self.destination_db.base.prepare(self.destination_db.engine, reflect=True)
 
-                # Migrate class is use based on driver
-                Migrate = detect_driver(self.sourcedb_driver)
-                
-                # Instance of Migrate class
-                migrate = Migrate(self.config, self.source_db)
-                migrate.parse_migration_tables(mt)    
+        for mt in self.migration_tables:
+            self.destination_table = mt.migrationTable.DestinationTable
 
-                # Dictionary is used to keep data about destination column and type_cast format
-                self.convert_info = {}
+            # Migrate class is use based on driver
+            Migrate = detect_driver(self.sourcedb_driver)
+            
+            # Instance of Migrate class
+            migrate = Migrate(self.config, self.source_db)
+            migrate.parse_migration_tables(mt)    
 
-                # Columns List is used to keep source Columns names
-                # We will send table name and source columns list to function "get_data_from_source_table"
-                # get_data_from_source_table function will yield data with specified columns from row
-                columns = []
-               
-                for column in migrate.columns:
-                    columns.append(column.sourceColumn.name)
+            # Dictionary is used to keep data about destination column and type_cast format
+            self.convert_info = {}
 
-                    if column.destinationColumn.options.type_cast:
-                        self.convert_info[
-                            column.destinationColumn.name] = column.destinationColumn.options.type_cast
-                
-                # self.source_data is data received (yield) from get_data_from_source_table function
-                self.source_data = migrate.get_data_from_source_table(mt.migrationTable.SourceTable, columns)
+            # Columns List is used to keep source Columns names
+            # We will send table name and source columns list to function "get_data_from_source_table"
+            # get_data_from_source_table function will yield data with specified columns from row
+            columns = []
+            
+            for column in migrate.columns:
+                columns.append(column.sourceColumn.name)
 
-                for source_data in self.source_data:
+                if column.destinationColumn.options.type_cast:
+                    self.convert_info[
+                        column.destinationColumn.name] = column.destinationColumn.options.type_cast
+            
+            # self.source_data is data received (yield) from get_data_from_source_table function
+            self.source_data = migrate.get_data_from_source_table(mt.migrationTable.SourceTable, columns)
+            
+            for source_data in self.source_data:
+                try:
                     new_data = Migrate.type_cast(data_from_source=source_data, mt=mt, convert_info=self.convert_info)
+                except Exception as err:
+                    print("Migrate.type_cast -> ", err)
+                try:
                     Migrate.insert_data(engine=self.destination_db, table_name=self.destination_table.name, data=new_data)
-
-        except Exception as err:
-            print(err)
+                except Exception as err:
+                    print("Migrate.insert_data -> ",err)
         
         # Queue is used to hold data that could not be inserted with foreignkey error. Loop from queue again to insert data with fk
         Migrate.insert_queue(self.destination_db)

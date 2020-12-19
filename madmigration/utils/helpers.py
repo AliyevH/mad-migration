@@ -19,6 +19,7 @@ from madmigration.errors import FileDoesNotExists
 
 from madmigration.mysqldb.migration import MysqlMigrate
 from madmigration.postgresqldb.migration import PgMigrate
+from madmigration.mssql.migration import MssqlMigrate
 
 ###########################
 # Get class of cast #
@@ -54,8 +55,8 @@ def detect_driver(driver: str) -> Union[MysqlMigrate, PgMigrate]:
         "mysql+pymysql" : MysqlMigrate,
         "mariadb+pymsql" : MysqlMigrate,
         "psycopg2": PgMigrate,  
-        "postgresql+psycopg2": PgMigrate,
-        "postgresql+pg8000": PgMigrate,
+        "pg8000": PgMigrate,
+        "pyodbc": MssqlMigrate
        # "postgresql+asyncpg": postgres_migrate,
        # "asyncpg": postgres_migrate
     }.get(driver)

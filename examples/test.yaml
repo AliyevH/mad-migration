@@ -1,11 +1,10 @@
 version: 1.1
 Configs:
   - SourceConfig:
-      dbURI: "postgresql://postgres:postgres@127.0.0.1/company_service"
+      dbURI: "postgresql:///company_service"
       # dbURI: "mysql://root:admin@127.0.0.1/old"
   - DestinationConfig:
-      # dbURI: "mysql+pymysql://root:admin@127.0.0.1:3308/madmigration"
-      dbURI: "postgresql://postgres:postgres@127.0.0.1/test"
+      dbURI: "postgresql:///test"
 
 migrationTables:
   - migrationTable:
@@ -81,14 +80,6 @@ migrationTables:
               foreign_key:
                 table_name: company
                 column_name: id
-                ondelete: CASCADE
-
-        - sourceColumn:
-            name: deactivated
-          destinationColumn:
-            name: deactivated
-            options:
-              type_cast: bool
         
         - sourceColumn:
             name: created

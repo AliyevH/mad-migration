@@ -17,7 +17,7 @@
 
 ## 🧐 About <a name = "about"></a>
 
-The Database Migration Tool was designed for those looking to migrate their data from one database to another. Basically, the tool is focused on transferring data from different database structures. Currently, the MySQL and Postgres driver related tool allows us to add NoSQL to SQL databases and vice versa. Our main goal is to make data migration possible in all environments.
+The Database Migration Tool was designed for those looking to migrate their data from one database to another. Basically, the tool is focused on transferring data from different database structures. Currently, the MySQL, Mariadb and Postgres driver related tool allows us to add NoSQL to SQL databases and vice versa. Our main goal is to make data migration possible in all environments.
 
 
 ---
@@ -101,7 +101,7 @@ migrationTables:
               type_cast: datetime
 
         - sourceColumn:
-            name: updateddAT
+            name: updatedAT
           destinationColumn:
             name: updated_at
             options:

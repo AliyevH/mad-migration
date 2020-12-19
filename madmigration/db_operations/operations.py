@@ -93,7 +93,6 @@ class DbOperations:
             conn = self.engine.connect()
             ctx = MigrationContext.configure(conn)
             op = Operations(ctx)
-            print("COLS FK -> ",const_columns)
             for constraint in fk_constraints:
                 dest_table_name = constraint.pop("table_name")
                 column_name = constraint.pop("column_name")
