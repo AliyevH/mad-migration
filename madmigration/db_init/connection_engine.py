@@ -38,7 +38,7 @@ class DestinationDB:
                         sys.stdout.write("Database created ..")
                         break
                     except Exception as err:
-                        goodby_message(database_not_exists(err), 1)
+                        goodby_message(database_not_exists(destination_uri), 1)
                     break
                 elif msg.lower() == "n":
                     goodby_message("Destination database does not exit \nExiting ..", 0)
