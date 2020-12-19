@@ -124,13 +124,13 @@ Configs:
        dbURI: "mysql://root:admin@127.0.0.1/newDB"  # set destination database uri
 ```
 `migrationTables section`
-`migrationTables` in this configuration, you will write the source of the table that you have to migrate and the destination tables that will migrate the data. 
-- `migrationTable` specify the source and destination table name
-  - `SourceTable` information about source table
-    - `name` source table name
-  - `DestinationTable` information about destination table
-    - `name` destination table name
-    - `create` bool value. This parameter tells the program whether it should create a table or not. (`default false`)
+- `migrationTables` in this configuration, you will write the source of the table that you have to migrate and the destination tables that will migrate the data. 
+  - `migrationTable` specify the source and destination table name
+    - `SourceTable` information about source table
+      - `name` source table name
+    - `DestinationTable` information about destination table
+      - `name` destination table name
+      - `create` bool value. This parameter tells the program whether it should create a table or not. (`default false`)
 ```yml
 migrationTables:
   - migrationTable:
@@ -140,15 +140,14 @@ migrationTables:
         name: persons
         create: True
 ```
-
 `MigrationColumns section` 
-`MigrationColumns` specify source and destination column
-- `sourceColumn`  information about source column
-  - `name` source column name
-- `destinationColumn` information about destination column
-  - `name` destination column name
-  - `options` column options
-    - `type_cast` destination column type name varchar,integer etc. (`when we convert data we use this parameter`) 
+- `MigrationColumns` specify source and destination column
+  - `sourceColumn`  information about source column
+    - `name` source column name
+  - `destinationColumn` information about destination column
+    - `name` destination column name
+    - `options` column options
+      - `type_cast` destination column type name varchar,integer etc. (`when we convert data we use this parameter`) 
 
 ```yml
 MigrationColumns:
