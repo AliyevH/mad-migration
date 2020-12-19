@@ -37,7 +37,7 @@ class PgMigrate(BaseMigrate):
     def __init__(self, config: Config, destination_db):
         super().__init__(config, destination_db)
         self.collect_table_names()
-        self.collect_drop_fk()
+        # self.collect_drop_fk()
 
     @staticmethod
     def get_column_type(type_name: str) -> object:

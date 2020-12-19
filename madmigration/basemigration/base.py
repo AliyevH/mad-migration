@@ -158,6 +158,7 @@ class BaseMigrate():
         """
         try:
             # self.alter_columns()
+            self.collect_drop_fk()
             self.update_table()
             self.create_tables()
             self.db_operations.create_fk_constraint(self.fk_constraints,self.contraints_columns)
