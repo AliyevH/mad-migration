@@ -38,7 +38,6 @@ class MysqlMigrate(BaseMigrate):
         self.db_operations = MysqlDbOperations(self.engine)
         self._drop_tables = []
         self.collect_table_names()
-        self.collect_drop_fk()
     
 
     def collect_drop_fk(self):
@@ -96,6 +95,7 @@ class MysqlMigrate(BaseMigrate):
         Collect foreign key constraints
         """
         try:
+            self.collect_drop_fk()
             if self._drop_tables:
                 self.db_operations.bulk_drop_tables(*self._drop_tables)
             self.update_table()
