@@ -172,6 +172,7 @@ MigrationColumns:
       foreign_key:
         table_name: users
         column_name: id
+        ondelete: CASCADE
 ```
 ### We will create all tables and database on the destination server if they do not exist
 
