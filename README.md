@@ -123,6 +123,7 @@ Configs:
   - DestinationConfig:
        dbURI: "mysql://root:admin@127.0.0.1/newDB"  # set destination database uri
 ```
+`migrationTables section`
 `migrationTables` in this configuration, you will write the source of the table that you have to migrate and the destination tables that will migrate the data. 
 - `migrationTable` specify the source and destination table name
   - `SourceTable` information about source table
@@ -140,6 +141,7 @@ migrationTables:
         create: True
 ```
 
+`MigrationColumns section` 
 `MigrationColumns` specify source and destination column
 - `sourceColumn`  information about source column
   - `name` source column name
