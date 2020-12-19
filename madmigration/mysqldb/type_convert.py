@@ -15,7 +15,7 @@ def get_type_object(data_type):
         "varchar": str,
         "text": str,
         "nvarchar": str,
-        "smallint": str,
+        "smallint": int,
         "char": str,
 
         "int": int,

@@ -170,7 +170,6 @@ class BaseMigrate():
         
         try:
             column_type = self.get_column_type(self.dest_options.pop("type_cast"))
-            print(self.dest_options.get("length"))
             type_length = self.dest_options.pop("length")
             if type_length:
                 column_type = column_type(type_length)
@@ -259,12 +258,15 @@ class BaseMigrate():
 
     @staticmethod
     def insert_data(engine, table_name, data: dict):
+        # stmt = None
         try:
             stmt = engine.base.metadata.tables[table_name].insert().values(**data)
+           
         except Exception as err:
-            print('stmt: ', stmt)
             print("stmt err: ", err)
-        
+            return
+        # print("STMT",stmt)
+  
         try:
             engine.session.execute(stmt)
         except Exception as err:
@@ -285,9 +287,13 @@ class BaseMigrate():
             try:
                 print("Inserting from queue: ")
                 engine.session.execute(stmt)
-                engine.session.commit()
             except Exception as err:
                 print("insert_queue err: ", err)
+            
+            try:
+                engine.session.commit()
+            except Exception as err:
+                print("insert_queue Commit error: ", err)
                 engine.session.rollback()
             finally:
                 engine.session.close()

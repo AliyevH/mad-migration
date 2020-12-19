@@ -131,7 +131,7 @@ class MysqlMigrate(BaseMigrate):
             "json": JSON,
             "numeric": NUMERIC,
             "text": TEXT,
-            "uuid": UUIDType(binary=False),
+            "uuid": CHAR(36),
         }.get(type_name.lower())
 
 

@@ -48,7 +48,7 @@ class DestinationDB:
         
         self.base = automap_base()
         self.engine = create_engine(destination_uri)
-        self.base.prepare(self.engine, reflect=True)
+        # self.base.prepare(self.engine, reflect=True)
         self.session = Session(self.engine, autocommit=False, autoflush=False)
 
 
