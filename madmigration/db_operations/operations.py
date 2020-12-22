@@ -21,7 +21,7 @@ class DbOperations:
             op.drop_table(table_name)
             return True
         except Exception as err:
-            print("drop_tables err -> ",err)
+            print("drop_tables [error] -> ",err)
         finally:
             conn.close()
 
@@ -37,7 +37,7 @@ class DbOperations:
                 op.drop_table(tb)
             return True
         except Exception as err:
-            print("bulk_drop_tables err -> ",err)
+            print("bulk_drop_tables [error] -> ",err)
         finally:
             conn.close()
 
@@ -50,7 +50,7 @@ class DbOperations:
 
             op.alter_column(table_name, column_name,type_=col_type,postgresql_using=f"{column_name}::{col_type}") #FIXME not working
         except Exception as err:
-            print("update_column err -> ",err)
+            print("update_column [error] -> ",err)
         finally:
             conn.close()
 
@@ -68,7 +68,7 @@ class DbOperations:
             print(f"{table_name} is created")
             return True
         except Exception as error:
-            print("_create_table err ->", error)
+            print("_create_table [error] ->", error)
         finally:
             conn.close()
 
@@ -82,7 +82,7 @@ class DbOperations:
                 op.add_column(table_name, col)
             return True
         except Exception as err:
-            print("add_column err -> ",err)
+            print("add_column [error] -> ",err)
             return False
         finally:
             conn.close()
@@ -110,7 +110,7 @@ class DbOperations:
                     )
             return True
         except Exception as err:
-            print("create_fk_constraint err -> ",err)
+            print("create_fk_constraint [error] -> ",err)
             return False
         finally:
             conn.close()
@@ -125,7 +125,7 @@ class DbOperations:
 
             transactional.commit()
         except Exception as err:
-            print("fk_drop -> ",err)
+            print("fk_drop [error] -> ",err)
         finally:
             conn.close()
 
@@ -158,7 +158,7 @@ class DbOperations:
 
             transactional.commit()
         except Exception as err:
-            print("err -> ",err)
+            print("db_drop_everything [error] -> ",err)
             return False
         finally:
             conn.close()
