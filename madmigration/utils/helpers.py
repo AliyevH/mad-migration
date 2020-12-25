@@ -4,6 +4,7 @@ from sqlalchemy.schema import ForeignKeyConstraint
 from sqlalchemy.ext.compiler import compiles
 from typing import Union
 import os
+import sys
 from pathlib import Path
 from sqlalchemy import (
     Integer,
@@ -16,10 +17,10 @@ from sqlalchemy import (
     TIMESTAMP
 )
 from madmigration.errors import FileDoesNotExists
-
 from madmigration.mysqldb.migration import MysqlMigrate
 from madmigration.postgresqldb.migration import PgMigrate
 from madmigration.mssql.migration import MssqlMigrate
+from madmigration.mongodb.migration import MongoDbMigrate
 
 ###########################
 # Get class of cast #
@@ -43,7 +44,7 @@ def get_cast_type(type_name: str) -> object:
 ###########################
 # Detect db driver fro migration #
 ###########################
-def detect_driver(driver: str) -> Union[MysqlMigrate, PgMigrate]:
+def detect_driver(driver: str) -> Union[MysqlMigrate, PgMigrate, MongoDbMigrate]:
     """
     :param driver: str
     :return: object class
@@ -56,9 +57,12 @@ def detect_driver(driver: str) -> Union[MysqlMigrate, PgMigrate]:
         "mariadb+pymsql" : MysqlMigrate,
         "psycopg2": PgMigrate,  
         "pg8000": PgMigrate,
-        "pyodbc": MssqlMigrate
+        "pyodbc": MssqlMigrate,
+        "mongodb": MongoDbMigrate
+
        # "postgresql+asyncpg": postgres_migrate,
        # "asyncpg": postgres_migrate
+
     }.get(driver)
 
 
@@ -99,3 +103,28 @@ def parse_uri(uri):
         database_name = uri.split("/")[-1]
 
     return database_name
+
+
+def database_not_exists(database):
+    
+    """This function will be executed if there is no database exists """
+
+    database = parse_uri(database)
+
+    usage = [
+        "",
+        f"😭 Error: Source database '{database}'  does not exists",
+        "",
+        f"Run '{app_name()} --help' for usage.",
+        "",
+        f"🥳  if you think something is wrong please feel free to open issues 👉'{issue_url()}'👈 ",
+        "",
+        "Exiting ...",
+        ""
+    ]
+    return "\n".join(usage)
+
+
+def goodby_message(message, exit_code=0):
+    print(message, flush=True)
+    sys.exit(int(exit_code))

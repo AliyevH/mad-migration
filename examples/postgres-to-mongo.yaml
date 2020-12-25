@@ -1,0 +1,151 @@
+version: 1.1
+Configs:
+  - SourceConfig:
+      dbURI: "postgresql://sabuhi:sabuhi12345@localhost:5432/email_service"
+
+  - DestinationConfig:
+      dbURI: "mongodb://localhost:27017/mydb"
+
+
+migrationTables:
+  - migrationTable:
+      
+      SourceTable:  #postgresql table name
+        name: emailverify
+
+
+      DestinationTable: #the collection name:
+        name: EmailVerify
+
+      MigrationColumns:
+        - sourceColumn:
+            name: id
+
+          destinationColumn:
+            name: ID
+            options:
+              type_cast: uuid
+
+        - sourceColumn:
+            name: created
+          destinationColumn:
+            name: CREATED
+            options:
+              type_cast: datetime
+              
+            
+        
+        - sourceColumn:
+            name: updated
+          destinationColumn:
+            name: UPDATED
+            options:
+              type_cast: datetime
+              
+
+        - sourceColumn:
+            name: email
+           
+          destinationColumn:
+            name: EMAIL
+            options:      #one  of the options can be passed:  
+              # type: string, int, uuid, time, array (for array stored values), bool, double, mapping (for json stroed values)
+              type_cast: string
+
+
+
+    
+        - sourceColumn:
+            name: activ_status
+          destinationColumn:
+            name: STATUS
+            options:
+              concatenateTable:  emailverify       #thinking to pass list of tables if possible 
+              type_cast: mapping
+
+              concatenateColumns:
+                - sourceColumn:
+                    name: id
+
+                  destinationColumn:
+                    name: ID
+                    options:
+                      type_cast: string
+
+
+                - sourceColumn:
+                    name: created
+
+                  destinationColumn:
+                    name: created
+                    options:
+                        type_cast: time
+
+ 
+                     
+        - sourceColumn:
+            name: user_id
+
+          destinationColumn:
+            name: USERID
+            options:
+              concatenateTable: randomcode
+              type_cast: list
+              
+              concatenateColumns:
+                - sourceColumn:
+                    name: id
+                  
+                  destinationColumn:
+                    options:
+                      type_cast: uuid
+
+                      
+                    
+  - migrationTable:
+
+      SourceTable:
+        name: randomcode
+
+      DestinationTable:
+        name: random
+
+                       
+      MigrationColumns:
+        - sourceColumn:
+            name: id
+
+          destinationColumn:
+            name: ID
+            options:
+              type_cast: uuid
+
+        - sourceColumn:
+            name: created
+          destinationColumn:
+            name: CREATED
+            options:
+              type_cast: datetime
+              
+            
+          
+        - sourceColumn:
+            name: updated
+          destinationColumn:
+            name: UPDATED
+            options:
+              type_cast: datetime
+                
+
+        - sourceColumn:
+            name: code
+            
+          destinationColumn:
+            name: CODE
+            options:      #one  of the options can be passed:  
+            # type: string, int, uuid, time, array (for array stored values), bool, double, mapping (for json stroed values)
+              type_cast: string
+
+
+            
+      

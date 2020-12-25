@@ -1,13 +1,6 @@
 
 
 
-__all__ = (
-    "TableExists"
-    "FileDoesNotExists"
-
-)
-
-
 class TableExists(Exception):
     def __init__(self, message,errors):
       
@@ -16,6 +9,12 @@ class TableExists(Exception):
 
 
 class FileDoesNotExists(Exception):
+    def __init__(self, message):
+      
+        self.message = message
+
+
+class TableDoesNotExists(Exception):
     def __init__(self, message):
       
         self.message = message

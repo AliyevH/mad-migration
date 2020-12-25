@@ -20,6 +20,7 @@ from time import sleep
 
 class Controller:
     def __init__(self, migration_config: Config):
+        
         self.config = migration_config
 
         # Source and Destination DB Initialization with session
@@ -61,6 +62,7 @@ class Controller:
             mig = migrate(self.config,self.destination_db)
             mig.prepare_tables()
             mig.process()
+            
         except Exception as err:
             print(err)
             
@@ -130,12 +132,44 @@ class Controller:
                 
 
 
+class NoSQLController:
+
+    '''
+    Class sturct works for transfering from postgresql database data to mongoDB database
+    '''
+    def __init__(self, migration_config: Config):
+        
+        self.config = migration_config
+        self.source_db = self.config.source_uri
+        self.destination_db = self.config.destination_uri
+        self.source_uri = self.config.config_data.Configs[0].SourceConfig.get("dbURI")
+        self.destination_uri = self.config.config_data.Configs[1].DestinationConfig.get("dbURI") # noqa  E501
+            
+        self.migrationTables = self.config.migrationTables
+        
+        self.driver = self.get_driver()
+    
 
 
+    def get_driver(self):   
 
+        return self.destination_uri.split(":")[0]
 
+    def run_table_migrations(self):
+        try:
+            migrate = detect_driver(self.driver)
 
+            with migrate(self.config) as mig:
+                mig.extract_data()
+      
+        except Exception as err:
+            print(err)
 
+    
+     
+        
+       
+        
 
 
 
