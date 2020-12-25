@@ -30,6 +30,5 @@ def get_type_object(data_type):
         "numeric": float,
         "money": float,
         "uuid": UUID,
-        None: None
 
     }.get(data_type.lower())

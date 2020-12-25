@@ -4,15 +4,14 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy_utils.functions.database import database_exists, create_database
 import sys
 from madmigration.utils.helpers import issue_url,app_name,parse_uri
+from madmigration.utils.helpers import database_not_exists, goodby_message
 
 @event.listens_for(Table, "after_parent_attach")
 def before_parent_attach(target, parent):
     if not target.primary_key and "id" in target.c:
         print(target)
 
-def goodby_message(message, exit_code=0):
-    print(message, flush=True)
-    sys.exit(int(exit_code))
+
 
 class SourceDB:
     def __init__(self, source_uri):
@@ -27,6 +26,7 @@ class SourceDB:
 
 
 class DestinationDB:
+    
     def __init__(self, destination_uri):
         if not database_exists(destination_uri):
             while True:
@@ -51,22 +51,3 @@ class DestinationDB:
         # self.base.prepare(self.engine, reflect=True)
         self.session = Session(self.engine, autocommit=False, autoflush=False)
 
-
-def database_not_exists(database):
-    
-    """This function will be executed if there is no database exists """
-
-    database = parse_uri(database)
-
-    usage = [
-        "",
-        f"😭 Error: Source database '{database}'  does not exists",
-        "",
-        f"Run '{app_name()} --help' for usage.",
-        "",
-        f"🥳  if you think something is wrong please feel free to open issues 👉'{issue_url()}'👈 ",
-        "",
-        "Exiting ...",
-        ""
-    ]
-    return "\n".join(usage)

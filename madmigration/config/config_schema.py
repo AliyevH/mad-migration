@@ -28,6 +28,8 @@ class OptionsSchema(BaseModel):
     #     return v
 
 
+
+
 class SourceConfigSchema(BaseModel):
     SourceConfig: Dict[str, str]
 
@@ -71,3 +73,52 @@ class ConfigSchema(BaseModel):
     Configs: List[Union[SourceConfigSchema, DestinationConfigSchema]]
     migrationTables: List[MigrationTablesSchema]
     version: float
+
+
+
+
+
+
+
+class OptionsSchmea(BaseModel):
+    options: Dict[str,str]
+
+class ConcatenateColumns(ColumnParametersSchema):
+
+    destinationColumn: OptionsSchmea
+
+
+class Options(BaseModel):
+    type_cast: str
+    concatenateColumns: List[ConcatenateColumns]  = None
+    concatenateTable: str = None
+
+
+class DestinationColumnSchema(DestinationColumn):
+    options: Options
+
+class ColumConfig(ColumnParametersSchema):
+    destinationColumn:  DestinationColumnSchema  #options dict
+
+class DestinationTableSchema(SourceTableSchema):
+    ...
+
+
+class TablesSchema(TablesInfo):
+    DestinationTable: DestinationTableSchema
+    MigrationColumns: List[ColumConfig]
+
+
+class MigrationTableS(MigrationTablesSchema):
+    migrationTable: TablesSchema
+
+
+class NoSQLConfigSchema(ConfigSchema):
+
+    migrationTables:  List[MigrationTableS] 
+
+
+
+
+
+

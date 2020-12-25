@@ -38,6 +38,5 @@ def get_type_object(data_type):
 
         "boolean": bool,
         "bool": bool,
-        None: None
 
     }.get(data_type.lower())

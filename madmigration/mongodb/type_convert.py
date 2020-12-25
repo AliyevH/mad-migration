@@ -1,7 +1,9 @@
+
+
+
+
 from datetime import datetime, date
-from enum import Enum
-import json
-from uuid import uuid4, UUID
+from uuid import UUID
 
 def get_type_object(data_type):
     """
@@ -10,33 +12,46 @@ def get_type_object(data_type):
     """
     
     return {
-        "uuid": UUID,
+
         "string": str,
         "str": str,
         "varchar": str,
         "text": str,
         "nvarchar": str,
-        "smallint": str,
         "char": str,
+        "character": str,
+        "varying": str,
+        "composite": str,
 
         "int": int,
         "integer": int,
         "bigint": int,
+        "numeric": int,
+        "smallint": int,
+
+        "boolean": bool,
+        "bool": bool,
 
         "float": float,
         "numeric": float,
         "decimal": float,
+        "double": float,
+        "precision": float,
+        "real": float,
+        "serial": float,
+        "arbitrary": float,
 
         "date": date,
-        "datetime": datetime,
+        "datetime": datetime.fromisoformat,
+     
+        # "timestamp": timestamp,
+
+      
+        "uuid": UUID,
 
         "binary": bytes,
-        "enum": Enum,
-        "set": set,
 
-        "json": dict,
 
-        "boolean": bool,
-        "bool": bool,
+     
 
     }.get(data_type.lower())
