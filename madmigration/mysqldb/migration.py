@@ -59,7 +59,7 @@ class MysqlMigrate(BaseMigrate):
                         self.contraints_columns[table_name].add(*fk["constrained_columns"])
             transactional.commit()
         except Exception as err:
-            print("collect_drop_fk own -> ",err)
+            print("collect_drop_fk [error] -> ",err)
             return False
         finally:
             conn.close()
@@ -86,7 +86,7 @@ class MysqlMigrate(BaseMigrate):
                 return self.get_input(table_name)
             return False
         except Exception as err:
-            print("check_table -> ",err)
+            print("check_table [error] -> ",err)
             return False
 
     def process(self):
@@ -103,7 +103,7 @@ class MysqlMigrate(BaseMigrate):
             self.db_operations.create_fk_constraint(self.fk_constraints,self.contraints_columns)
             return True
         except Exception as err:
-            print("create_tables err -> ", err)
+            print("create_tables [error] -> ", err)
 
     @staticmethod
     def get_column_type(type_name: str) -> object:
@@ -145,6 +145,6 @@ class MysqlDbOperations(DbOperations):
             for fk in fk_constraints:
                 op.drop_constraint(fk[1], fk[0], type_="foreignkey")
         except Exception as err:
-            print("fk_drop -> ",err)
+            print("fk_drop [error] -> ",err)
         finally:
             conn.close()

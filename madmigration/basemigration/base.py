@@ -47,7 +47,7 @@ class BaseMigrate():
                 tabel_name = migrate_table.migrationTable.DestinationTable.name
                 self.table_list.add(tabel_name)
         except Exception as err:
-            print("err -> ",err)
+            print("collect_table_names [error] -> ",err)
 
     def collect_drop_fk(self):
         """ 
@@ -68,7 +68,7 @@ class BaseMigrate():
                         self.contraints_columns[table_name].add(*fk["constrained_columns"])
             transactional.commit()
         except Exception as err:
-            print("err -> ",err)
+            print("collect_drop_fk [error] -> ",err)
             return False
         finally:
             conn.close()
@@ -83,7 +83,7 @@ class BaseMigrate():
             self.destination_table = tabels_schema.migrationTable.DestinationTable.dict()
             self.columns = tabels_schema.migrationTable.MigrationColumns
         except Exception as err:
-            print("err -> ",err)
+            print("parse_migration_tables [error] -> ",err)
 
 
     def parse_migration_columns(
@@ -113,7 +113,7 @@ class BaseMigrate():
                 else:
                     self.add_created_table(tablename,col)
         except Exception as err:
-            print("parse_migration_columns err -> ",err)
+            print("parse_migration_columns [error] -> ",err)
 
 
     def add_updated_table(self,table_name: str, col: Column):
@@ -132,7 +132,7 @@ class BaseMigrate():
                     self.parse_migration_tables(migrate_table)
                     self.parse_migration_columns(self.destination_table.get("name"),self.columns)
         except Exception as err:
-            print("prepare_tables -> ",err)
+            print("prepare_tables  [error] -> ",err)
 
     def update_table(self):
         
@@ -164,7 +164,7 @@ class BaseMigrate():
             self.db_operations.create_fk_constraint(self.fk_constraints,self.contraints_columns)
             return True
         except Exception as err:
-            print("create_tables err -> ", err)
+            print("create_tables [error] -> ", err)
 
     def _parse_column_type(self) -> object:
         """ Parse column type and options (length,type and etc.) """
@@ -176,7 +176,7 @@ class BaseMigrate():
                 column_type = column_type(type_length)
             return column_type
         except Exception as err:
-            print(err)
+            print("_parse_column_type [error] -> ",err)
         
         # print(self.dest_options.get("length"))
         type_length = self.dest_options.pop("length")
@@ -192,7 +192,7 @@ class BaseMigrate():
                 fk_options["dest_column"] = self.destination_column.name
                 self.fk_constraints.append(fk_options)
         except Exception as err:
-            print("_parse_fk err -> ", err)
+            print("_parse_fk [error] -> ", err)
 
 
     def check_table(self, table_name: str) -> bool:
@@ -253,7 +253,7 @@ class BaseMigrate():
                 return True
             return has_column
         except Exception as err:
-            print("check_column err -> ",err)
+            print("check_column [error] -> ",err)
             return False
 
 
@@ -264,20 +264,20 @@ class BaseMigrate():
             stmt = engine.base.metadata.tables[table_name].insert().values(**data)
            
         except Exception as err:
-            print("stmt err: ", err)
+            print("insert_data stmt [error] -> ", err)
             return
         # print("STMT",stmt)
   
         try:
             engine.session.execute(stmt)
         except Exception as err:
-            print("Passing stmt into queue")
+            print("insert_data passing into queue [error] -> ", err)
             BaseMigrate.put_queue(stmt)
 
         try:
             engine.session.commit()
         except Exception as err:
-            print("Commit error: ", err)
+            print("insert_data [error] -> ", err)
             engine.session.rollback()
         finally:
             engine.session.close()
@@ -290,12 +290,12 @@ class BaseMigrate():
                 print("Inserting from queue: ")
                 engine.session.execute(stmt)
             except Exception as err:
-                print("insert_queue err: ", err)
+                print("insert_queue [error] -> ", err)
             
             try:
                 engine.session.commit()
             except Exception as err:
-                print("insert_queue Commit error: ", err)
+                print("insert_queue [error] -> ", err)
                 engine.session.rollback()
             finally:
                 engine.session.close()
@@ -335,9 +335,11 @@ class BaseMigrate():
                         try:
                             data_from_source[destination_column] = datatype(data_from_source.pop(source_column))
                         except Exception as err:
+                            print("type_cast [error] -> ", err)
                             data_from_source[destination_column] = None
                        
                 except Exception as err:
+                    print("type_cast [error] -> ", err)
                     data_from_source[destination_column] = None
             else:
                 data_from_source[destination_column] = data_from_source.pop(source_column)
