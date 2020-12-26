@@ -30,3 +30,4 @@ class Config:
             
         else:
             self.config_data = ConfigSchema(**data, Loader=yaml.FullLoader) # noqa  E501
+            self.destination_mongo = False
