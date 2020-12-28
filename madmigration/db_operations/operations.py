@@ -4,6 +4,8 @@ from alembic.migration import MigrationContext
 from sqlalchemy.engine import reflection
 from alembic.operations import Operations
 from alembic import op
+import logging
+logger = logging.getLogger(__name__)
 
 
 class DbOperations:
@@ -19,10 +21,12 @@ class DbOperations:
             ctx = MigrationContext.configure(conn)
             op = Operations(ctx)
             op.drop_table(table_name)
+            logger.info(f"Table {table_name} dropped")
             return True
         except Exception as err:
-            print("drop_tables [error] -> ",err)
+            logger.error(f"drop_tables [error] -> {err}")
         finally:
+            logger.info("Session closed")
             conn.close()
 
 
@@ -35,10 +39,12 @@ class DbOperations:
             op = Operations(ctx)
             for tb in table_name:
                 op.drop_table(tb)
+                logger.info(f"Table {table_name} dropped")
             return True
         except Exception as err:
-            print("bulk_drop_tables [error] -> ",err)
+            logger.error(f"bulk_drop_tables [error] -> {err}")
         finally:
+            logger.info("Session closed")
             conn.close()
 
     def update_column(self,table_name, column_name, col_type, **options):
