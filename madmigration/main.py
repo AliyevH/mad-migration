@@ -1,3 +1,4 @@
+import logging
 from madmigration.db_init.connection_engine import SourceDB
 from madmigration.db_init.connection_engine import DestinationDB
 from madmigration.utils.helpers import detect_driver, get_cast_type
@@ -15,6 +16,7 @@ from sqlalchemy import (
     Float,
     TIMESTAMP
 )
+logger = logging.getLogger(__name__)
 
 class Controller:
     def __init__(self, migration_config: Config):
@@ -54,15 +56,15 @@ class Controller:
     def run_table_migrations(self):
         # detect migration class
         try:
-            
+            logger.info(f"Detect SQL driver {self.destination_db.engine.name}")
             migrate = detect_driver(self.destinationdb_driver)
             
             mig = migrate(self.config,self.destination_db)
             mig.prepare_tables()
             mig.process()
-            
+            logger.info("Tables in destination db created successfully")
         except Exception as err:
-            print(err)
+            logger.error(err)
             
         
         # migrate.create_fk_constraint(self.destination_db.engine)
@@ -116,11 +118,11 @@ class Controller:
                 try:
                     new_data = Migrate.type_cast(data_from_source=source_data, mt=mt, convert_info=self.convert_info)
                 except Exception as err:
-                    print("Migrate.type_cast -> ", err)
+                    logger.error("Migrate.type_cast -> %s" % err)
                 try:
                     Migrate.insert_data(engine=self.destination_db, table_name=self.destination_table.name, data=new_data)
                 except Exception as err:
-                    print("Migrate.insert_data -> ",err)
+                    logger.error("Migrate.insert_data -> %s" % err)
         
         # Queue is used to hold data that could not be inserted with foreignkey error. Loop from queue again to insert data with fk
         Migrate.insert_queue(self.destination_db)

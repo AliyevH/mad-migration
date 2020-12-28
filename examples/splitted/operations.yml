@@ -1,0 +1,54 @@
+SourceTable:
+  name: operations
+DestinationTable:
+  name: operations
+  create: true
+
+MigrationColumns:
+  - sourceColumn:
+      name: id
+    destinationColumn:
+      name: id
+      options:
+        primary_key: true
+        type_cast: uuid
+  - sourceColumn:
+      name: operation_type_id
+    destinationColumn:
+      name: operation_type_id
+      options:
+        type_cast: uuid
+        foreign_key:
+          table_name: operation_types
+          column_name: id
+  - sourceColumn:
+      name: lender_id
+    destinationColumn:
+      name: lender_id
+      options:
+        type_cast: uuid
+        foreign_key:
+          table_name: lenders
+          column_name: id
+  - sourceColumn:
+      name: condition_id
+    destinationColumn:
+      name: condition_id
+      options:
+        type_cast: uuid
+        foreign_key:
+          table_name: operation_conditions
+          column_name: id
+  - sourceColumn:
+        name: created
+    destinationColumn:
+      name: created
+      options:
+        type_cast: datetime
+  - sourceColumn:
+      name: updated
+    destinationColumn:
+      name: updated
+      options:
+        type_cast: datetime
+        nullable: true

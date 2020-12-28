@@ -1,0 +1,52 @@
+SourceTable:
+  name: agents
+DestinationTable:
+  name: agents
+  create: True
+
+MigrationColumns:
+  - sourceColumn:
+      name: id
+    destinationColumn:
+      name: id
+      options:
+        primary_key: true
+        type_cast: uuid
+  - sourceColumn:
+      name: company_id
+    destinationColumn:
+      name: company_id
+      options:
+        type_cast: uuid
+        foreign_key:
+          table_name: company
+          column_name: id
+  - sourceColumn:
+      name: branch_id
+    destinationColumn:
+      name: branch_id
+      options:
+        type_cast: uuid
+        foreign_key:
+          table_name: branch
+          column_name: id
+  - sourceColumn:
+      name: user_id
+    destinationColumn:
+      name: user_id
+      options:
+        type_cast: uuid
+        nullable: false
+  - sourceColumn:
+        name: created
+    destinationColumn:
+      name: created
+      options:
+        type_cast: datetime
+  - sourceColumn:
+      name: updated
+    destinationColumn:
+      name: updated
+      options:
+        type_cast: datetime
+        nullable: true

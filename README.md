@@ -174,6 +174,132 @@ MigrationColumns:
         column_name: id
         ondelete: CASCADE
 ```
+
+### You can split your .yaml files or import .json file into .yaml file.
+You must create the main .yaml file and importing other files into main .yaml file. 
+
+main.yaml file
+```yml 
+version: 1.1
+Configs:
+  - SourceConfig:
+      dbURI: "mysql://root:admin@127.0.0.1/old"
+  - DestinationConfig:
+      dbURI: "postgresql://root:admin@127.0.0.1/new"
+
+migrationTables:
+  - migrationTable: !import company.yaml
+  - migrationTable: !import op_cond.json
+
+```
+
+company.yaml file
+```yml
+SourceTable:
+  name: company
+DestinationTable:
+  name: company
+  create: true 
+
+MigrationColumns:
+  - sourceColumn:
+      name: id
+    destinationColumn: 
+      name: id
+      options:
+        primary_key: true
+        type_cast: uuid
+
+  - sourceColumn:
+      name: name
+    destinationColumn:
+      name: name
+      options:
+        length: 120
+        type_cast: varchar
+        nullable: false
+
+  - sourceColumn:
+      name: created
+    destinationColumn:
+      name: created
+      options:
+        type_cast: datetime
+  - sourceColumn:
+      name: updated
+    destinationColumn:
+      name: updated
+      options:
+        type_cast: datetime
+        nullable: true
+```
+
+op_conds.json file
+```json
+{
+    "SourceTable": {
+      "name": "operation_conditions"
+    },
+    "DestinationTable": {
+      "name": "operation_conditions",
+      "create": true
+    },
+    "MigrationColumns": [
+      {
+        "sourceColumn": {
+          "name": "id"
+        },
+        "destinationColumn": {
+          "name": "id",
+          "options": {
+            "primary_key": true,
+            "type_cast": "uuid"
+          }
+        }
+      },
+      {
+        "sourceColumn": {
+          "name": "interest"
+        },
+        "destinationColumn": {
+          "name": "interest",
+          "options": {
+            "type_cast": "varchar",
+            "length": 30,
+            "nullable": false
+          }
+        }
+      },
+      {
+        "sourceColumn": {
+          "name": "FIFD"
+        },
+        "destinationColumn": {
+          "name": "FIFD",
+          "options": {
+            "type_cast": "varchar",
+            "length": 30,
+            "nullable": false
+          }
+        }
+      },
+      {
+        "sourceColumn": {
+          "name": "comission"
+        },
+        "destinationColumn": {
+          "name": "comission",
+          "options": {
+            "type_cast": "varchar",
+            "length": 30,
+            "nullable": false
+          }
+        }
+      }
+    ]
+  }
+```
+
 ### We will create all tables and database on the destination server if they do not exist
 
 **madmigrate -f migration_schema.yaml**

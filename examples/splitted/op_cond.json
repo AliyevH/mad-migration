@@ -1,0 +1,149 @@
+{
+    "SourceTable": {
+      "name": "operation_conditions"
+    },
+    "DestinationTable": {
+      "name": "operation_conditions",
+      "create": true
+    },
+    "MigrationColumns": [
+      {
+        "sourceColumn": {
+          "name": "id"
+        },
+        "destinationColumn": {
+          "name": "id",
+          "options": {
+            "primary_key": true,
+            "type_cast": "uuid"
+          }
+        }
+      },
+      {
+        "sourceColumn": {
+          "name": "interest"
+        },
+        "destinationColumn": {
+          "name": "interest",
+          "options": {
+            "type_cast": "varchar",
+            "length": 30,
+            "nullable": false
+          }
+        }
+      },
+      {
+        "sourceColumn": {
+          "name": "FIFD"
+        },
+        "destinationColumn": {
+          "name": "FIFD",
+          "options": {
+            "type_cast": "varchar",
+            "length": 30,
+            "nullable": false
+          }
+        }
+      },
+      {
+        "sourceColumn": {
+          "name": "comission"
+        },
+        "destinationColumn": {
+          "name": "comission",
+          "options": {
+            "type_cast": "varchar",
+            "length": 30,
+            "nullable": false
+          }
+        }
+      },
+      {
+        "sourceColumn": {
+          "name": "min_term"
+        },
+        "destinationColumn": {
+          "name": "min_term",
+          "options": {
+            "type_cast": "varchar",
+            "length": 30,
+            "nullable": false
+          }
+        }
+      },
+      {
+        "sourceColumn": {
+          "name": "max_term"
+        },
+        "destinationColumn": {
+          "name": "max_term",
+          "options": {
+            "type_cast": "varchar",
+            "length": 30,
+            "nullable": false
+          }
+        }
+      },
+      {
+        "sourceColumn": {
+          "name": "min_amount"
+        },
+        "destinationColumn": {
+          "name": "min_amount",
+          "options": {
+            "type_cast": "varchar",
+            "length": 30,
+            "nullable": false
+          }
+        }
+      },
+      {
+        "sourceColumn": {
+          "name": "max_amount"
+        },
+        "destinationColumn": {
+          "name": "max_amount",
+          "options": {
+            "type_cast": "varchar",
+            "length": 30,
+            "nullable": false
+          }
+        }
+      },
+      {
+        "sourceColumn": {
+          "name": "other_conditions"
+        },
+        "destinationColumn": {
+          "name": "other_conditions",
+          "options": {
+            "type_cast": "varchar",
+            "length": 30
+          }
+        }
+      },
+      {
+        "sourceColumn": {
+          "name": "created"
+        },
+        "destinationColumn": {
+          "name": "created",
+          "options": {
+            "type_cast": "datetime"
+          }
+        }
+      },
+      {
+        "sourceColumn": {
+          "name": "updated"
+        },
+        "destinationColumn": {
+          "name": "updated",
+          "options": {
+            "type_cast": "datetime",
+            "nullable": true
+          }
+        }
+      }
+    ]
+  }
