@@ -178,7 +178,7 @@ MigrationColumns:
 ### You can split your .yaml files or import .json file into .yaml file.
 You must create the main .yaml file and importing other files into main .yaml file. 
 
-main.yaml file
+`main.yaml` file
 ```yml 
 version: 1.1
 Configs:
@@ -193,7 +193,7 @@ migrationTables:
 
 ```
 
-company.yaml file
+`company.yaml` file
 ```yml
 SourceTable:
   name: company
@@ -234,7 +234,7 @@ MigrationColumns:
         nullable: true
 ```
 
-op_conds.json file
+`op_conds.json` file
 ```json
 {
     "SourceTable": {
