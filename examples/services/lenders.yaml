@@ -1,0 +1,34 @@
+SourceTable:
+  name: lenders
+DestinationTable:
+  name: lenders
+  create: true
+
+MigrationColumns:
+  - sourceColumn:
+      name: id
+    destinationColumn:
+      name: id
+      options:
+        primary_key: true
+        type_cast: uuid
+  - sourceColumn:
+      name: name
+    destinationColumn:
+      name: name
+      options:
+        type_cast: varchar
+        length: 120
+  - sourceColumn:
+        name: created
+    destinationColumn:
+      name: created
+      options:
+        type_cast: datetime
+  - sourceColumn:
+      name: updated
+    destinationColumn:
+      name: updated
+      options:
+        type_cast: datetime
+        nullable: true 

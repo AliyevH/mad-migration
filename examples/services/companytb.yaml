@@ -1,0 +1,37 @@
+SourceTable:
+  name: company
+DestinationTable:
+  name: company
+  create: true # -> I suggest that we have to define this option that will tell us whether we have to create tables or not
+
+MigrationColumns:
+  - sourceColumn:
+      name: id
+    destinationColumn: 
+      name: id
+      options:
+        primary_key: true
+        type_cast: uuid
+
+  - sourceColumn:
+      name: name
+    destinationColumn:
+      name: name
+      options:
+        length: 120
+        type_cast: varchar
+        nullable: false
+
+  - sourceColumn:
+      name: created
+    destinationColumn:
+      name: created
+      options:
+        type_cast: datetime
+  - sourceColumn:
+      name: updated
+    destinationColumn:
+      name: updated
+      options:
+        type_cast: datetime
+        nullable: true

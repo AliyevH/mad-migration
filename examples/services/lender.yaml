@@ -1,0 +1,43 @@
+SourceTable:
+  name: operators
+DestinationTable:
+  name: operators
+  create: true
+
+MigrationColumns:
+  - sourceColumn:
+      name: id
+    destinationColumn:
+      name: id
+      options:
+        primary_key: true
+        type_cast: uuid
+  - sourceColumn:
+      name: lender_id
+    destinationColumn:
+      name: lender_id
+      options:
+        type_cast: uuid
+        foreign_key:
+          table_name: lenders
+          column_name: id
+  - sourceColumn:
+      name: user_id
+    destinationColumn:
+      name: user_id
+      options:
+        type_cast: uuid
+        nullable: false
+  - sourceColumn:
+        name: created
+    destinationColumn:
+      name: created
+      options:
+        type_cast: datetime
+  - sourceColumn:
+      name: updated
+    destinationColumn:
+      name: updated
+      options:
+        type_cast: datetime
+        nullable: true 

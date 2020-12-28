@@ -211,7 +211,7 @@ class BaseMigrate():
                 return self.get_input(table_name)
             return False
         except Exception as err:
-            print(err)
+            print("check_table [error] -> ",err)
             return False
 
     def get_input(self,table_name):
