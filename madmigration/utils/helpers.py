@@ -21,6 +21,8 @@ from madmigration.mysqldb.migration import MysqlMigrate
 from madmigration.postgresqldb.migration import PgMigrate
 from madmigration.mssql.migration import MssqlMigrate
 from madmigration.mongodb.migration import MongoDbMigrate
+import logging
+logger = logging.getLogger(__name__)
 
 ###########################
 # Get class of cast #
@@ -85,8 +87,12 @@ def process(element, compiler, **kw):
 def check_file(file):
     return Path(file).is_file() and os.access(file, os.R_OK)
 
+
+
 def file_not_found(file):
-    raise FileDoesNotExists(f"Given file does not exists file: {file}",)
+    logger.error(f"Given file does not exists file: {file}")
+    sys.exit(1)
+    # raise FileDoesNotExists(f"Given file does not exists file: {file}")
 
 
 def issue_url():
@@ -127,4 +133,5 @@ def database_not_exists(database):
 
 def goodby_message(message, exit_code=0):
     print(message, flush=True)
+    logger.error(message)
     sys.exit(int(exit_code))

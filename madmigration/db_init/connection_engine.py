@@ -5,6 +5,9 @@ from sqlalchemy_utils.functions.database import database_exists, create_database
 import sys
 from madmigration.utils.helpers import issue_url,app_name,parse_uri
 from madmigration.utils.helpers import database_not_exists, goodby_message
+import logging
+logger = logging.getLogger(__name__)
+
 
 @event.listens_for(Table, "after_parent_attach")
 def before_parent_attach(target, parent):
@@ -21,12 +24,9 @@ class SourceDB:
         self.engine = create_engine(source_uri, echo=False)
         self.base.prepare(self.engine, reflect=True)
         self.session = Session(self.engine, autocommit=False, autoflush=False)
-        
-
 
 
 class DestinationDB:
-    
     def __init__(self, destination_uri):
         if not database_exists(destination_uri):
             while True:
@@ -35,7 +35,7 @@ class DestinationDB:
                 if msg.lower() == "y":
                     try:
                         create_database(destination_uri)
-                        sys.stdout.write("Database created ..")
+                        logger.info("Database created..")
                         break
                     except Exception as err:
                         goodby_message(database_not_exists(destination_uri), 1)
