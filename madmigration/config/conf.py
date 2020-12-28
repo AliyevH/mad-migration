@@ -6,10 +6,9 @@ from typing import IO, Any
 from pprint import pprint
 
 class Loader(yaml.SafeLoader):
-    """YAML Loader with `!include` constructor."""
+    """YAML Loader with `!import` constructor."""
     def __init__(self, stream: IO) -> None:
         """Initialise Loader."""
-
         try:
             self._root = os.path.split(stream.name)[0]
         except AttributeError:
@@ -43,7 +42,6 @@ class Config:
 
         with open(self.config_file) as f:
             data = yaml.load(f, Loader=Loader)
-       
             self.select_config(data)
         
       
@@ -58,9 +56,9 @@ class Config:
 
         if "mongodb" in destination_DB.get("DestinationConfig").get("dbURI"):
 
-            self.config_data = NoSQLConfigSchema(**data, Loader=yaml.FullLoader) # noqa  E501
+            self.config_data = NoSQLConfigSchema(**data, Loader=Loader) # noqa  E501
             self.destination_mongo =True
             
         else:
-            self.config_data = ConfigSchema(**data, Loader=yaml.FullLoader) # noqa  E501
+            self.config_data = ConfigSchema(**data, Loader=Loader) # noqa  E501
             self.destination_mongo = False
