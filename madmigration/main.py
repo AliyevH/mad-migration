@@ -15,8 +15,6 @@ from sqlalchemy import (
     Float,
     TIMESTAMP
 )
-from time import sleep
-
 
 class Controller:
     def __init__(self, migration_config: Config):
@@ -83,7 +81,6 @@ class Controller:
                 return column.type
 
     def run(self):
-        
         # Looping in migrationTables
         self.destination_db.base.prepare(self.destination_db.engine, reflect=True)
 
@@ -95,7 +92,7 @@ class Controller:
             
             # Instance of Migrate class
             migrate = Migrate(self.config, self.source_db)
-            migrate.parse_migration_tables(mt)    
+            migrate.parse_migration_tables(mt) 
 
             # Dictionary is used to keep data about destination column and type_cast format
             self.convert_info = {}

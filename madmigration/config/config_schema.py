@@ -10,24 +10,23 @@ class ForeignKeySchema(BaseModel):
     onupdate: str = "NO ACTION"
     onupdate: str = "NO ACTION"
 
+
 class OptionsSchema(BaseModel):
     primary_key: bool = False
     nullable: bool = False
     default: Any = None
-    index: Union[bool,None] = None
-    unique: Union[bool,None] = None
+    index: Union[bool, None] = None
+    unique: Union[bool, None] = None
     autoincrement: bool = False
-    foreign_key: Union[ForeignKeySchema,None] = None
-    length: Union[int,None] = None
-    type_cast: Union[str,None] = None
+    foreign_key: Union[ForeignKeySchema, None] = None
+    length: Union[int, None] = None
+    type_cast: Union[str, None] = None
 
     # @validator("type_cast")   #TODO check types
-    # def validate_cast(cls,v,values): 
+    # def validate_cast(cls,v,values):
     #     if v == "integer" and values["length"] != None:
     #         raise ValueError(f"Type {v} has no length")
     #     return v
-
-
 
 
 class SourceConfigSchema(BaseModel):
@@ -40,15 +39,17 @@ class DestinationConfigSchema(BaseModel):
 
 class SourceTableSchema(BaseModel):
     name: str
-    
+
 
 class DestTableSchema(BaseModel):
     name: str
     create: bool = False
-    
+
+
 class DestinationColumn(BaseModel):
     name: str
     options: OptionsSchema
+
 
 class SourceColumn(BaseModel):
     name: str
@@ -75,13 +76,9 @@ class ConfigSchema(BaseModel):
     version: float
 
 
-
-
-
-
-
 class OptionsSchmea(BaseModel):
-    options: Dict[str,str]
+    options: Dict[str, str]
+
 
 class ConcatenateColumns(ColumnParametersSchema):
 
@@ -90,15 +87,17 @@ class ConcatenateColumns(ColumnParametersSchema):
 
 class Options(BaseModel):
     type_cast: str
-    concatenateColumns: List[ConcatenateColumns]  = None
+    concatenateColumns: List[ConcatenateColumns] = None
     concatenateTable: str = None
 
 
 class DestinationColumnSchema(DestinationColumn):
     options: Options
 
+
 class ColumConfig(ColumnParametersSchema):
-    destinationColumn:  DestinationColumnSchema  #options dict
+    destinationColumn: DestinationColumnSchema  # options dict
+
 
 class DestinationTableSchema(SourceTableSchema):
     ...
@@ -115,10 +114,5 @@ class MigrationTableS(MigrationTablesSchema):
 
 class NoSQLConfigSchema(ConfigSchema):
 
-    migrationTables:  List[MigrationTableS] 
-
-
-
-
-
+    migrationTables: List[MigrationTableS]
 

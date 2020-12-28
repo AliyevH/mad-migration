@@ -52,7 +52,7 @@ class MongoDbMigrate:
 
         tables = {concatenateTables.destinationColumn.options.concatenateTable  for migrated_columns in  self.config.migrationTables for concatenateTables in migrated_columns.migrationTable.MigrationColumns if concatenateTables.destinationColumn.options.concatenateTable is not None}
         
-        if tables is not None:
+        if tables:
             self.table_list.update(tables)
             self.check_tables_existence()
         

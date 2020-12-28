@@ -128,10 +128,11 @@ class DbOperations:
             print("fk_drop [error] -> ",err)
         finally:
             conn.close()
-
+    
     def db_drop_everything(self,table_list):
         """ From http://www.sqlalchemy.org/trac/wiki/UsageRecipes/DropEverything """
         try:
+            print("SIGNAL DROP -", table_list)
             conn = self.engine.connect()
             transactional = conn.begin()
             inspector = reflection.Inspector.from_engine(self.engine)
@@ -162,3 +163,4 @@ class DbOperations:
             return False
         finally:
             conn.close()
+

@@ -1,3 +1,9 @@
+import signal
+import sys
+from psycopg2 import errors
+from sqlalchemy import exc
+from queue import Queue
+
 from madmigration.config.config_schema import MigrationTablesSchema
 from madmigration.config.config_schema import ColumnParametersSchema
 from madmigration.config.config_schema import TablesInfo
@@ -10,14 +16,9 @@ from madmigration.postgresqldb.type_convert import get_type_object
 from madmigration.config.conf import Config
 from madmigration.db_operations.operations import DbOperations
 
-from psycopg2 import errors
-from sqlalchemy import exc
-
-from queue import Queue
-
-
 class BaseMigrate():
-    q = Queue()
+    q = Queue()  # Static queue for fk constraints data
+    tables = set()
     def __init__(self, config: Config,destination_db):
         self.global_config = config
         self.migration_tables = config.migrationTables
@@ -33,12 +34,20 @@ class BaseMigrate():
         self.contraints_columns = defaultdict(set)
         self.db_operations = DbOperations(self.engine)
 
+        signal.signal(signal.SIGINT, self.sig_handler)
+        
     
     def __enter__(self):
         return self
 
     def __exit__(self, type, value, traceback):
         self.engine.session.close()
+    
+    def sig_handler(self,sig_num,_sig_frame):
+        print(f"TERMINATE APP WITH SIGNAL -> {sig_num}")
+        if self.tables:
+            self.db_operations.db_drop_everything(self.tables)
+        sys.exit(sig_num)
 
     def collect_table_names(self):
         """ collects all tables that the program should create """
@@ -46,13 +55,13 @@ class BaseMigrate():
             for migrate_table in self.migration_tables:
                 tabel_name = migrate_table.migrationTable.DestinationTable.name
                 self.table_list.add(tabel_name)
+            self.tables.update(self.table_list)
         except Exception as err:
             print("collect_table_names [error] -> ",err)
 
     def collect_drop_fk(self):
         """ 
-        Collect foreign key constraints for tables so 
-        that if something goes wrong, delete everything
+        Collect foreign key constraints for tables 
         """
         try:
             conn = self.engine.connect()
@@ -93,7 +102,6 @@ class BaseMigrate():
         This function parses migrationColumns schema and prepare column
         """
         try:
-            # table_name, column_name,type_=col_type, **options
             update = self.check_table(tablename)
                 
             for col in migration_columns:
@@ -153,8 +161,9 @@ class BaseMigrate():
 
     def process(self):
         """
-        Create and check existing tables. 
+        Check existing tables. 
         Collect foreign key constraints
+        Create tables and fk
         """
         try:
             # self.alter_columns()
