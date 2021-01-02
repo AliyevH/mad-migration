@@ -20,10 +20,12 @@ from madmigration.db_operations.operations import DbOperations
 
 logger = logging.getLogger(__name__)
 
+
 class BaseMigrate():
     q = Queue()  # Static queue for fk constraints data
     tables = set()
-    def __init__(self, config: Config,destination_db):
+
+    def __init__(self, config: Config, destination_db):
         self.global_config = config
         self.migration_tables = config.migrationTables
         self.engine = destination_db.engine
@@ -39,15 +41,14 @@ class BaseMigrate():
         self.db_operations = DbOperations(self.engine)
 
         signal.signal(signal.SIGINT, self.sig_handler)
-        
-    
+
     def __enter__(self):
         return self
 
     def __exit__(self, type, value, traceback):
         self.engine.session.close()
-    
-    def sig_handler(self,sig_num,_sig_frame):
+
+    def sig_handler(self, sig_num, _sig_frame):
         logger.warn("TERMINATE APP WITH SIGNAL -> %d" % sig_num)
         if self.tables:
             self.db_operations.db_drop_everything(self.tables)
@@ -85,9 +86,8 @@ class BaseMigrate():
             return False
         finally:
             conn.close()
-    
 
-    def parse_migration_tables(self,tabels_schema:MigrationTablesSchema):
+    def parse_migration_tables(self, tabels_schema: MigrationTablesSchema):
         """
         This function parses migrationTables from yaml file
         """
@@ -98,7 +98,6 @@ class BaseMigrate():
         except Exception as err:
             logger.error("parse_migration_tables [error] -> %s" % err)
 
-
     def parse_migration_columns(
         self, tablename: str, migration_columns: ColumnParametersSchema
     ):
@@ -107,7 +106,7 @@ class BaseMigrate():
         """
         try:
             update = self.check_table(tablename)
-                
+
             for col in migration_columns:
                 self.source_column = col.sourceColumn
                 self.destination_column = col.destinationColumn
@@ -119,22 +118,21 @@ class BaseMigrate():
                 col = Column(self.destination_column.name, column_type, **self.dest_options)
                 if update:
                     if not self.check_column(tablename, self.destination_column.name):
-                    #     self.add_alter_column(tablename, {"column_name": self.destination_column.name,"type":column_type,"options":{**self.dest_options}})
-                    # else:
-                        self.add_updated_table(tablename,col)
+                        #     self.add_alter_column(tablename, {"column_name": self.destination_column.name,"type":column_type,"options":{**self.dest_options}})
+                        # else:
+                        self.add_updated_table(tablename, col)
                 else:
-                    self.add_created_table(tablename,col)
+                    self.add_created_table(tablename, col)
         except Exception as err:
             logger.error("parse_migration_columns [error] -> %s" % err)
 
-
-    def add_updated_table(self,table_name: str, col: Column):
+    def add_updated_table(self, table_name: str, col: Column):
         self.table_update[table_name].append(col)
 
-    def add_created_table(self,table_name: str, col: Column):
+    def add_created_table(self, table_name: str, col: Column):
         self.table_create[table_name].append(col)
 
-    def add_alter_column(self,table_name: str, col: Column):
+    def add_alter_column(self, table_name: str, col: Column):
         self.alter_col[table_name].append(col)
 
     def prepare_tables(self):
@@ -142,25 +140,25 @@ class BaseMigrate():
             for migrate_table in self.migration_tables:
                 if migrate_table.migrationTable.DestinationTable.create:
                     self.parse_migration_tables(migrate_table)
-                    self.parse_migration_columns(self.destination_table.get("name"),self.columns)
+                    self.parse_migration_columns(self.destination_table.get("name"), self.columns)
         except Exception as err:
             logger.error("prepare_tables  [error] -> %s" % err)
 
     def update_table(self):
-        
-        for tab,col in self.table_update.items():
-            self.db_operations.add_column(tab,*col)
+
+        for tab, col in self.table_update.items():
+            self.db_operations.add_column(tab, *col)
         return True
-    
+
     def alter_columns(self):
         for tab, val in self.alter_col.items():
             for i in val:
-                self.db_operations.update_column(tab,i.pop("column_name"),i.pop("type"), **i.pop("options"))
+                self.db_operations.update_column(tab, i.pop("column_name"), i.pop("type"), **i.pop("options"))
         return True
-    
+
     def create_tables(self):
         for tab, col in self.table_create.items():
-            self.db_operations.create_table(tab,*col)
+            self.db_operations.create_table(tab, *col)
         return True
 
     def process(self):
@@ -174,14 +172,14 @@ class BaseMigrate():
             self.collect_drop_fk()
             self.update_table()
             self.create_tables()
-            self.db_operations.create_fk_constraint(self.fk_constraints,self.contraints_columns)
+            self.db_operations.create_fk_constraint(self.fk_constraints, self.contraints_columns)
             return True
         except Exception as err:
             logger.error("create_tables [error] -> %s" % err)
 
     def _parse_column_type(self) -> object:
         """ Parse column type and options (length,type and etc.) """
-        
+
         try:
             column_type = self.get_column_type(self.dest_options.pop("type_cast"))
             type_length = self.dest_options.pop("length")
@@ -190,7 +188,7 @@ class BaseMigrate():
             return column_type
         except Exception as err:
             logger.error("_parse_column_type [error] -> %s" % err)
-        
+
         # logger.error(self.dest_options.get("length"))
         type_length = self.dest_options.pop("length")
         if type_length:
@@ -207,7 +205,6 @@ class BaseMigrate():
         except Exception as err:
             logger.error("_parse_fk [error] -> %s" % err)
 
-
     def check_table(self, table_name: str) -> bool:
         """ Check table exist or not, and wait user input """
         try:
@@ -218,11 +215,12 @@ class BaseMigrate():
             logger.error("check_table [error] -> %s" % err)
             return False
 
-    def get_input(self,table_name):
+    def get_input(self, table_name):
         while True:
             answ = input(
                 f"Table with name '{table_name}' already exist,\
-'{table_name}' table will be dropped and recreated,your table data will be lost,process?(y/n) ")
+'{table_name}' table will be dropped and recreated,your table data will be lost in the process.\
+ Do you want to continue?(y/n) ")
             if answ.lower() == "y":
                 self.db_operations.drop_fk(self.dest_fk)
                 self.db_operations.drop_table(table_name)
@@ -231,7 +229,7 @@ class BaseMigrate():
                 return True
             else:
                 continue
-        
+
     def get_table_attribute_from_base_class(self, source_table_name: str):
         """
         This function gets table name attribute from sourceDB.base.classes. Example sourceDB.base.class.(table name)
@@ -251,7 +249,6 @@ class BaseMigrate():
                 data[column] = getattr(row, column)
             yield data
 
-
     def check_column(self, table_name: str, column_name: str) -> bool:
         """
             Check column exist in destination table or not
@@ -259,28 +256,25 @@ class BaseMigrate():
         """
         try:
             insp = reflection.Inspector.from_engine(self.engine)
-            has_column = False
             for col in insp.get_columns(table_name):
-                if column_name not in col["name"]:
-                    continue
-                return True
-            return has_column
+                if column_name in col["name"]:
+                    return True
+            return False
         except Exception as err:
             logger.error("check_column [error] -> %s" % err)
             return False
-
 
     @staticmethod
     def insert_data(engine, table_name, data: dict):
         # stmt = None
         try:
             stmt = engine.base.metadata.tables[table_name].insert().values(**data)
-           
+
         except Exception as err:
             logger.error("insert_data stmt [error] -> %s" % err)
             return
         # logger.error("STMT",stmt)
-  
+
         try:
             engine.session.execute(stmt)
         except Exception as err:
@@ -298,13 +292,13 @@ class BaseMigrate():
     @staticmethod
     def insert_queue(engine):
         for stmt in BaseMigrate.q.queue:
-            
+
             try:
                 logger.info("Inserting from queue")
                 engine.session.execute(stmt)
             except Exception as err:
                 logger.error("insert_queue [error] -> %s" % err)
-            
+
             try:
                 engine.session.commit()
             except Exception as err:
@@ -312,7 +306,6 @@ class BaseMigrate():
                 engine.session.rollback()
             finally:
                 engine.session.close()
-
 
     @staticmethod
     def put_queue(data):
@@ -327,7 +320,7 @@ class BaseMigrate():
         for columns in mt.migrationTable.MigrationColumns:
             source_column = columns.sourceColumn.name
             destination_column = columns.destinationColumn.name
-            
+
             if columns.destinationColumn.options.type_cast:
                 destination_type_cast = columns.destinationColumn.options.type_cast
             else:
@@ -336,7 +329,7 @@ class BaseMigrate():
             if convert_info.get(destination_column):
                 # ClassType is Class of data type (int, str, float, etc...)
                 # Using this ClassType we are converting data into format specified in type_cast
-                datatype = get_type_object(destination_type_cast)               
+                datatype = get_type_object(destination_type_cast)
 
                 try:
                     if datatype == type(data_from_source.get(source_column)):
@@ -350,15 +343,14 @@ class BaseMigrate():
                         except Exception as err:
                             logger.error("type_cast [error] -> %s" % err)
                             data_from_source[destination_column] = None
-                       
+
                 except Exception as err:
                     logger.error("type_cast [error] -> %s" % err)
                     data_from_source[destination_column] = None
             else:
                 data_from_source[destination_column] = data_from_source.pop(source_column)
-            
-        return data_from_source
 
+        return data_from_source
 
     @staticmethod
     def get_column_type(type_name: str) -> object:
@@ -367,5 +359,3 @@ class BaseMigrate():
         :return: object class
         """
         raise NotImplementedError
-
-
