@@ -27,7 +27,15 @@ class SourceDB:
 
 class DestinationDB:
     def __init__(self, destination_uri):
-        if not database_exists(destination_uri):
+        self.check_for_or_create_database(destination_uri)
+
+        self.base = automap_base()
+        self.engine = create_engine(destination_uri)
+        # self.base.prepare(self.engine, reflect=True)
+        self.session = Session(self.engine, autocommit=False, autoflush=False)
+
+    def check_for_or_create_database(self, destination_uri, check_for_database: callable = database_exists):
+        if not check_for_database(destination_uri):
             while True:
                 database = parse_uri(destination_uri)
                 msg = input(f"The database {database} does not exists, would you like to create it in the destination?(y/n) ")
@@ -43,8 +51,3 @@ class DestinationDB:
                     goodby_message("Destination database does not exist \nExiting ...", 0)
                     break
                 print("Please, select command")
-
-        self.base = automap_base()
-        self.engine = create_engine(destination_uri)
-        # self.base.prepare(self.engine, reflect=True)
-        self.session = Session(self.engine, autocommit=False, autoflush=False)
