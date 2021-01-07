@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy_utils.functions.database import database_exists, create_database
 import sys
-from madmigration.utils.helpers import issue_url,app_name,parse_uri
+from madmigration.utils.helpers import issue_url, app_name, parse_uri
 from madmigration.utils.helpers import database_not_exists, goodby_message
 import logging
 logger = logging.getLogger(__name__)
@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 def before_parent_attach(target, parent):
     if not target.primary_key and "id" in target.c:
         print(target)
-
 
 
 class SourceDB:
@@ -28,7 +27,15 @@ class SourceDB:
 
 class DestinationDB:
     def __init__(self, destination_uri):
-        if not database_exists(destination_uri):
+        self.check_for_or_create_database(destination_uri)
+
+        self.base = automap_base()
+        self.engine = create_engine(destination_uri)
+        # self.base.prepare(self.engine, reflect=True)
+        self.session = Session(self.engine, autocommit=False, autoflush=False)
+
+    def check_for_or_create_database(self, destination_uri, check_for_database: callable = database_exists):
+        if not check_for_database(destination_uri):
             while True:
                 database = parse_uri(destination_uri)
                 msg = input(f"The database {database} does not exists, would you like to create it in the destination?(y/n) ")
@@ -41,13 +48,6 @@ class DestinationDB:
                         goodby_message(database_not_exists(destination_uri), 1)
                     break
                 elif msg.lower() == "n":
-                    goodby_message("Destination database does not exit \nExiting ..", 0)
+                    goodby_message("Destination database does not exist \nExiting ...", 0)
                     break
                 print("Please, select command")
-
-        
-        self.base = automap_base()
-        self.engine = create_engine(destination_uri)
-        # self.base.prepare(self.engine, reflect=True)
-        self.session = Session(self.engine, autocommit=False, autoflush=False)
-
