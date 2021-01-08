@@ -1,10 +1,10 @@
 ## Mad Migration
 
-[![MIT licensed](https://img.shields.io/github/license/marlin-dev/startapp)](https://raw.githubusercontent.com/marlin-dev/startapp/master/LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/marlin-dev/startapp.svg)](https://github.com/marlin-dev/startapp/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/marlin-dev/startapp.svg)](https://github.com/marlin-dev/startapp/network)
-[![GitHub issues](https://img.shields.io/github/issues-raw/marlin-dev/startapp)](https://github.com/marlin-dev/startapp/issues)
-[![Downloads](https://pepy.tech/badge/startapp)](https://pepy.tech/project/startapp)
+[![MIT licensed](https://github.com/MadMigrationTeam/mad-migration)](https://raw.githubusercontent.com/marlin-dev/startapp/master/LICENSE)
+[![GitHub stars](https://github.com/MadMigrationTeam/mad-migration.svg)](https://github.com/marlin-dev/startapp/stargazers)
+[![GitHub forks](https://github.com/MadMigrationTeam/mad-migration.svg)](https://github.com/marlin-dev/startapp/network)
+[![GitHub issues]https://github.com/MadMigrationTeam/mad-migration)](https://github.com/marlin-dev/startapp/issues)
+[![Downloads](https://pepy.tech/badge/mad-migration)](https://pepy.tech/project/startapp)
 
 
 CLI tool and Packgae provide easy and fast migration from one database to another database by specifiying its fields and types. 
@@ -17,28 +17,12 @@ Full code can be found on [GitHub Repo](https://github.com/MadMigrationTeam/mad-
 Please see the [License](license.md) for further details.
 
 
-
-
-
 ## Dependencies
 
     sqlalchmey
     mysql-client
     
-```
-Fenced code blocks are like Standard
 
-```
+## Development
 
-
-```python
-if not (credentials.username == "stanleyjobson") or not (credentials.password == "swordfish"):
-    # Return some error
-    ...
-```
-
-* Import `HTTPBasic` and `HTTPBasicCredentials`.
-* Create a "`security` scheme" using `HTTPBasic`.
-* Use that `security` with a dependency in your *path operation*.
-* It returns an object of type `HTTPBasicCredentials`:
-    * It contains the `username` and `password` sent.
+Currently under the development soon, documentation will be up to date.
