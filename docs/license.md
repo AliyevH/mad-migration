@@ -1,1 +1,1 @@
-# The Licesnsa
+# The License
