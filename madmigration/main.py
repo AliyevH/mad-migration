@@ -16,7 +16,10 @@ from sqlalchemy import (
     Float,
     TIMESTAMP
 )
+
+
 logger = logging.getLogger(__name__)
+
 
 class Controller:
     def __init__(self, migration_config: Config):
@@ -42,7 +45,6 @@ class Controller:
         self.sourcedb_driver = self.source_db.engine.driver
 
     
-
     def __enter__(self):
         return self
 
@@ -52,7 +54,6 @@ class Controller:
         return True # we take care of error handling, wrap it up.
 
     
-
     def run_table_migrations(self):
         # detect migration class
         try:
@@ -67,7 +68,6 @@ class Controller:
             logger.error(err)
             
         
-        # migrate.create_fk_constraint(self.destination_db.engine)
 
     def get_column_type_from_source_table(self, table_name, column_name):
         """
@@ -128,9 +128,6 @@ class Controller:
         Migrate.insert_queue(self.destination_db)
 
 
-                
-
-
 class NoSQLController:
 
     '''
@@ -149,10 +146,9 @@ class NoSQLController:
         self.driver = self.get_driver()
     
 
-
     def get_driver(self):   
-
         return self.destination_uri.split(":")[0]
+
 
     def run_table_migrations(self):
         try:

@@ -6,7 +6,6 @@ attrs==19.3.0
 black==19.10b0
 click==7.1.2
 contextvars==2.4
-dataclasses==0.8
 flake8==3.8.3
 future==0.18.2
 gino==1.0.1

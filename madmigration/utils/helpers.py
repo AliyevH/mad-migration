@@ -28,7 +28,11 @@ from madmigration.postgresqldb.migration import PgMigrate
 from madmigration.mssql.migration import MssqlMigrate
 from madmigration.mongodb.migration import MongoDbMigrate
 import logging
+
+
 logger = logging.getLogger(__name__)
+
+__version__ = "0.1.6"
 
 ###########################
 # Get class of cast #
