@@ -46,7 +46,7 @@ After installation you should define YAML file where configuration will be taken
 - DestinationConfig is intented to be transfered data to target database
 
 ```yaml
-version: 1.1
+version: 0.1.6
 Configs:
   - SourceConfig:
        dbURI: "postgres://root:admin@127.0.0.1/oldDB"
