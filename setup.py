@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
-import madmigration
-from madmigration.utils.helpers import __version__
+# import madmigration
+# from madmigration.utils.helpers import __version__
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -8,7 +8,7 @@ with open("README.md", "r") as fh:
 setup(
     name="madmigration",
     packages=find_packages(),
-    version=__version__,
+    version="0.1.7",
     entry_points="""
         [console_scripts]
         madmigrate=madmigration.scripts.commands:cli
