@@ -299,6 +299,66 @@ MigrationColumns:
     ]
   }
 ```
+### Currently new feature PostgreSql to MongoDB has been added.
+
+```yml
+version: 1.1
+Configs:
+  - SourceConfig:
+      dbURI: "postgresql://sabuhi:sabuhi12345@localhost:5432/company_service"
+  - DestinationConfig:
+      dbURI: "mongodb://localhost:27017/mydb"
+
+migrationTables:
+  - migrationTable:
+      SourceTable:  #postgresql table name
+        name: company  
+      DestinationTable: #the collection name:
+        name: Company
+
+      MigrationColumns:
+        - sourceColumn:
+            name: id
+          destinationColumn:
+            name: id
+            options:
+              type_cast: uuid
+
+        - sourceColumn:
+            name: name
+          destinationColumn:
+            name: NAME
+            options:
+              type_cast: varchar
+              
+        - sourceColumn:
+            name: created
+          destinationColumn:
+            name: CREATED
+            options:    
+              type_cast: datetime
+        - sourceColumn:
+            name: email
+          destinationColumn:
+            name: EMAIL
+            options:     
+              type_cast: string
+        - sourceColumn:
+            name: updated
+          destinationColumn:
+            name: UPDATED
+            options:
+              type_cast: datetime
+         - sourceColumn:
+            name: code
+          destinationColumn:
+            name: CODE
+            options:      
+              type_cast: string
+```
+Work on PostgreSQl to MongoDB still goes, we will add other futures as soon as possible.
+
+ 
 
 ### We will create all tables and database on the destination server if they do not exist
 
@@ -315,6 +375,6 @@ See also the list of [contributors](https://github.com/MadeByMads/mad-migration/
 
 
 ## Contributing
-
+We are open to  new ideas, additions. If you have any we would be happy to recieve and diccuss.
 
 - [Contributing](https://github.com/MadeByMads/mad-migration/blob/master/mdCONTRIBUTING.md)
