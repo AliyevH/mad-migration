@@ -161,6 +161,7 @@ class MongoDbMigrate:
 
                 if value.get("destinationColumn").get("options").get("concatenateTable"):
                     #TODO burda bize lazim olan conatante table soheti 
+                    
                     pass
 
                 else:
@@ -170,17 +171,21 @@ class MongoDbMigrate:
                         value.get("destinationColumn").get("name"): ""})
 
                     temp.update({
-                        value.get("sourceColumn").get("name") +"_type_"+value.get("destinationColumn").get("name"): value.get("destinationColumn").get("options").get("type_cast")})
+                        value.get("sourceColumn").get("name") +"&type&"+value.get("destinationColumn").get("name"): value.get("destinationColumn").get("options").get("type_cast")})
 
             for i in self.get_data_from_source_table(source_table,columns):
                 if len(i) == len(columns):
                     for key, value in temp.items():
-                        key = key.split("_") 
-
+                        key = key.split("&") 
                         
                         result = get_type_object(value)
-
-                        document.update({key[2]: result(str(i.get(key[0])))})
+                        if  i.get(key[0]) is None:
+                            result = None
+                            document.update({key[2]: result})
+                            
+                        else:
+                            document.update({key[2]: result(str(i.get(key[0])))})
+                       
   
                     self.mongo_DB[destination_collection].insert_one(document.copy())
                  
