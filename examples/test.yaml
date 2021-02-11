@@ -12,7 +12,7 @@ migrationTables:
         name: company
       DestinationTable:
         name: company
-        create: true # -> I suggest that we have to define this option that will tell us whether we have to create tables or not
+        create: true 
 
       MigrationColumns:
         - sourceColumn:
