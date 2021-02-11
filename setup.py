@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 setup(
     name="madmigration",
     packages=find_packages(),
-    version="0.1.7",
+    version="0.1.8",
     entry_points="""
         [console_scripts]
         madmigrate=madmigration.scripts.commands:cli
