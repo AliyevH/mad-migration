@@ -1,5 +1,6 @@
 import asyncio
 import functools
+import logging
 from datetime import datetime
 from copy import copy
 
@@ -20,19 +21,18 @@ from sqlalchemy import (
     BigInteger,
     VARCHAR,
     Float,
-    TIMESTAMP
+    TIMESTAMP,
 )
 from madmigration.errors import FileDoesNotExists
 from madmigration.mysqldb.migration import MysqlMigrate
 from madmigration.postgresqldb.migration import PgMigrate
 from madmigration.mssql.migration import MssqlMigrate
 from madmigration.mongodb.migration import MongoDbMigrate
-import logging
 
 
 logger = logging.getLogger(__name__)
 
-__version__ = "0.1.7"
+__version__ = "0.1.8beta"
 
 ###########################
 # Get class of cast #
@@ -45,13 +45,13 @@ def get_cast_type(type_name: str) -> object:
     :return: object class
     """
     return {
-        'str': str,
-        'string': str,
-        'int': int,
-        'integer': int,
-        'float': float,
-        'datetime': datetime,
-        'varchar': VARCHAR
+        "str": str,
+        "string": str,
+        "int": int,
+        "integer": int,
+        "float": float,
+        "datetime": datetime,
+        "varchar": VARCHAR,
     }.get(type_name.lower())
 
 
@@ -73,10 +73,8 @@ def detect_driver(driver: str) -> Union[MysqlMigrate, PgMigrate, MongoDbMigrate]
         "pg8000": PgMigrate,
         "pyodbc": MssqlMigrate,
         "mongodb": MongoDbMigrate
-
         # "postgresql+asyncpg": postgres_migrate,
         # "asyncpg": postgres_migrate
-
     }.get(driver)
 
 
@@ -136,7 +134,7 @@ def database_not_exists(database):
         f"🥳  if you think something is wrong please feel free to open issues 👉'{issue_url()}'👈 ",
         "",
         "Exiting ...",
-        ""
+        "",
     ]
     return "\n".join(usage)
 
@@ -161,6 +159,7 @@ def run_await_funtion(loop=None):
         @functools.wraps(func)
         def wrapped_function(*args, **kwargs):
             return loop.run_until_complete(func(*args, **kwargs))
+
         return wrapped_function
 
     return wrapper_function
@@ -179,36 +178,38 @@ async def aio_database_exists(url):
         if not os.path.isfile(database) or os.path.getsize(database) < 100:
             return False
 
-        with open(database, 'rb') as f:
+        with open(database, "rb") as f:
             header = f.read(100)
 
-        return header[:16] == b'SQLite format 3\x00'
+        return header[:16] == b"SQLite format 3\x00"
 
     url = copy(make_url(url))
     database, url.database = url.database, None
     engine = await gino.create_engine(url)
 
-    if engine.dialect.name == 'postgresql':
+    if engine.dialect.name == "postgresql":
         text = "SELECT 1 FROM pg_database WHERE datname='%s'" % database
         result = await get_scalar_result(engine, text)
         return bool(result)
 
-    elif engine.dialect.name == 'mysql':
-        text = ("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA "
-                "WHERE SCHEMA_NAME = '%s'" % database)
+    elif engine.dialect.name == "mysql":
+        text = (
+            "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA "
+            "WHERE SCHEMA_NAME = '%s'" % database
+        )
         result = await get_scalar_result(engine, text)
         return bool(result)
 
-    elif engine.dialect.name == 'sqlite':
+    elif engine.dialect.name == "sqlite":
         if database:
-            return database == ':memory:' or sqlite_file_exists(database)
+            return database == ":memory:" or sqlite_file_exists(database)
         else:
             return True
 
     else:
         await engine.close()
         engine = None
-        text = 'SELECT 1'
+        text = "SELECT 1"
         try:
             url.database = database
             engine = await gino.create_engine(url)

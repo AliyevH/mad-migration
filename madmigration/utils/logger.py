@@ -1,7 +1,7 @@
 import logging
 import logging.config
 import yaml
-import os 
+import os
 import coloredlogs
 
 mad_path = os.path.abspath(os.curdir)

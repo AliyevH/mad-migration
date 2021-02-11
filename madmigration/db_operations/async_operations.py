@@ -1,12 +1,10 @@
 import asyncio
 import logging
-
 import gino
 
 from gino.schema import DropConstraint, DropTable
 from sqlalchemy import ForeignKeyConstraint, Table
 from sqlalchemy.engine import reflection
-
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
 

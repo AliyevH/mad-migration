@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class DbOperations:
-    def __init__(self,engine):
+    def __init__(self, engine):
         self.engine = engine
         self.metadata = MetaData()
 
@@ -32,7 +32,6 @@ class DbOperations:
             logger.info("Session closed")
             conn.close()
 
-
     def bulk_drop_tables(self, *table_name):
         """ Drop table with given name """
         try:
@@ -42,7 +41,7 @@ class DbOperations:
         except Exception as err:
             logger.error("bulk_drop_tables [error] -> %s" % err)
 
-    def update_column(self,table_name, column_name, col_type, **options):
+    def update_column(self, table_name, column_name, col_type, **options):
         """ Updated existing table column with new column """
         try:
             conn = self.engine.connect()
@@ -58,7 +57,7 @@ class DbOperations:
     def create_table(self, table_name: str, *columns) -> bool:
         """ create prepared table with alembic """
         try:
-            table = Table(table_name,self.metadata, *columns)
+            table = Table(table_name, self.metadata, *columns)
             table.create(self.engine, checkfirst=True)
             # conn = self.engine.connect()
 
@@ -89,7 +88,7 @@ class DbOperations:
         finally:
             conn.close()
 
-    def create_fk_constraint(self,fk_constraints:list,const_columns:dict) -> bool:
+    def create_fk_constraint(self, fk_constraints: list, const_columns: dict) -> bool:
         """ Get list of foreign keys from static list `fk_constraints` and created it  """
         try:
             conn = self.engine.connect()
@@ -121,19 +120,21 @@ class DbOperations:
         try:
             conn = self.engine.connect()
             transactional = conn.begin()
-            
+
             for fk in fk_constraints:
-                conn.execute(DropConstraint(fk,cascade=True)) # maybe set cascade=True in future
+                conn.execute(
+                    DropConstraint(fk, cascade=True)
+                )  # maybe set cascade=True in future
 
             transactional.commit()
-            return True 
+            return True
         except Exception as err:
             logger.error("fk_drop [error] -> %s" % err)
             return False
         finally:
             conn.close()
-    
-    def db_drop_everything(self,table_list):
+
+    def db_drop_everything(self, table_list):
         """ From http://www.sqlalchemy.org/trac/wiki/UsageRecipes/DropEverything """
         try:
             logger.warning("SIGNAL DROP -> %s" % table_list)
@@ -162,7 +163,7 @@ class DbOperations:
                 conn.execute(DropTable(table))
 
             transactional.commit()
-            return True 
+            return True
         except Exception as err:
             logger.error("db_drop_everything [error] -> %s" % err)
             return False

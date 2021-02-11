@@ -1,18 +1,14 @@
-
-
-
-
 from datetime import datetime, date
 from uuid import UUID
+
 
 def get_type_object(data_type):
     """
     :param data_type: data type
     :return: object class
     """
-    
-    return {
 
+    return {
         "string": str,
         "str": str,
         "varchar": str,
@@ -22,15 +18,12 @@ def get_type_object(data_type):
         "character": str,
         "varying": str,
         "composite": str,
-
         "int": int,
         "integer": int,
         "bigint": int,
         "smallint": int,
-
         "boolean": bool,
         "bool": bool,
-
         "float": float,
         "numeric": float,
         "decimal": float,
@@ -39,18 +32,9 @@ def get_type_object(data_type):
         "real": float,
         "serial": float,
         "arbitrary": float,
-
         "date": date,
         "datetime": datetime.fromisoformat,
-     
         # "timestamp": timestamp,
-
-      
         "uuid": UUID,
-
         "binary": bytes,
-
-
-     
-
     }.get(data_type.lower())

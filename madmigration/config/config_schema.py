@@ -76,10 +76,6 @@ class ConfigSchema(BaseModel):
     version: float
 
 
-
-
-
-
 class OptionsSchmea(BaseModel):
     options: Dict[str, str]
 
