@@ -148,13 +148,13 @@ class MongoDbMigrate:
 
 
     def destination_table_operations(self, table_info, destination_collection):
-        """Initial work on table information before migrate """
+        """All work on table migration To MONGODB  """
  
         try:
             document = {}
             temp = {}
             columns = []
-
+            old_columns = {}
             source_table = table_info.pop("table_name")
 
             for key, value in table_info.items():
@@ -171,24 +171,29 @@ class MongoDbMigrate:
                         value.get("destinationColumn").get("name"): ""})
 
                     temp.update({
-                        value.get("sourceColumn").get("name") +"&type&"+value.get("destinationColumn").get("name"): value.get("destinationColumn").get("options").get("type_cast")})
+                        value.get("destinationColumn").get("name"): value.get("destinationColumn").get("options").get("type_cast")})
+                    
+                    old_columns.update({
+                        value.get("destinationColumn").get("name"):  value.get("sourceColumn").get("name")
+                    })
 
             for i in self.get_data_from_source_table(source_table,columns):
+                
                 if len(i) == len(columns):
                     for key, value in temp.items():
-                        key = key.split("&") 
-                        
+                       
                         result = get_type_object(value)
-                        if  i.get(key[0]) is None:
+                        
+                        if  i.get(old_columns[key]) is None:
                             result = None
-                            document.update({key[2]: result})
+                            document.update({key: result})
+
                             
                         else:
-                            document.update({key[2]: result(str(i.get(key[0])))})
+                            document.update({key: result(str(i.get(old_columns[key])))})
                        
   
                     self.mongo_DB[destination_collection].insert_one(document.copy())
-                 
         except Exception as err:
             print(err)
 
