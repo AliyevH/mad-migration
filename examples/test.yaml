@@ -173,6 +173,7 @@ migrationTables:
               foreign_key:
                 table_name: operation_types
                 column_name: id
+                
         - sourceColumn:
             name: lender_id
           destinationColumn:

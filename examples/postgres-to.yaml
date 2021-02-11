@@ -40,7 +40,7 @@ migrationTables:
           destinationColumn:
             name: EMAIL
             options:      #one  of the options can be passed:  
-              # type: string, int, uuid, time, array (for array stored values), bool, double, mapping (for json stroed values)
+                     # type: string, int, uuid, time, array (for array stored values), bool, double, mapping (for json stroed values)
               type_cast: string
     
         - sourceColumn:

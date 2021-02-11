@@ -26,7 +26,6 @@ def get_type_object(data_type):
         "int": int,
         "integer": int,
         "bigint": int,
-        "numeric": int,
         "smallint": int,
 
         "boolean": bool,
