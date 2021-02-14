@@ -1,7 +1,7 @@
 version: 1.1
 Configs:
   - SourceConfig:
-      dbURI: "postgresql://sabuhi:sabuhi12345@localhost:5432/email_service"
+      dbURI: "postgresql:///email_service"
   - DestinationConfig:
       dbURI: "mongodb://localhost:27017/mydb"
 

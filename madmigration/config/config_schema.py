@@ -8,7 +8,6 @@ class ForeignKeySchema(BaseModel):
     column_name: str
     ondelete: str = "CASCADE"
     onupdate: str = "NO ACTION"
-    onupdate: str = "NO ACTION"
 
 
 class OptionsSchema(BaseModel):

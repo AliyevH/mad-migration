@@ -1,14 +1,16 @@
 import asyncio
 import functools
 import logging
+import gino
 from datetime import datetime
 from copy import copy
 
-import gino
 from sqlalchemy.schema import DropTable
 from sqlalchemy.schema import ForeignKeyConstraint
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.engine.url import make_url
+from sqlalchemy.exc import ProgrammingError
+from sqlalchemy.exc import OperationalError
 from typing import Union
 import os
 import sys
@@ -112,12 +114,7 @@ def app_name():
 
 
 def parse_uri(uri):
-    if "///" in uri:
-        database_name = uri.split("///")[-1]
-    else:
-        database_name = uri.split("/")[-1]
-
-    return database_name
+    return make_url(uri).database
 
 
 def database_not_exists(database):
