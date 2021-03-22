@@ -15,7 +15,7 @@ humanfriendly==9.1
 immutables==0.14
 importlib-metadata==1.7.0
 isort==4.3.21
-Jinja2==2.11.2
+Jinja2==2.11.3
 joblib==0.16.0
 lazy-object-proxy==1.4.3
 livereload==2.6.2
