@@ -59,19 +59,16 @@ class ColumnParametersSchema(BaseModel):
     sourceColumn: SourceColumn
 
 
-class TablesInfo(BaseModel):
+class TablesInfoSchema(BaseModel):
     SourceTable: SourceTableSchema
     DestinationTable: DestTableSchema
     MigrationColumns: List[ColumnParametersSchema]
 
 
-class MigrationTablesSchema(BaseModel):
-    migrationTable: TablesInfo
-
-
 class ConfigSchema(BaseModel):
-    Configs: List[Union[SourceConfigSchema, DestinationConfigSchema]]
-    migrationTables: List[MigrationTablesSchema]
+    Source: List[SourceConfigSchema]
+    Destination: List[DestinationConfigSchema]
+    migrationTables: List[TablesInfoSchema]
     version: float
 
 
@@ -98,20 +95,19 @@ class ColumConfig(ColumnParametersSchema):
     destinationColumn: DestinationColumnSchema  # options dict
 
 
-class DestinationTableSchema(SourceTableSchema):
-    ...
+# class DestinationTableSchema(SourceTableSchema):
+#     ...
 
 
-class TablesSchema(TablesInfo):
-    DestinationTable: DestinationTableSchema
-    MigrationColumns: List[ColumConfig]
+# class TablesSchema(TablesInfoSchema):
+#     DestinationTable: DestinationTableSchema
+#     MigrationColumns: List[ColumConfig]
 
 
-class MigrationTableS(MigrationTablesSchema):
-    migrationTable: TablesSchema
+# class MigrationTables(MigrationTablesSchema):
+#     migrationTable: TablesSchema
 
 
 class NoSQLConfigSchema(ConfigSchema):
-
-    migrationTables: List[MigrationTableS]
+    migrationTables: List[MigrationTables]
 

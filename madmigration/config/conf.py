@@ -38,6 +38,16 @@ def construct_include(loader: Loader, node: yaml.Node) -> Any:
 
 yaml.add_constructor("!import", construct_include, Loader)
 
+
+"""
+What does it configure, 
+Does it configure the migration class, does it configure the operations class?
+
+I think it should be the operations class
+
+Use create database and confirm database to create stuff via config
+"""
+
 # Config class generates configuration based on yaml file
 class Config:
     def __init__(self, config_yaml):

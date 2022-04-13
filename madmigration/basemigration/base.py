@@ -6,9 +6,8 @@ from psycopg2 import errors
 from sqlalchemy import exc
 from queue import Queue
 
-from madmigration.config.config_schema import MigrationTablesSchema
+from madmigration.config.config_schema import TablesInfoSchema
 from madmigration.config.config_schema import ColumnParametersSchema
-from madmigration.config.config_schema import TablesInfo
 from sqlalchemy import Column, Table, MetaData, ForeignKey, ForeignKeyConstraint
 from sqlalchemy.engine import reflection
 from madmigration.errors import TableExists
@@ -58,7 +57,7 @@ class BaseMigrate():
         """ collects all tables that the program should create """
         try:
             for migrate_table in self.migration_tables:
-                tabel_name = migrate_table.migrationTable.DestinationTable.name
+                tabel_name = migrate_table.DestinationTable.name
                 self.table_list.add(tabel_name)
             self.tables.update(self.table_list)
         except Exception as err:
@@ -87,14 +86,14 @@ class BaseMigrate():
         finally:
             conn.close()
 
-    def parse_migration_tables(self, tabels_schema: MigrationTablesSchema):
+    def parse_migration_tables(self, tabels_schema: TablesInfoSchema):
         """
         This function parses migrationTables from yaml file
         """
         try:
-            self.source_table = tabels_schema.migrationTable.SourceTable.dict()
-            self.destination_table = tabels_schema.migrationTable.DestinationTable.dict()
-            self.columns = tabels_schema.migrationTable.MigrationColumns
+            self.source_table = tabels_schema.SourceTable.dict()
+            self.destination_table = tabels_schema.DestinationTable.dict()
+            self.columns = tabels_schema.MigrationColumns
         except Exception as err:
             logger.error("parse_migration_tables [error] -> %s" % err)
 
@@ -138,7 +137,7 @@ class BaseMigrate():
     def prepare_tables(self):
         try:
             for migrate_table in self.migration_tables:
-                if migrate_table.migrationTable.DestinationTable.create:
+                if migrate_table.DestinationTable.create:
                     self.parse_migration_tables(migrate_table)
                     self.parse_migration_columns(self.destination_table.get("name"), self.columns)
         except Exception as err:

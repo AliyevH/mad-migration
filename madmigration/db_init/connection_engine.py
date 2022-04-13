@@ -51,3 +51,12 @@ class DestinationDB:
                     goodby_message("Destination database does not exist \nExiting ...", 0)
                     break
                 print("Please, select command")
+
+    def check_for_db(self, destination_uri):
+        pass
+
+    def check_db_type(self):
+        pass
+
+    def create_db(self):
+        pass

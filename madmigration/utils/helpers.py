@@ -25,11 +25,14 @@ from sqlalchemy import (
     Float,
     TIMESTAMP,
 )
+from madmigration import mongodb
 from madmigration.errors import FileDoesNotExists
 from madmigration.mysqldb.migration import MysqlMigrate
 from madmigration.postgresqldb.migration import PgMigrate
 from madmigration.mssql.migration import MssqlMigrate
 from madmigration.mongodb.migration import MongoDbMigrate
+
+from utils_response import DatabaseDetails
 
 
 logger = logging.getLogger(__name__)
@@ -141,6 +144,24 @@ def goodby_message(message, exit_code=0):
     logger.error(message)
     sys.exit(int(exit_code))
 
+
+def generate_database_details(url):
+    # use regular expressions to find format for different database configurations
+    if "mongodb" in url:
+        database = 'mongodb',
+        dialect_name = 'mongodb'
+        dialect_driver = 'mongodb'
+    else:
+        url = make_url(url)
+        database = url.database,
+        dialect_name = url.get_dialect().name
+        dialect_driver = url.get_dialect().driver
+
+    return DatabaseDetails(
+        database,
+        dialect_name,
+        dialect_driver
+    )
 
 def run_await_funtion(loop=None):
     """
