@@ -1,8 +1,8 @@
 from pydantic import BaseModel, validator
-from typing import Union, List, Any, AnyStr, Dict
+from typing import Optional, Union, List, Any, AnyStr, Dict
 
 
-class ForeignKeySchema(BaseModel):
+class Relationship(BaseModel):
     use_alter: bool = True
     table_name: str
     column_name: str
@@ -10,31 +10,22 @@ class ForeignKeySchema(BaseModel):
     onupdate: str = "NO ACTION"
 
 
-class OptionsSchema(BaseModel):
-    primary_key: bool = False
-    nullable: bool = False
-    default: Any = None
-    index: Union[bool, None] = None
-    unique: Union[bool, None] = None
-    autoincrement: bool = False
-    foreign_key: Union[ForeignKeySchema, None] = None
-    length: Union[int, None] = None
-    type_cast: Union[str, None] = None
+###########################################
+######## GENERAL Grouping #################
+###########################################
+class DBConfigSchema(BaseModel):
+    dbURI: str
 
     # @validator("type_cast")   #TODO check types
-    # def validate_cast(cls,v,values):
+    # def validate_uri(cls,v,values):
     #     if v == "integer" and values["length"] != None:
     #         raise ValueError(f"Type {v} has no length")
     #     return v
 
 
-class SourceConfigSchema(BaseModel):
-    SourceConfig: Dict[str, str]
-
-
-class DestinationConfigSchema(BaseModel):
-    DestinationConfig: Dict[str, str]
-
+class SourceColumn(BaseModel):
+    name: str
+    
 
 class SourceTableSchema(BaseModel):
     name: str
@@ -45,69 +36,76 @@ class DestTableSchema(BaseModel):
     create: bool = False
 
 
+class DatabaseConfig(BaseModel):
+    SourceConfig: DBConfigSchema
+    DestinationConfig: DBConfigSchema
+
+
+##############################################
+########### SQL GROUPINGS ####################
+##############################################
+class SQLOptionsSchema(BaseModel):
+    primary_key: bool = False
+    nullable: bool = False
+    default: Any = None
+    index: Union[bool, None] = None
+    unique: Union[bool, None] = None
+    autoincrement: bool = False
+    foreign_key: Optional[Relationship] = None
+    length: Union[int, None] = None
+    type_cast: Union[str, None] = None
+
+
 class DestinationColumn(BaseModel):
     name: str
-    options: OptionsSchema
+    options: SQLOptionsSchema
 
 
-class SourceColumn(BaseModel):
-    name: str
-
-
-class ColumnParametersSchema(BaseModel):
-    destinationColumn: DestinationColumn
+class SQLColumnMigration(BaseModel):
     sourceColumn: SourceColumn
+    destinationColumn: DestinationColumn
 
 
-class TablesInfoSchema(BaseModel):
+class SQLTableInfoSchema(BaseModel):
     SourceTable: SourceTableSchema
     DestinationTable: DestTableSchema
-    MigrationColumns: List[ColumnParametersSchema]
+    MigrationColumns: List[SQLColumnMigration]
 
 
-class ConfigSchema(BaseModel):
-    Source: List[SourceConfigSchema]
-    Destination: List[DestinationConfigSchema]
-    migrationTables: List[TablesInfoSchema]
+class SQLConfigSchema(BaseModel):
+    Config: DatabaseConfig
+    migrationTables: List[SQLTableInfoSchema]
     version: float
 
 
-class OptionsSchmea(BaseModel):
-    options: Dict[str, str]
+##############################################
+########### NoSQL GROUPINGS ##################
+##############################################
+class NoSQLOptionsSchema(BaseModel):
+    primary_key: bool = False
+    nullable: bool = False
+    default: Any = None
+    index: Union[bool, None] = None
+    unique: Union[bool, None] = None
 
 
-class ConcatenateColumns(ColumnParametersSchema):
-
-    destinationColumn: OptionsSchmea
-
-
-class Options(BaseModel):
-    type_cast: str
-    concatenateColumns: List[ConcatenateColumns] = None
-    concatenateTable: str = None
+class NoSQLDestinationColumn(BaseModel):
+    name: str
+    options: NoSQLOptionsSchema
 
 
-class DestinationColumnSchema(DestinationColumn):
-    options: Options
+class NoSQLColumnMigration(BaseModel):
+    sourceColumn: SourceColumn
+    destinationColumn: NoSQLDestinationColumn
 
 
-class ColumConfig(ColumnParametersSchema):
-    destinationColumn: DestinationColumnSchema  # options dict
+class NoSQLTableInfoSchema(BaseModel):
+    SourceTable: SourceTableSchema
+    DestinationTable: DestTableSchema
+    MigrationColumns: List[NoSQLColumnMigration]
 
 
-# class DestinationTableSchema(SourceTableSchema):
-#     ...
-
-
-# class TablesSchema(TablesInfoSchema):
-#     DestinationTable: DestinationTableSchema
-#     MigrationColumns: List[ColumConfig]
-
-
-# class MigrationTables(MigrationTablesSchema):
-#     migrationTable: TablesSchema
-
-
-class NoSQLConfigSchema(ConfigSchema):
-    migrationTables: List[MigrationTables]
-
+class NoSQLConfigSchema(BaseModel):
+    Config: DatabaseConfig
+    migrationTables: List[NoSQLTableInfoSchema]
+    version: float

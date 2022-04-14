@@ -1,3 +1,6 @@
+import imp
+from utils.helpers import issue_url
+
 class CMDDisplay:
     def display_reading_configurations(self):
         print(
@@ -62,5 +65,27 @@ class CMDDisplay:
             """
         )
 
+    def display_database_not_supported(self):
+        print(
+            f"""
+            Database entered is not currently supported in Mad Migration
+
+            feel free to open issues 👉'{issue_url()} to add support'
+            """
+        )
+
+    def display_configuration_file_missing(self):
+        print(
+            f"""
+            No Configuration file included in path
+
+            Add mad_migration.yaml or mad_migration.json file to project path
+            """
+        )
+
     # def display_table_relationships(self):
     #     pass
+
+
+
+cmd_diplay_utiltity = CMDDisplay()

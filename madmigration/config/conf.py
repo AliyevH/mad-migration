@@ -1,9 +1,12 @@
 import yaml
 import json
 import os
-from madmigration.config.config_schema import ConfigSchema, NoSQLConfigSchema
 from typing import IO, Any
 from pprint import pprint
+from madmigration.config.config_schema import ConfigSchema, NoSQLConfigSchema
+from madmigration.errors import ConfFileDoesNotExists
+from utils.display import cmd_diplay_utiltity
+
 
 
 class Loader(yaml.SafeLoader):
@@ -58,17 +61,18 @@ class Config:
             self.select_config(data)
 
         self.version = self.config_data.version
-        self.source_uri = self.config_data.Configs[0].SourceConfig.get("dbURI")
-        self.destination_uri = self.config_data.Configs[1].DestinationConfig.get(
+        self.source_uri = self.config_data.SourceConfig.get("dbURI")
+        self.destination_uri = self.config_data.DestinationConfig.get(
             "dbURI"
         )  # noqa  E501
         self.migrationTables = self.config_data.migrationTables
+        # self.database_type
 
     def select_config(self, data):
 
-        destination_DB = data.get("Configs")[1]
+        destination_DB = data.get("Configs").get('DestinationConfig')
 
-        if "mongodb" in destination_DB.get("DestinationConfig").get("dbURI"):
+        if "mongodb" in destination_DB.get("dbURI"):
 
             self.config_data = NoSQLConfigSchema(**data, Loader=Loader)  # noqa  E501
             self.destination_mongo = True
@@ -76,3 +80,11 @@ class Config:
         else:
             self.config_data = ConfigSchema(**data, Loader=Loader)  # noqa  E501
             self.destination_mongo = False
+
+
+    def validate_conf_file_exist(self, file_path):
+        if not os.path.isfile(file_path) or os.path.splitext(file_path)[-1] not in ['.json', '.yaml', '.yml']:
+            cmd_diplay_utiltity.display_configuration_file_missing()
+            raise ConfFileDoesNotExists()
+
+        return file_path

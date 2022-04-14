@@ -1,11 +1,13 @@
-import imp
+import logging
 import os
-from copy import copy
 from sqlite3 import NotSupportedError
 
 import sqlalchemy as sa
 from sqlalchemy.engine.url import make_url
 from sqlalchemy.exc import OperationalError, ProgrammingError
+import pymongo
+from pymongo import MongoClient
+
 
 from madmigration.utils.helpers import generate_database_details
 from .database_enum import DatabaseTypes
@@ -24,41 +26,62 @@ def run_database_exist_check(url: str, sql_text: str):
         if engine:
             engine.dispose()
 
-def confirm_psql_database(url: str, database: str):
-    sql_text = "SELECT 1 FROM pg_database WHERE datname='%s'" % database
-    return run_database_exist_check(url, sql_text)
+def confirm_psql_database(url: str):
+    def inner(database: str):
+        sql_text = "SELECT 1 FROM pg_database WHERE datname='%s'" % database
+        return run_database_exist_check(url, sql_text)
+    return inner
 
-def confirm_mysql_database(url: str,  database: str):
-    sql_text = ("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA "
-                    "WHERE SCHEMA_NAME = '%s'" % database)
-    return run_database_exist_check(url, sql_text)
+def confirm_mysql_database(url: str):
+    def inner(database: str):
+        sql_text = ("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA "
+                        "WHERE SCHEMA_NAME = '%s'" % database)
+        return run_database_exist_check(url, sql_text)
+    return inner
 
 def generic_confirm_database(url):
-    sql_text = 'SELECT 1'
-    return run_database_exist_check(url, sql_text)
+    def inner(database):
+        logging.info(database)
+
+        sql_text = 'SELECT 1'
+        return run_database_exist_check(url, sql_text)
+    return inner
 
 def confirm_sqlite_database(url):
-    database = make_url(url).database
-    if not os.path.isfile(database) or os.path.getsize(database) < 100:
-        return False
+    def inner(database):
+        logging.info(url)
+        if not os.path.isfile(database) or os.path.getsize(database) < 100:
+            return False
 
-    with open(database, 'rb') as f:
-        header = f.read(100)
-    return header[:16] == b'SQLite format 3\x00'
+        with open(database, 'rb') as f:
+            header = f.read(100)
+        return header[:16] == b'SQLite format 3\x00'
+    return inner
 
+def confirm_mongo_database(url):
+    client = MongoClient(url)
+    def inner(database):
+        try:
+            client.validate_collection(database)
+            return True
+        except pymongo.errors.OperationFailure:
+            return False
+    return inner
 
 def decide_confirm_database_stratehy(url):
     details = generate_database_details(url)
+    database = details.database
+
     strategies = {
-        DatabaseTypes.POSTGRES: confirm_psql_database,
-        DatabaseTypes.MYSQL: confirm_mysql_database,
-        DatabaseTypes.MSSQL: generic_confirm_database,
-        # DatabaseTypes.MONGODB: '',
-        DatabaseTypes.SQLITE: generic_confirm_database
+        DatabaseTypes.POSTGRES: confirm_psql_database(url),
+        DatabaseTypes.MYSQL: confirm_mysql_database(url),
+        DatabaseTypes.MSSQL: generic_confirm_database(url),
+        DatabaseTypes.MONGODB: confirm_mongo_database(url),
+        DatabaseTypes.SQLITE: generic_confirm_database(url)
     }
 
     strategy = strategies.get(details.dialect_name, None)
     if strategy is None:
         raise NotSupportedError
-    return strategy(url)
+    return strategy(database)
     

@@ -26,7 +26,6 @@ from sqlalchemy import (
     TIMESTAMP,
 )
 from madmigration import mongodb
-from madmigration.errors import FileDoesNotExists
 from madmigration.mysqldb.migration import MysqlMigrate
 from madmigration.postgresqldb.migration import PgMigrate
 from madmigration.mssql.migration import MssqlMigrate
@@ -148,9 +147,9 @@ def goodby_message(message, exit_code=0):
 def generate_database_details(url):
     # use regular expressions to find format for different database configurations
     if "mongodb" in url:
-        database = 'mongodb',
+        database = url.split("/")[-1],
         dialect_name = 'mongodb'
-        dialect_driver = 'mongodb'
+        dialect_driver = None
     else:
         url = make_url(url)
         database = url.database,
