@@ -24,3 +24,15 @@ class UnsupportedDatabase(Exception):
     def __init__(self, message):
       
         self.message = message
+
+
+class CouldNotConnectError(Exception):
+    def __init__(self, message):
+      
+        self.message = message
+
+
+class MissingSourceDBError(Exception):
+    def __init__(self, message):
+      
+        self.message = message

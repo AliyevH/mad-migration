@@ -1,18 +1,108 @@
+from abc import ABC, abstractmethod
+from enum import Enum, auto
+import logging
+
 from sqlalchemy import create_engine, MetaData, event, Table
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy_utils.functions.database import database_exists, create_database
-import sys
+from pymongo import MongoClient
+
 from madmigration.utils.helpers import parse_uri
 from madmigration.utils.helpers import database_not_exists, goodby_message
-import logging
+from madmigration.utils.database_utils import create_database_strategy, confirm_database_strategy
+from madmigration.utils.database_utils.database_enum import DBHandler, DatabaseTypes
+
+# add error msgs for this imports and possibly improve error msgs
+from madmigration.errors import CouldNotConnectError, MissingSourceDBError
+
+
 logger = logging.getLogger(__name__)
+
+
+class ConfigLocation(Enum):
+    SOURCE=auto()
+    DESTINATION=auto()
 
 
 @event.listens_for(Table, "after_parent_attach")
 def before_parent_attach(target, parent):
     if not target.primary_key and "id" in target.c:
         print(target)
+
+
+class DatabaseConnection(ABC):
+    @abstractmethod
+    def _check_database_exist(self):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _create_database(self):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _create_connection(self):
+        raise NotImplemented
+
+
+class SQLDatabaseConnection(DatabaseConnection):
+    def __init__(self, connection_uri: str, config_location: ConfigLocation): 
+        self.connection_uri = connection_uri
+        self.engine = self._create_connection()
+        self.config_location = config_location
+
+        existing_db = self._check_database_exist()
+
+        if config_location is ConfigLocation.SOURCE and existing_db is False:
+            raise MissingSourceDBError()
+
+        if config_location is ConfigLocation.DESTINATION and existing_db is False:
+            self._create_database
+
+    def _check_database_exist(self):
+        return confirm_database_strategy(self.connection_uri)
+
+    def _create_database(self):
+        with self.engine.connect() as conn:
+            return create_database_strategy(self.connection_uri, conn)
+
+    def _create_connection(self):
+        try:
+            if not self.engine:
+                engine = create_engine(self.connection_uri, echo=False)
+            return engine
+        except Exception as e:
+            logging.error(e)
+            raise CouldNotConnectError()
+
+
+class NoSQLDatabaseConnection(DatabaseConnection):
+    def __init__(self, connection_uri: str, config_location: ConfigLocation): 
+        self.connection_uri = connection_uri
+        self.engine = self._create_connection()
+        self.config_location = config_location
+
+        existing_db = self._check_database_exist()
+
+        if config_location is ConfigLocation.SOURCE and existing_db is False:
+            raise MissingSourceDBError()
+
+        if config_location is ConfigLocation.DESTINATION and existing_db is False:
+            self._create_database
+
+    def _check_database_exist(self):
+        return confirm_database_strategy(self.connection_uri)
+
+    def _create_database(self):
+        return create_database_strategy(self.connection_uri, self.engine)
+
+    def _create_connection(self):
+        try:
+            if not self.engine:
+                engine = MongoClient(self.connection_uri)
+            return engine
+        except Exception as e:
+            logging.error(e)
+            raise CouldNotConnectError()
 
 
 class SourceDB:
@@ -52,11 +142,16 @@ class DestinationDB:
                     break
                 print("Please, select command")
 
-    def check_for_db(self, destination_uri):
-        pass
 
-    def check_db_type(self):
-        pass
 
-    def create_db(self):
-        pass
+def get_database_connection_object(database_name: DatabaseTypes):
+    if database_name in [DatabaseTypes.MYSQL, DatabaseTypes.POSTGRES, DatabaseTypes.MSSQL, DatabaseTypes.SQLITE]:
+        handler_name = DBHandler.SQL
+
+    if database_name == DatabaseTypes.MONGODB:
+        handler_name = DBHandler.MONGO
+
+    return {
+        DBHandler.SQL: SQLDatabaseConnection,
+        DBHandler.MONGO: NoSQLDatabaseConnection
+    }.get(handler_name)

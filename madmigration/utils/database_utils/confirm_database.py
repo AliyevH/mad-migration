@@ -68,7 +68,7 @@ def confirm_mongo_database(url):
             return False
     return inner
 
-def decide_confirm_database_stratehy(url):
+def confirm_database_strategy(url):
     details = generate_database_details(url)
     database = details.database
 

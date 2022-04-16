@@ -1,10 +1,4 @@
-import imp
-import itertools
-import os
-from collections.abc import Mapping, Sequence
-from copy import copy
-
-import sqlalchemy as sa
+import logging
 from pymongo import MongoClient
 
 from madmigration.utils.helpers import generate_database_details
@@ -38,11 +32,11 @@ def create_generic_db(url, connection):
 def create_sqlite_db(url, connection):
     pass
 
-def create_mongo_db(url: str):
-    mongo_client = MongoClient(url)
+# tweak
+def create_mongo_db(url: str, mongo_client):
     return mongo_client[url.split("/")[-1]]
 
-def create_database(url, engine = None):
+def create_database_strategy(url, engine):
     details = generate_database_details(url)
     creation_strategy = {
         DatabaseTypes.POSTGRES: create_psql_db,
@@ -56,14 +50,6 @@ def create_database(url, engine = None):
         raise UnsupportedDatabase()
 
     try:
-        if strategy in [DatabaseTypes.POSTGRES, DatabaseTypes.MYSQL, DatabaseTypes.SQLITE]:
-            engine = sa.create_engine(url)
-
-        if engine is not None:
-            with engine.connect() as conn:
-                return strategy(details.database, conn)
-
-        return strategy(details.database)
-    finally:
-        if engine:
-            engine.dispose()
+        return strategy(details.database, engine)
+    except Exception as e:
+        logging.error(e)
