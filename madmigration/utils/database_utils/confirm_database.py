@@ -1,6 +1,5 @@
 import logging
 import os
-from sqlite3 import NotSupportedError
 
 import sqlalchemy as sa
 from sqlalchemy.engine.url import make_url
@@ -10,6 +9,7 @@ from pymongo import MongoClient
 
 
 from madmigration.utils.helpers import generate_database_details
+from madmigration.errors import UnsupportedDatabase
 from .database_enum import DatabaseTypes
 
 def _get_scalar_result(engine, sql):
@@ -82,6 +82,6 @@ def confirm_database_strategy(url):
 
     strategy = strategies.get(details.dialect_name, None)
     if strategy is None:
-        raise NotSupportedError
+        raise UnsupportedDatabase('Migration database provided is currently unsupported in mad migration')
     return strategy(database)
     

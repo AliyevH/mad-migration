@@ -28,18 +28,14 @@ def cli():
 # TODO validate yaml file if given file is correct, drop fk.
 def cli(file):
 
-    if check_file(file):
-        config = Config(file)
+    config = Config(file)
 
-        if config.destination_mongo:
-            nosql = NoSQLController(config)
+    if config.destination_mongo:
+        nosql = NoSQLController(config)
 
-            nosql.run_table_migrations()
+        nosql.run_table_migrations()
 
-        else:
-            with Controller(config) as app:
-                app.run_table_migrations()
-                app.run()
     else:
-        file_not_found(file)
-
+        with Controller(config) as app:
+            app.run_table_migrations()
+            app.run()

@@ -9,9 +9,9 @@ class TableExists(Exception):
 
 
 class ConfFileDoesNotExists(Exception):
-    def __init__(self, message):
+    def __init__(self, message:str = None):
       
-        self.message = message
+        self.message = message if message else 'Configuration file for migration does not exist'
 
 
 class TableDoesNotExists(Exception):
@@ -27,12 +27,18 @@ class UnsupportedDatabase(Exception):
 
 
 class CouldNotConnectError(Exception):
-    def __init__(self, message):
-      
+    def __init__(self, message=None):
+
+        if message is None:
+            message = 'Could not connect to database, check configuration'
+
         self.message = message
 
 
 class MissingSourceDBError(Exception):
-    def __init__(self, message):
-      
+    def __init__(self, message=None):
+        
+        if message is None:
+            message = 'Missing source database configuration'
+
         self.message = message

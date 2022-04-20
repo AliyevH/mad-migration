@@ -3,8 +3,9 @@ import json
 import os
 from typing import IO, Any
 from pprint import pprint
-from madmigration.config.config_schema import ConfigSchema, NoSQLConfigSchema
+from madmigration.config.config_schema import SQLConfigSchema, NoSQLConfigSchema
 from madmigration.errors import ConfFileDoesNotExists
+from madmigration.utils.helpers import check_file
 from utils.display import cmd_diplay_utiltity
 
 
@@ -47,8 +48,6 @@ What does it configure,
 Does it configure the migration class, does it configure the operations class?
 
 I think it should be the operations class
-
-Use create database and confirm database to create stuff via config
 """
 
 # Config class generates configuration based on yaml file
@@ -78,12 +77,12 @@ class Config:
             self.destination_mongo = True
 
         else:
-            self.config_data = ConfigSchema(**data, Loader=Loader)  # noqa  E501
+            self.config_data = SQLConfigSchema(**data, Loader=Loader)  # noqa  E501
             self.destination_mongo = False
 
 
     def validate_conf_file_exist(self, file_path):
-        if not os.path.isfile(file_path) or os.path.splitext(file_path)[-1] not in ['.json', '.yaml', '.yml']:
+        if not check_file(file_path) and not os.path.splitext(file_path)[-1] not in ['.json', '.yaml', '.yml']:
             cmd_diplay_utiltity.display_configuration_file_missing()
             raise ConfFileDoesNotExists()
 

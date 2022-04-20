@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from enum import Enum, auto
 import logging
 
 from sqlalchemy import create_engine, MetaData, event, Table
@@ -10,18 +9,12 @@ from pymongo import MongoClient
 from madmigration.utils.helpers import parse_uri
 from madmigration.utils.helpers import database_not_exists, goodby_message
 from madmigration.utils.database_utils import create_database_strategy, confirm_database_strategy
-from madmigration.utils.database_utils.database_enum import DBHandler, DatabaseTypes
 
-# add error msgs for this imports and possibly improve error msgs
 from madmigration.errors import CouldNotConnectError, MissingSourceDBError
+from .connection_utils import ConfigLocation
 
 
 logger = logging.getLogger(__name__)
-
-
-class ConfigLocation(Enum):
-    SOURCE=auto()
-    DESTINATION=auto()
 
 
 @event.listens_for(Table, "after_parent_attach")
@@ -72,7 +65,7 @@ class SQLDatabaseConnection(DatabaseConnection):
             return engine
         except Exception as e:
             logging.error(e)
-            raise CouldNotConnectError()
+            raise CouldNotConnectError(e)
 
 
 class NoSQLDatabaseConnection(DatabaseConnection):
@@ -141,17 +134,3 @@ class DestinationDB:
                     goodby_message("Destination database does not exist \nExiting ...", 0)
                     break
                 print("Please, select command")
-
-
-
-def get_database_connection_object(database_name: DatabaseTypes):
-    if database_name in [DatabaseTypes.MYSQL, DatabaseTypes.POSTGRES, DatabaseTypes.MSSQL, DatabaseTypes.SQLITE]:
-        handler_name = DBHandler.SQL
-
-    if database_name == DatabaseTypes.MONGODB:
-        handler_name = DBHandler.MONGO
-
-    return {
-        DBHandler.SQL: SQLDatabaseConnection,
-        DBHandler.MONGO: NoSQLDatabaseConnection
-    }.get(handler_name)
