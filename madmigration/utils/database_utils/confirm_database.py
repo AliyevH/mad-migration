@@ -59,12 +59,15 @@ def confirm_sqlite_database(url):
     return inner
 
 def confirm_mongo_database(url):
-    client = MongoClient(url)
     def inner(database):
+        logging.info(f'checking database {database}')
         try:
-            client.validate_collection(database)
+            client = MongoClient(url)
+            client.server_info()
             return True
-        except pymongo.errors.OperationFailure:
+        except pymongo.errors.ServerSelectionTimeoutError:
+            return False
+        except pymongo.errors.ConnectionFailure:
             return False
     return inner
 
