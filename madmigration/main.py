@@ -1,24 +1,51 @@
+from typing import Union
 import logging
 from madmigration.db_init.connection_engine import SourceDB
 from madmigration.db_init.connection_engine import DestinationDB
-from madmigration.utils.helpers import detect_driver, get_cast_type
+from madmigration.utils.helpers import detect_driver
 from sqlalchemy import Column, MetaData, Table
+
 from madmigration.config.conf import Config
 from madmigration.mysqldb.type_convert import get_type_object
-from sqlalchemy import insert
-from sqlalchemy import (
-    Integer,
-    String,
-    DateTime,
-    Date,
-    BigInteger,
-    VARCHAR,
-    Float,
-    TIMESTAMP
-)
+from madmigration.db_init.connection_engine import DatabaseConnection
 
 
 logger = logging.getLogger(__name__)
+
+class ControllerBase:
+    def __init__(
+        self,
+        config: Config, 
+        source_db: DatabaseConnection, 
+        destination_db: DatabaseConnection
+    ) -> None:
+
+        self.config = config
+        self.source_db_conn = source_db
+        self.destination_db_conn = destination_db
+
+        # Source and Destination Database - all tables (NOT MIGRATION TABLES!!!)
+        self.sourcedb_all_tables_names = self.source_db_conn.all_db_tables()
+        self.destinationdb_all_tables_names = self.destination_db_conn.all_db_tables()
+
+        # All migration tables (Yaml file migrationTables)
+        self.migration_tables = self.config.migrationTables
+
+        # Destination DB Driver and name
+        self.destinationdb_driver = self.destination_db_conn.driver
+        self.destinationdb_name = self.destination_db_conn.db_name
+
+        # Source DB Driver
+        self.sourcedb_driver = self.source_db_conn.driver
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self):
+        self.source_db_conn.close()
+        self.destination_db_conn.close()
+        return True # we take care of error handling, wrap it up.
+
 
 
 class Controller:

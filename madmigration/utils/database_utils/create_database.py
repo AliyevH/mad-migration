@@ -1,5 +1,5 @@
 import logging
-from pymongo import MongoClient
+from pymongo.uri_parser import parse_uri as mongo_parse_uri
 
 from madmigration.utils.helpers import generate_database_details
 from .database_enum import DatabaseTypes
@@ -34,7 +34,8 @@ def create_sqlite_db(url, connection):
 
 # tweak
 def create_mongo_db(url: str, mongo_client):
-    return mongo_client[url.split("/")[-1]]
+    items = mongo_parse_uri(url)
+    return mongo_client[items.get('database', None)]
 
 def create_database_strategy(url, engine):
     details = generate_database_details(url)

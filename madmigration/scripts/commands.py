@@ -25,10 +25,12 @@ def cli():
     help="YAML file",
 )
 @click.version_option(__version__)
-# TODO validate yaml file if given file is correct, drop fk.
 def cli(file):
 
     config = Config(file)
+
+    # source_db = get_database_connection_object(config.source_uri)(config.source_uri, ConfigLocation.SOURCE)
+    # destination_db = get_database_connection_object(config.destination_uri)(config.destination_uri, ConfigLocation.DESTINATION)
 
     if config.destination_mongo:
         nosql = NoSQLController(config)
