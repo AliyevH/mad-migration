@@ -1,4 +1,3 @@
-from typing import Union
 import logging
 from madmigration.utils.helpers import detect_driver
 

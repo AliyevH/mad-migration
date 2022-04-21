@@ -30,7 +30,9 @@ def cli(file):
 
     sourc_conn = source_db(config.source_uri, ConfigLocation.SOURCE)
     destination_conn = destination_db(config.destination_uri, ConfigLocation.DESTINATION)
-
-    with MigrationController(config=config, source_db=sourc_conn, destination_db=destination_conn) as app:
-        app.run_table_migrations()
-        app.run()
+    try:
+        with MigrationController(config=config, source_db=sourc_conn, destination_db=destination_conn) as app:
+            app.run_table_migrations()
+            app.run()
+    except:
+        print('failing to migrate')
