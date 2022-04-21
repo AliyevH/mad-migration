@@ -29,8 +29,6 @@ from sqlalchemy.dialects.mssql import (
     VARBINARY,
     VARCHAR,
 )
-from sqlalchemy import DateTime
-from sqlalchemy_utils import UUIDType
 from madmigration.basemigration.base import BaseMigrate
 from madmigration.config.conf import Config
 from pprint import pprint
@@ -69,6 +67,6 @@ class MssqlMigrate(BaseMigrate):
             # "array": ARRAY, #FIXME column with array include array elemet type argument
             "numeric": NUMERIC,
             "money": MONEY,
-            "uuid": UUIDType(binary=False),
+            "uuid": UNIQUEIDENTIFIER,
         }.get(type_name.lower())
 

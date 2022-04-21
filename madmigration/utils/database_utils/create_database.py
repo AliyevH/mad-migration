@@ -1,49 +1,54 @@
 import logging
-from pymongo.uri_parser import parse_uri as mongo_parse_uri
+from datetime import datetime
+from sqlalchemy.sql import text
 
 from madmigration.utils.helpers import generate_database_details
 from .database_enum import DatabaseTypes
 from errors import UnsupportedDatabase
-from utils.display import cmd_diplay_utiltity
 
-# consider closures for more detailed approach
-def create_psql_db(url, connection):
-    text = "CREATE DATABASE {0} ENCODING '{1}' TEMPLATE {2}".format(
-        quote(engine, database),
-        encoding,
-        quote(engine, template)
-    )
 
-    return connection.execute(text)
+def create_psql_db(database_name, **kwargs):
+    def inner(connection):
+        sql_text = text("CREATE DATABASE :database_name ENCODING :encoding TEMPLATE :template;")
 
-def create_mysql_db(url, connection):
-    text = "CREATE DATABASE {0} CHARACTER SET = '{1}'".format(
-        quote(connection, database),
-        encoding
-    )
+        return connection.execute(sql_text, database_name=database_name, **kwargs)
+    return inner
 
-    return connection.execute(text)
+def create_mysql_db(database_name, **kwargs):
+    def inner(connection):
+        sql_text = text("CREATE DATABASE :database_name CHARACTER SET :charset COLLATE :collate;")
 
-def create_generic_db(url, connection):
-    text = 'CREATE DATABASE {0}'.format(quote(connection, database))
+        return connection.execute(sql_text, database_name=database_name, **kwargs)
+    return inner
 
-    return connection.execute(text)
+def create_generic_db(database_name):
+    def inner(connection):
 
-def create_sqlite_db(url, connection):
-    pass
+        sql_text = text('CREATE DATABASE :database_name;')
+        return connection.execute(sql_text, database_name=database_name)
+    return inner
 
-# tweak
-def create_mongo_db(url: str, mongo_client):
-    items = mongo_parse_uri(url)
-    return mongo_client[items.get('database', None)]
+def create_mongo_db(database: str):
+    """
+    Not created until it gets content
+    """
+    def inner(mongo_client):
+        db =  mongo_client[database]
+        mycol = db["new_db"]
+        mydict = {"created_at": datetime.now()}
+
+        # returns an ID to ensure db creation
+        return mycol.insert_one(mydict).inserted_id
+    return inner
 
 def create_database_strategy(url, engine):
     details = generate_database_details(url)
     creation_strategy = {
-        DatabaseTypes.POSTGRES: create_psql_db,
-        DatabaseTypes.MYSQL: create_mysql_db,
-        DatabaseTypes.SQLITE: create_sqlite_db,
-        DatabaseTypes.MONGODB: create_mongo_db
+        DatabaseTypes.POSTGRES: create_psql_db(details.database, encoding='utf-8', template='template0'),
+        DatabaseTypes.MYSQL: create_mysql_db(details.database, charset='utf8mb4', collate='utf8mb4_unicode_ci'),
+        DatabaseTypes.SQLITE: create_generic_db(details.database),
+        DatabaseTypes.ORACLE: create_generic_db(details.database),
+        DatabaseTypes.MONGODB: create_mongo_db(details.database)
     }
 
     strategy = creation_strategy.get(details.dialect_name, None)
@@ -51,6 +56,6 @@ def create_database_strategy(url, engine):
         raise UnsupportedDatabase()
 
     try:
-        return strategy(details.database, engine)
+        return strategy(engine)
     except Exception as e:
         logging.error(e)

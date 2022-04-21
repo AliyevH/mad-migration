@@ -27,7 +27,6 @@ from sqlalchemy.dialects.mysql import (
 )
 from alembic import op
 from collections import defaultdict
-from sqlalchemy_utils import UUIDType
 from madmigration.config.conf import Config
 from madmigration.db_operations.operations import DbOperations
 from madmigration.basemigration.base import BaseMigrate

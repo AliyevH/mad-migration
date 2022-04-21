@@ -1,11 +1,7 @@
 import click
-import math
-import random
-import time
-import sys
 from madmigration.config.conf import Config
-from madmigration.main import Controller, NoSQLController
-from madmigration.utils.helpers import check_file, file_not_found
+from madmigration.db_init.connection_utils import ConfigLocation, get_database_connection_object
+from madmigration.main import MigrationController
 from madmigration.utils.helpers import __version__
 
 
@@ -29,15 +25,12 @@ def cli(file):
 
     config = Config(file)
 
-    # source_db = get_database_connection_object(config.source_uri)(config.source_uri, ConfigLocation.SOURCE)
-    # destination_db = get_database_connection_object(config.destination_uri)(config.destination_uri, ConfigLocation.DESTINATION)
+    source_db = get_database_connection_object(config.source_uri)
+    destination_db = get_database_connection_object(config.destination_uri)
 
-    if config.destination_mongo:
-        nosql = NoSQLController(config)
+    sourc_conn = source_db(config.source_uri, ConfigLocation.SOURCE)
+    destination_conn = destination_db(config.destination_uri, ConfigLocation.DESTINATION)
 
-        nosql.run_table_migrations()
-
-    else:
-        with Controller(config) as app:
-            app.run_table_migrations()
-            app.run()
+    with MigrationController(config=config, source_db=sourc_conn, destination_db=destination_conn) as app:
+        app.run_table_migrations()
+        app.run()

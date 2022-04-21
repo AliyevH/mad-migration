@@ -5,6 +5,7 @@ class DatabaseTypes(Enum):
     MYSQL='mysql'
     MSSQL='mssql'
     SQLITE='sqlite'
+    ORACLE='oracle'
     MONGODB='mongodb'
 
 

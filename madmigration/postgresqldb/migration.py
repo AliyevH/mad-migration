@@ -27,7 +27,7 @@ from sqlalchemy.dialects.postgresql import (
     VARCHAR,
 )
 from sqlalchemy import DateTime
-from sqlalchemy_utils import UUIDType
+from sqlalchemy.dialects.postgresql import UUID
 from madmigration.basemigration.base import BaseMigrate
 from madmigration.config.conf import Config
 from pprint import pprint
@@ -70,7 +70,7 @@ class PgMigrate(BaseMigrate):
             "macaddr": MACADDR,
             "inet": INET,
             "oid": OID,
-            "uuid": UUIDType(binary=False),
+            "uuid": UUID,
         }.get(type_name.lower())
 
 

@@ -4,17 +4,17 @@ import os
 import sqlalchemy as sa
 from sqlalchemy.engine.url import make_url
 from sqlalchemy.exc import OperationalError, ProgrammingError
-import pymongo
 from pymongo import MongoClient
+from pymongo import errors as MongoErrors
 
 
 from madmigration.utils.helpers import generate_database_details
 from madmigration.errors import UnsupportedDatabase
 from .database_enum import DatabaseTypes
 
-def _get_scalar_result(engine, sql):
+def _get_scalar_result(engine, sql_text):
     with engine.connect() as conn:
-        return conn.scalar(sql)
+        return conn.scalar(sql_text)
 
 def run_database_exist_check(url: str, sql_text: str):
     try:
@@ -65,9 +65,9 @@ def confirm_mongo_database(url):
             client = MongoClient(url)
             client.server_info()
             return True
-        except pymongo.errors.ServerSelectionTimeoutError:
+        except MongoErrors.ServerSelectionTimeoutError:
             return False
-        except pymongo.errors.ConnectionFailure:
+        except MongoErrors.ConnectionFailure:
             return False
     return inner
 

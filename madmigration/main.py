@@ -1,9 +1,6 @@
 from typing import Union
 import logging
-from madmigration.db_init.connection_engine import SourceDB
-from madmigration.db_init.connection_engine import DestinationDB
 from madmigration.utils.helpers import detect_driver
-from sqlalchemy import Column, MetaData, Table
 
 from madmigration.config.conf import Config
 from madmigration.mysqldb.type_convert import get_type_object
@@ -12,7 +9,8 @@ from madmigration.db_init.connection_engine import DatabaseConnection
 
 logger = logging.getLogger(__name__)
 
-class ControllerBase:
+
+class MigrationController:
     def __init__(
         self,
         config: Config, 
@@ -44,43 +42,8 @@ class ControllerBase:
     def __exit__(self):
         self.source_db_conn.close()
         self.destination_db_conn.close()
-        return True # we take care of error handling, wrap it up.
+        return True
 
-
-
-class Controller:
-    def __init__(self, migration_config: Config):
-        
-        self.config = migration_config
-
-        # Source and Destination DB Initialization with session
-        self.source_db = SourceDB(self.config.source_uri)
-        self.destination_db = DestinationDB(self.config.destination_uri)
-        self.metadata = MetaData()
-        # Source and Destination Database - all tables (NOT MIGRATION TABLES!!!)
-        self.sourcedb_all_tables_names = self.source_db.engine.table_names()
-        self.destinationdb_all_tables_names = self.destination_db.engine.table_names()
-
-        # All migration tables (Yaml file migrationTables)
-        self.migration_tables = self.config.migrationTables
-
-        # Destination DB Driver and name
-        self.destinationdb_driver = self.destination_db.engine.driver
-        self.destinationdb_name = self.destination_db.engine.name
-
-        # Source DB Driver
-        self.sourcedb_driver = self.source_db.engine.driver
-
-    
-    def __enter__(self):
-        return self
-
-    def __exit__(self, type, value, traceback):
-        self.source_db.session.close()
-        self.destination_db.session.close()
-        return True # we take care of error handling, wrap it up.
-
-    
     def run_table_migrations(self):
         # detect migration class
         try:
@@ -93,8 +56,6 @@ class Controller:
             logger.info("Tables in destination db created successfully")
         except Exception as err:
             logger.error(err)
-            
-        
 
     def get_column_type_from_source_table(self, table_name, column_name):
         """
@@ -156,7 +117,6 @@ class Controller:
 
 
 class NoSQLController:
-
     '''
     Class sturct works for transfering from postgresql database data to mongoDB database
     '''

@@ -1,8 +1,7 @@
 from madmigration.config.conf import Config
+from madmigration.db_init.connection_utils import ConfigLocation
 from pymongo import MongoClient
-from sqlalchemy.ext.automap import automap_base
-from sqlalchemy import create_engine, inspect
-from sqlalchemy.orm import Session
+from sqlalchemy import inspect
 from madmigration.errors import TableDoesNotExists
 from madmigration.mongodb.type_convert import get_type_object
 
@@ -66,9 +65,8 @@ class MongoDbMigrate:
         return inspect(self.sourceDBConfig.engine).get_table_names()
 
     def source_db_config(self):
-        from madmigration.db_init.connection_engine import SourceDB
-
-        self.sourceDBConfig = SourceDB(self.sourcedb)
+        from madmigration.db_init.connection_engine import  NoSQLDatabaseConnection
+        self.sourceDBConfig = NoSQLDatabaseConnection(self.sourcedb, ConfigLocation.DESTINATION)
 
     def extract_data(self):
         """columns converted to dictionary data type """
