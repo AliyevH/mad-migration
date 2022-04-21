@@ -1,6 +1,4 @@
-from abc import ABC, abstractmethod
 import logging
-
 from sqlalchemy import create_engine, MetaData, event, Table
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.automap import automap_base
@@ -14,6 +12,7 @@ from madmigration.utils.database_utils import create_database_strategy, confirm_
 
 from madmigration.errors import CouldNotConnectError, MissingSourceDBError
 from .connection_utils import ConfigLocation
+from .base_engine import DatabaseBaseConnection
 
 
 logger = logging.getLogger(__name__)
@@ -25,39 +24,8 @@ def before_parent_attach(target, parent):
         print(target)
 
 
-class DatabaseConnection(ABC):
-    @property
-    @abstractmethod
-    def driver(self):
-        raise NotImplementedError()
 
-    @property
-    @abstractmethod
-    def db_name(self):
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _check_database_exist(self):
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _create_database(self):
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _create_connection(self):
-        raise NotImplementedError()
-
-    @abstractmethod
-    def all_db_tables(self):
-        raise NotImplementedError()
-
-    @abstractmethod
-    def close(self):
-        raise NotImplementedError()
-
-
-class SQLDatabaseConnection(DatabaseConnection):
+class SQLDatabaseConnection(DatabaseBaseConnection):
     def __init__(self, connection_uri: str, config_location: ConfigLocation): 
         self.connection_uri = connection_uri
         self.engine = self._create_connection()
@@ -108,10 +76,12 @@ class SQLDatabaseConnection(DatabaseConnection):
             raise CouldNotConnectError(e)
 
     def close(self):
-        return self.session.close()
+        self.session.close()
+        return self.engine.dispose()
 
 
-class NoSQLDatabaseConnection(DatabaseConnection):
+
+class NoSQLDatabaseConnection(DatabaseBaseConnection):
     def __init__(self, connection_uri: str, config_location: ConfigLocation): 
         self.connection_uri = connection_uri
         self.config_location = config_location
@@ -148,9 +118,6 @@ class NoSQLDatabaseConnection(DatabaseConnection):
 
     def _create_connection(self):
         database = mongo_parse_uri(self.connection_uri).get('database', None)
-        if not database:
-            raise CouldNotConnectError('Database for Mongo does not exist, could not connect to database')
-
         try:
             if not self.engine:
                 engine = MongoClient(self.connection_uri)[database]

@@ -18,7 +18,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/MadeByMads/mad-migration",
     long_description=long_description,
-    install_requires=["click>=7.1.2", "SQLAlchemy-Utils>=0.36.8","SQLAlchemy>=1.3.18",'pydantic>=1.7.2',"alembic>=1.4.2", "PyYAML>=5.3.1", "gino==1.0.1"],
+    install_requires=["click>=7.1.2", "SQLAlchemy>=1.4.0",'pydantic>=1.7.2',"alembic>=1.4.2", "PyYAML>=5.3.1"],
     classifiers=[
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Build Tools",
