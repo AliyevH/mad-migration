@@ -1,6 +1,0 @@
-version: 1.1
-Configs:
-  - SourceConfig:
-      dbURI: "postgresql:///pdf_service"
-  - DestinationConfig:
-      dbURI: "postgresql:///pdf_service"
