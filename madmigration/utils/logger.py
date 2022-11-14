@@ -11,6 +11,7 @@ config_file = mad_path + "/madmigration/config/logger_config.yml"
 def configure_logging():
     with open(config_file) as f:
         config = yaml.safe_load(f.read())
+        print('config ->', config)
         logging.config.dictConfig(config)
         fmt = config.get("formatters").get("simple")
         coloredlogs.install(level="DEBUG", **fmt)
