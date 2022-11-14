@@ -1,8 +1,4 @@
 import click
-import math
-import random
-import time
-import sys
 from madmigration.config.conf import Config
 from madmigration.main import Controller, NoSQLController
 from madmigration.utils.helpers import check_file, file_not_found
@@ -33,9 +29,7 @@ def cli(file):
 
         if config.destination_mongo:
             nosql = NoSQLController(config)
-
             nosql.run_table_migrations()
-
         else:
             with Controller(config) as app:
                 app.run_table_migrations()

@@ -116,21 +116,16 @@ class DbOperations:
         finally:
             conn.close()
 
-    def drop_fk(self, fk_constraints: str):
+    def drop_fk(self,fk_constraints: str):
         try:
             conn = self.engine.connect()
-            transactional = conn.begin()
-
+            ctx = MigrationContext.configure(conn)
+            op = Operations(ctx)
+            # [('todo', 'todo_ibfk_1')]
             for fk in fk_constraints:
-                conn.execute(
-                    DropConstraint(fk, cascade=True)
-                )  # maybe set cascade=True in future
-
-            transactional.commit()
-            return True
+                op.drop_constraint(fk[1], fk[0], type_="foreignkey")
         except Exception as err:
             logger.error("fk_drop [error] -> %s" % err)
-            return False
         finally:
             conn.close()
 

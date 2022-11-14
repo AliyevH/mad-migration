@@ -39,6 +39,7 @@ class BaseMigrate():
         self.dest_fk = []
         self.contraints_columns = defaultdict(set)
         self.db_operations = DbOperations(self.engine)
+        self._drop_tables = []
 
         signal.signal(signal.SIGINT, self.sig_handler)
 
@@ -78,7 +79,7 @@ class BaseMigrate():
                     for fk in inspector.get_foreign_keys(table_name):
                         if not fk["name"]:
                             continue
-                        self.dest_fk.append(ForeignKeyConstraint((), (), name=fk["name"]))
+                        self.dest_fk[fk["referred_table"]].append((table_name,fk["name"]))
                         self.contraints_columns[table_name].add(*fk["constrained_columns"])
             transactional.commit()
         except Exception as err:
@@ -163,16 +164,16 @@ class BaseMigrate():
 
     def process(self):
         """
-        Check existing tables. 
+        Create and check existing tables. 
         Collect foreign key constraints
-        Create tables and fk
         """
         try:
-            # self.alter_columns()
             self.collect_drop_fk()
+            if self._drop_tables:
+                self.db_operations.bulk_drop_tables(*self._drop_tables)
             self.update_table()
             self.create_tables()
-            self.db_operations.create_fk_constraint(self.fk_constraints, self.contraints_columns)
+            self.db_operations.create_fk_constraint(self.fk_constraints,self.contraints_columns)
             return True
         except Exception as err:
             logger.error("create_tables [error] -> %s" % err)
@@ -215,15 +216,15 @@ class BaseMigrate():
             logger.error("check_table [error] -> %s" % err)
             return False
 
-    def get_input(self, table_name):
+    def get_input(self,table_name):
         while True:
             answ = input(
                 f"Table with name '{table_name}' already exist,\
-'{table_name}' table will be dropped and recreated,your table data will be lost in the process.\
- Do you want to continue?(y/n) ")
+'{table_name}' table will be dropped and recreated,your table data will be lost,process?(y/n) ")
             if answ.lower() == "y":
-                self.db_operations.drop_fk(self.dest_fk)
-                self.db_operations.drop_table(table_name)
+                if self.dest_fk[table_name]:
+                    self.db_operations.drop_fk(self.dest_fk[table_name])
+                self._drop_tables.append(table_name)
                 return False
             elif answ.lower() == "n":
                 return True

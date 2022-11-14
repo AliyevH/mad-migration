@@ -1,6 +1,5 @@
 from datetime import datetime, date
 from enum import Enum
-import json
 from uuid import uuid4, UUID
 
 def get_type_object(data_type):
