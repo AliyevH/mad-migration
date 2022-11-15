@@ -24,10 +24,8 @@ class DbOperations:
             op = Operations(ctx)
             op.drop_table(table_name)
             logger.info(f"Table {table_name} dropped")
-            return True
         except Exception as err:
             logger.error("drop_tables [error] -> %s" % err)
-            return False
         finally:
             logger.info("Session closed")
             conn.close()

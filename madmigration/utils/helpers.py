@@ -42,7 +42,7 @@ def get_cast_type(type_name: str) -> object:
 
 
 ###########################
-# Detect db driver fro migration #
+# Detect db driver for migration #
 ###########################
 def detect_driver(driver: str) -> Union[MysqlMigrate, PgMigrate, MongoDbMigrate]:
     """

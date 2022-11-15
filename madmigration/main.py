@@ -2,21 +2,10 @@ import logging
 from madmigration.db_init.connection_engine import SourceDB
 from madmigration.db_init.connection_engine import DestinationDB
 from madmigration.utils.helpers import detect_driver, get_cast_type
-from sqlalchemy import Column, MetaData, Table
+from sqlalchemy import MetaData
 from madmigration.config.conf import Config
 from madmigration.mysqldb.type_convert import get_type_object
 from sqlalchemy import insert
-from sqlalchemy import (
-    Integer,
-    String,
-    DateTime,
-    Date,
-    BigInteger,
-    VARCHAR,
-    Float,
-    TIMESTAMP
-)
-
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +21,7 @@ class Controller:
         self.metadata = MetaData()
         # Source and Destination Database - all tables (NOT MIGRATION TABLES!!!)
         self.sourcedb_all_tables_names = self.source_db.engine.table_names()
+        print('self.sourcedb_all_tables_names ->', self.sourcedb_all_tables_names)
         self.destinationdb_all_tables_names = self.destination_db.engine.table_names()
 
         # All migration tables (Yaml file migrationTables)
@@ -60,7 +50,7 @@ class Controller:
             logger.info(f"Detect SQL driver {self.destination_db.engine.name}")
             migrate = detect_driver(self.destinationdb_driver)
             
-            mig = migrate(self.config,self.destination_db)
+            mig = migrate(self.config, self.destination_db)
             mig.prepare_tables()
             mig.process()
             logger.info("Tables in destination db created successfully")

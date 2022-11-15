@@ -1,5 +1,5 @@
 from pydantic import BaseModel, validator
-from typing import Union, List, Any, AnyStr, Dict
+from typing import Union, List, Any, AnyStr, Dict, Optional
 
 
 class ForeignKeySchema(BaseModel):
@@ -60,18 +60,18 @@ class ColumnParametersSchema(BaseModel):
 
 
 class TablesInfo(BaseModel):
-    SourceTable: SourceTableSchema
-    DestinationTable: DestTableSchema
-    MigrationColumns: List[ColumnParametersSchema]
+    SourceTable: Optional[SourceTableSchema]
+    DestinationTable: Optional[DestTableSchema]
+    MigrationColumns: Optional[List[ColumnParametersSchema]]
 
 
 class MigrationTablesSchema(BaseModel):
-    migrationTable: TablesInfo
+    migrationTable: Optional[TablesInfo]
 
 
 class ConfigSchema(BaseModel):
     Configs: List[Union[SourceConfigSchema, DestinationConfigSchema]]
-    migrationTables: List[MigrationTablesSchema]
+    migrationTables: Optional[List[MigrationTablesSchema]]
     version: float
 
 

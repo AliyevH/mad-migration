@@ -52,6 +52,8 @@ class Config:
         self.destination_uri = self.config_data.Configs[1].DestinationConfig.get(
             "dbURI"
         )  # noqa  E501
+
+        # Add logic to automatically detect table and column names if not defined
         self.migrationTables = self.config_data.migrationTables
 
     def select_config(self, data):

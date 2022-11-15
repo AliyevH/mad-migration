@@ -31,17 +31,19 @@ pyflakes = "^2.5.0"
 
 
 [tool.poetry.group.mysql.dependencies]
-mysqlclient = "^2.1.1"
-pymysql = "^1.0.2"
+mysqlclient = { version = "^2.1.1", optional = true }
+pymysql = { version = "^1.0.2", optional = true }
 
 
 [tool.poetry.group.postgresql.dependencies]
-psycopg2 = "^2.9.5"
+psycopg2 = { version = "^2.9.5", optional = true }
 
 
-[tool.poetry.group.mongo.dependencies]
-pymongo = "^4.3.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.extras]
+mysql = ["mysqlclient", "pymysql"]
+pgsql = ["psycopg2"]
