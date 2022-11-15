@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "madmigration"
-version = "0.1.20"
+version = "0.1.21"
 description = "Mad Migration"
 authors = ["Hasan <hasan.aleeyev@gmail.com>"]
 license = "MIT"
@@ -16,8 +16,9 @@ pyyaml = "^6.0"
 regex = "^2022.10.31"
 sqlalchemy = "^1.4.44"
 sqlalchemy-utils = "^0.38.3"
-
-[tool.poetry.dev-dependencies]
+mysqlclient = { version = "^2.1.1", optional = true }
+pymysql = { version = "^1.0.2", optional = true }
+psycopg2 = { version = "^2.9.5", optional = true }
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "*"
@@ -28,17 +29,6 @@ pytest = "^7.2.0"
 black = "^22.10.0"
 flake8 = "^5.0.4"
 pyflakes = "^2.5.0"
-
-
-[tool.poetry.group.mysql.dependencies]
-mysqlclient = { version = "^2.1.1", optional = true }
-pymysql = { version = "^1.0.2", optional = true }
-
-
-[tool.poetry.group.postgresql.dependencies]
-psycopg2 = { version = "^2.9.5", optional = true }
-
-
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
