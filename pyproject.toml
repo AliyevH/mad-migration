@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "madmigration"
-version = "0.1.21"
+version = "0.1.22"
 description = "Mad Migration"
 authors = ["Hasan <hasan.aleeyev@gmail.com>"]
 license = "MIT"
@@ -17,7 +17,8 @@ regex = "^2022.10.31"
 sqlalchemy = "^1.4.44"
 sqlalchemy-utils = "^0.38.3"
 pgsql = {version = "^1.2", extras = ["psycopg2"]}
-mysql = {version = "^0.0.3", extras = ["mysqlclient pymysql"]}
+mysql = {version = "^0.0.3", extras = ["mysqlclient, pymysql"]}
+
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "*"
