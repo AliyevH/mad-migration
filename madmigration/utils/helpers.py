@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime
 from copy import copy
 from sqlalchemy.schema import DropTable
@@ -14,16 +13,9 @@ from madmigration.mysqldb.migration import MysqlMigrate
 from madmigration.postgresqldb.migration import PgMigrate
 from madmigration.mssql.migration import MssqlMigrate
 from madmigration.mongodb.migration import MongoDbMigrate
+from madmigration.utils.logger import configure_logging
 
-
-logger = logging.getLogger(__name__)
-
-__version__ = "0.1.8beta"
-
-###########################
-# Get class of cast #
-###########################
-
+logger = configure_logging(__name__)
 
 def get_cast_type(type_name: str) -> object:
     """

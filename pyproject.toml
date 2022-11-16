@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "madmigration"
-version = "0.1.22"
+version = "0.1.24"
 description = "Mad Migration"
 authors = ["Hasan <hasan.aleeyev@gmail.com>"]
 license = "MIT"
@@ -16,8 +16,9 @@ pyyaml = "^6.0"
 regex = "^2022.10.31"
 sqlalchemy = "^1.4.44"
 sqlalchemy-utils = "^0.38.3"
-pgsql = {version = "^1.2", extras = ["psycopg2"]}
-mysql = {version = "^0.0.3", extras = ["mysqlclient, pymysql"]}
+mysql = "^0.0.3"
+psycopg2 = "^2.9.5"
+pymongo = "^4.3.2"
 
 
 [tool.poetry.group.docs.dependencies]
@@ -42,3 +43,6 @@ psycopg2 = "^2.9.5"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+madmigration = 'madmigration.run:run'

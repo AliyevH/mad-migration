@@ -1,13 +1,11 @@
-import logging
 from madmigration.db_init.connection_engine import SourceDB
 from madmigration.db_init.connection_engine import DestinationDB
-from madmigration.utils.helpers import detect_driver, get_cast_type
+from madmigration.utils.helpers import detect_driver
 from sqlalchemy import MetaData
 from madmigration.config.conf import Config
-from madmigration.mysqldb.type_convert import get_type_object
-from sqlalchemy import insert
+from madmigration.utils.logger import configure_logging
 
-logger = logging.getLogger(__name__)
+logger = configure_logging(__name__)
 
 
 class Controller:
@@ -21,7 +19,6 @@ class Controller:
         self.metadata = MetaData()
         # Source and Destination Database - all tables (NOT MIGRATION TABLES!!!)
         self.sourcedb_all_tables_names = self.source_db.engine.table_names()
-        print('self.sourcedb_all_tables_names ->', self.sourcedb_all_tables_names)
         self.destinationdb_all_tables_names = self.destination_db.engine.table_names()
 
         # All migration tables (Yaml file migrationTables)
@@ -149,14 +146,3 @@ class NoSQLController:
       
         except Exception as err:
             print(err)
-
-    
-     
-        
-       
-        
-
-
-
-
-

@@ -2,7 +2,9 @@ import click
 from madmigration.config.conf import Config
 from madmigration.main import Controller, NoSQLController
 from madmigration.utils.helpers import check_file, file_not_found
-from madmigration.utils.helpers import __version__
+import importlib.metadata
+
+__version__ = importlib.metadata.version("madmigration")
 
 
 @click.group()
@@ -10,17 +12,17 @@ def cli():
     """Controller group Cli"""
 
 
-@cli.command(help="simple Migrate ready on hand with CLI")
+@cli.command(help="Database Migration tool")
+
 @click.option(
     "--file",
     "-f",
-    metavar="YAML file",
-    prompt="YAML file",
-    show_default=True,
+    metavar="YAML",
     required=True,
-    help="YAML file",
 )
+
 @click.version_option(__version__)
+
 # TODO validate yaml file if given file is correct, drop fk.
 def cli(file):
 

@@ -1,12 +1,12 @@
-from sqlalchemy import create_engine, MetaData, event, Table
+from sqlalchemy import create_engine, event, Table
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy_utils.functions.database import database_exists, create_database
-import sys
 from madmigration.utils.helpers import issue_url, app_name, parse_uri
 from madmigration.utils.helpers import database_not_exists, goodby_message
-import logging
-logger = logging.getLogger(__name__)
+from madmigration.utils.logger import configure_logging
+
+logger = configure_logging(__name__)
 
 
 @event.listens_for(Table, "after_parent_attach")

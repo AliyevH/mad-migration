@@ -1,24 +1,18 @@
 import signal
 import sys
-import logging
-
-from psycopg2 import errors
-from sqlalchemy import exc
 from queue import Queue
 
 from madmigration.config.config_schema import MigrationTablesSchema
 from madmigration.config.config_schema import ColumnParametersSchema
-from madmigration.config.config_schema import TablesInfo
-from sqlalchemy import Column, Table, MetaData, ForeignKey, ForeignKeyConstraint
+from sqlalchemy import Column, MetaData
 from sqlalchemy.engine import reflection
-from madmigration.errors import TableExists
-from sqlalchemy.ext.mutable import MutableDict
 from collections import defaultdict
 from madmigration.postgresqldb.type_convert import get_type_object
 from madmigration.config.conf import Config
 from madmigration.db_operations.operations import DbOperations
+from madmigration.utils.logger import configure_logging
 
-logger = logging.getLogger(__name__)
+logger = configure_logging(__name__)
 
 
 class BaseMigrate():
@@ -59,11 +53,12 @@ class BaseMigrate():
         """ collects all tables that the program should create """
         try:
             for migrate_table in self.migration_tables:
-                tabel_name = migrate_table.migrationTable.DestinationTable.name
-                self.table_list.add(tabel_name)
+                table_name = migrate_table.migrationTable.DestinationTable.name
+                self.table_list.add(table_name)
             self.tables.update(self.table_list)
         except Exception as err:
             logger.error("collect_table_names [error] -> %s" % err)
+
 
     def collect_drop_fk(self):
         """ 

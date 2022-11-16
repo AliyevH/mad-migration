@@ -1,13 +1,11 @@
-import logging
-
 from sqlalchemy.schema import DropConstraint, DropTable
 from sqlalchemy import MetaData, ForeignKeyConstraint, Table
 from alembic.migration import MigrationContext
 from sqlalchemy.engine import reflection
 from alembic.operations import Operations
-from alembic import op
+from madmigration.utils.logger import configure_logging
 
-logger = logging.getLogger(__name__)
+logger = configure_logging(__name__)
 
 
 class DbOperations:

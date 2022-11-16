@@ -1,12 +1,7 @@
-
-
-
-
 name: Deploy Documentation
 on:
-  push:
-    branches:
-      - master
+  release:
+    types: [created]
 jobs:
   deploy:
     runs-on: ubuntu-latest
