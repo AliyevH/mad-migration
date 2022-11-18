@@ -12,6 +12,7 @@ from madmigration.config.conf import Config
 from madmigration.db_operations.operations import DbOperations
 from madmigration.utils.logger import configure_logging
 
+
 logger = configure_logging(__name__)
 
 
@@ -20,7 +21,6 @@ class BaseMigrate():
     tables = set()
 
     def __init__(self, config: Config, destination_db):
-        self.global_config = config
         self.migration_tables = config.migrationTables
         self.engine = destination_db.engine
         self.connection = destination_db
@@ -50,38 +50,8 @@ class BaseMigrate():
         sys.exit(sig_num)
 
     def collect_table_names(self):
-        """ collects all tables that the program should create """
-        try:
-            for migrate_table in self.migration_tables:
-                table_name = migrate_table.migrationTable.DestinationTable.name
-                self.table_list.add(table_name)
-            self.tables.update(self.table_list)
-        except Exception as err:
-            logger.error("collect_table_names [error] -> %s" % err)
-
-
-    def collect_drop_fk(self):
-        """ 
-        Collect foreign key constraints for tables 
-        """
-        try:
-            conn = self.engine.connect()
-            transactional = conn.begin()
-            inspector = reflection.Inspector.from_engine(self.engine)
-
-            for table_name in inspector.get_table_names():
-                if table_name in self.table_list:
-                    for fk in inspector.get_foreign_keys(table_name):
-                        if not fk["name"]:
-                            continue
-                        self.dest_fk[fk["referred_table"]].append((table_name,fk["name"]))
-                        self.contraints_columns[table_name].add(*fk["constrained_columns"])
-            transactional.commit()
-        except Exception as err:
-            logger.error("collect_drop_fk [error] -> %s" % err)
-            return False
-        finally:
-            conn.close()
+        """Collects all tables that the program should create"""
+        self.tables = self.db_operations.collect_destination_tables()
 
     def parse_migration_tables(self, tabels_schema: MigrationTablesSchema):
         """
@@ -101,7 +71,7 @@ class BaseMigrate():
         This function parses migrationColumns schema and prepare column
         """
         try:
-            update = self.check_table(tablename)
+            table_exists = self.db_operations.is_table_exists(tablename)
 
             for col in migration_columns:
                 self.source_column = col.sourceColumn
@@ -112,8 +82,8 @@ class BaseMigrate():
                 column_type = self._parse_column_type()
 
                 col = Column(self.destination_column.name, column_type, **self.dest_options)
-                if update:
-                    if not self.check_column(tablename, self.destination_column.name):
+                if table_exists:
+                    if not self.db_operations.is_column_exists_in_table(tablename, self.destination_column.name):
                         #     self.add_alter_column(tablename, {"column_name": self.destination_column.name,"type":column_type,"options":{**self.dest_options}})
                         # else:
                         self.add_updated_table(tablename, col)
@@ -163,7 +133,7 @@ class BaseMigrate():
         Collect foreign key constraints
         """
         try:
-            self.collect_drop_fk()
+            self.dest_fk, self.contraints_columns = self.db_operations.collect_fk_and_constraint_columns(self.table_list)
             if self._drop_tables:
                 self.db_operations.bulk_drop_tables(*self._drop_tables)
             self.update_table()
@@ -201,16 +171,6 @@ class BaseMigrate():
         except Exception as err:
             logger.error("_parse_fk [error] -> %s" % err)
 
-    def check_table(self, table_name: str) -> bool:
-        """ Check table exist or not, and wait user input """
-        try:
-            if self.engine.dialect.has_table(self.engine.connect(), table_name):
-                return self.get_input(table_name)
-            return False
-        except Exception as err:
-            logger.error("check_table [error] -> %s" % err)
-            return False
-
     def get_input(self,table_name):
         while True:
             answ = input(
@@ -244,21 +204,6 @@ class BaseMigrate():
             for column in source_columns:
                 data[column] = getattr(row, column)
             yield data
-
-    def check_column(self, table_name: str, column_name: str) -> bool:
-        """
-            Check column exist in destination table or not
-            param:: column_name -> is destination column name
-        """
-        try:
-            insp = reflection.Inspector.from_engine(self.engine)
-            for col in insp.get_columns(table_name):
-                if column_name in col["name"]:
-                    return True
-            return False
-        except Exception as err:
-            logger.error("check_column [error] -> %s" % err)
-            return False
 
     @staticmethod
     def insert_data(engine, table_name, data: dict):

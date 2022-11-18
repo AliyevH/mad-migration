@@ -1,5 +1,5 @@
 import click
-from madmigration.config.conf import Config
+from madmigration.config.conf import ConfigYamlManager
 from madmigration.main import Controller, NoSQLController
 from madmigration.utils.helpers import check_file, file_not_found
 import importlib.metadata
@@ -27,7 +27,7 @@ def cli():
 def cli(file):
 
     if check_file(file):
-        config = Config(file)
+        config = ConfigYamlManager(file)
 
         if config.destination_mongo:
             nosql = NoSQLController(config)

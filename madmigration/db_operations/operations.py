@@ -4,6 +4,7 @@ from alembic.migration import MigrationContext
 from sqlalchemy.engine import reflection
 from alembic.operations import Operations
 from madmigration.utils.logger import configure_logging
+import sys
 
 logger = configure_logging(__name__)
 
@@ -112,7 +113,7 @@ class DbOperations:
         finally:
             conn.close()
 
-    def drop_fk(self,fk_constraints: str):
+    def drop_fk(self, fk_constraints: str):
         try:
             conn = self.engine.connect()
             ctx = MigrationContext.configure(conn)
@@ -161,3 +162,50 @@ class DbOperations:
         finally:
             conn.close()
 
+    def collect_fk_and_constraint_columns(self, table_list):
+        """ 
+        Collect foreign key constraints for tables
+        """
+        dest_fk = []
+        contraints_columns = []
+        try:
+            conn = self.engine.connect()
+            inspector = reflection.Inspector.from_engine(self.engine)
+
+            for table_name in inspector.get_table_names():
+                if table_name in table_list:
+                    for fk in inspector.get_foreign_keys(table_name):
+                        if not fk["name"]:
+                            continue
+                        dest_fk[fk["referred_table"]].append((table_name,fk["name"]))
+                        contraints_columns[table_name].add(*fk["constrained_columns"])
+
+            return dest_fk, contraints_columns
+        except Exception as err:
+            logger.error(err)
+            sys.exit(1)
+        finally:
+            conn.close()
+
+    def is_column_exists_in_table(self, table_name: str, column_name: str) -> bool:
+        """
+            Check column exist in destination table or not
+            param:: column_name -> is destination column name
+        """
+        try:
+            insp = reflection.Inspector.from_engine(self.engine)
+            for col in insp.get_columns(table_name):
+                if column_name in col["name"]:
+                    return True
+            return False
+        except Exception as err:
+            logger.error(err)
+            return False
+
+    def is_table_exists(self, table_name: str) -> bool:
+        """Check table exist or not"""
+        try:
+            return self.engine.dialect.has_table(self.engine.connect(), table_name)
+        except Exception as err:
+            logger.error(err)
+            sys.exit(1)

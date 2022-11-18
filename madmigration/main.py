@@ -17,9 +17,6 @@ class Controller:
         self.source_db = SourceDB(self.config.source_uri)
         self.destination_db = DestinationDB(self.config.destination_uri)
         self.metadata = MetaData()
-        # Source and Destination Database - all tables (NOT MIGRATION TABLES!!!)
-        self.sourcedb_all_tables_names = self.source_db.engine.table_names()
-        self.destinationdb_all_tables_names = self.destination_db.engine.table_names()
 
         # All migration tables (Yaml file migrationTables)
         self.migration_tables = self.config.migrationTables
@@ -53,21 +50,7 @@ class Controller:
             logger.info("Tables in destination db created successfully")
         except Exception as err:
             logger.error(err)
-            
-        
 
-    def get_column_type_from_source_table(self, table_name, column_name):
-        """
-        Get type of column in source table from Source Database
-        :param table_name: Table name
-        :param column_name: Column name
-        :return: Column type (Integer, Varchar, Float, Double, etc...)
-        """
-        tables = self.source_db.base.metadata.tables
-        table = tables.get(table_name)
-        for column in table.columns:
-            if column.name == column_name:
-                return column.type
 
     def run(self):
         # Looping in migrationTables

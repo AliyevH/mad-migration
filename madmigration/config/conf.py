@@ -39,32 +39,50 @@ def construct_include(loader: Loader, node: yaml.Node) -> Any:
 yaml.add_constructor("!import", construct_include, Loader)
 
 # Config class generates configuration based on yaml file
-class Config:
+class ConfigYamlManager:
     def __init__(self, config_yaml):
+        self.destination_mongo = False
         self.config_file = config_yaml
+        self.data = self.read_config_yml_file()
 
+        self.config_section = self.get_config_section_from_yml()
+        self.source_config_section = self.get_sourceDB_config_section_from_yml()
+        self.destination_config_section = self.get_destinationDB_config_section_from_yml()
+        self.destination_uri = self.get_destination_db_uri()
+        self.source_uri = self.get_source_db_uri()
+        self.config_schema = self.verify_and_choose_ConfigSchema_based_on_database_type(self.data)
+        self.migrationTables = self.config_schema.migrationTables
+
+    def get_config_section_from_yml(self):
+        return self.data.get('Configs')
+    
+    def get_sourceDB_config_section_from_yml(self):
+        return self.config_section[0].get('SourceConfig')
+
+    def get_destinationDB_config_section_from_yml(self):
+        return self.config_section[1].get('DestinationConfig')
+
+    def read_config_yml_file(self):
         with open(self.config_file) as f:
-            data = yaml.load(f, Loader=Loader)
-            self.select_config(data)
+            return yaml.load(f, Loader=Loader)
 
-        self.version = self.config_data.version
-        self.source_uri = self.config_data.Configs[0].SourceConfig.get("dbURI")
-        self.destination_uri = self.config_data.Configs[1].DestinationConfig.get(
-            "dbURI"
-        )  # noqa  E501
+    def get_source_db_uri(self):
+        return self.source_config_section.get('dbURI')
 
-        # Add logic to automatically detect table and column names if not defined
-        self.migrationTables = self.config_data.migrationTables
+    def get_destination_db_uri(self):
+        return self.destination_config_section.get('dbURI')
 
-    def select_config(self, data):
-
-        destination_DB = data.get("Configs")[1]
-
-        if "mongodb" in destination_DB.get("DestinationConfig").get("dbURI"):
-
-            self.config_data = NoSQLConfigSchema(**data, Loader=Loader)  # noqa  E501
+    def verify_and_choose_ConfigSchema_based_on_database_type(self, data):
+        if "mongodb" in self.destination_uri:
             self.destination_mongo = True
-
+            return NoSQLConfigSchema(**data, Loader=Loader)
         else:
-            self.config_data = ConfigSchema(**data, Loader=Loader)  # noqa  E501
-            self.destination_mongo = False
+            return ConfigSchema(**data, Loader=Loader)
+
+    def collect_destination_tables(self):
+        """Collects all tables that the program should create"""
+        table_list = []
+        for migrate_table in self.migration_tables:
+            table_name = migrate_table.migrationTable.DestinationTable.name
+            table_list.add(table_name)
+        return table_list
