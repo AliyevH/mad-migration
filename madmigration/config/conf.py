@@ -82,7 +82,7 @@ class ConfigYamlManager:
     def collect_destination_tables(self):
         """Collects all tables that the program should create"""
         table_list = []
-        for migrate_table in self.migration_tables:
+        for migrate_table in self.migrationTables:
             table_name = migrate_table.migrationTable.DestinationTable.name
-            table_list.add(table_name)
+            table_list.append(table_name)
         return table_list

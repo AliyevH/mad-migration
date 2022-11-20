@@ -8,7 +8,7 @@ from sqlalchemy import Column, MetaData
 from sqlalchemy.engine import reflection
 from collections import defaultdict
 from madmigration.postgresqldb.type_convert import get_type_object
-from madmigration.config.conf import Config
+from madmigration.config.conf import ConfigYamlManager
 from madmigration.db_operations.operations import DbOperations
 from madmigration.utils.logger import configure_logging
 
@@ -20,8 +20,9 @@ class BaseMigrate():
     q = Queue()  # Static queue for fk constraints data
     tables = set()
 
-    def __init__(self, config: Config, destination_db):
-        self.migration_tables = config.migrationTables
+    def __init__(self, config: ConfigYamlManager, destination_db):
+        self.config = config
+        self.migration_tables = self.config.migrationTables
         self.engine = destination_db.engine
         self.connection = destination_db
         self.metadata = MetaData()
@@ -51,7 +52,7 @@ class BaseMigrate():
 
     def collect_table_names(self):
         """Collects all tables that the program should create"""
-        self.tables = self.db_operations.collect_destination_tables()
+        self.tables = self.config.collect_destination_tables()
 
     def parse_migration_tables(self, tabels_schema: MigrationTablesSchema):
         """

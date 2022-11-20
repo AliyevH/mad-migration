@@ -2,14 +2,14 @@ from madmigration.db_init.connection_engine import SourceDB
 from madmigration.db_init.connection_engine import DestinationDB
 from madmigration.utils.helpers import detect_driver
 from sqlalchemy import MetaData
-from madmigration.config.conf import Config
+from madmigration.config.conf import ConfigYamlManager
 from madmigration.utils.logger import configure_logging
 
 logger = configure_logging(__name__)
 
 
 class Controller:
-    def __init__(self, migration_config: Config):
+    def __init__(self, migration_config: ConfigYamlManager):
         
         self.config = migration_config
 
@@ -103,7 +103,7 @@ class NoSQLController:
     '''
     Class sturct works for transfering from postgresql database data to mongoDB database
     '''
-    def __init__(self, migration_config: Config):
+    def __init__(self, migration_config: ConfigYamlManager):
         
         self.config = migration_config
         self.source_db = self.config.source_uri

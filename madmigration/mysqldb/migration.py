@@ -20,7 +20,7 @@ from sqlalchemy.dialects.mysql import (
     TEXT,
 )
 
-from madmigration.config.conf import Config
+from madmigration.config.conf import ConfigYamlManager
 from madmigration.basemigration.base import BaseMigrate
 from pprint import pprint
 
@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 class MysqlMigrate(BaseMigrate): 
-    def __init__(self, config: Config, destination_db):
+    def __init__(self, config: ConfigYamlManager, destination_db):
         super().__init__(config,destination_db)
         self.collect_table_names()
     

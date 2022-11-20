@@ -1,4 +1,4 @@
-from madmigration.config.conf import Config
+from madmigration.config.conf import ConfigYamlManager
 from pymongo import MongoClient
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy import create_engine, inspect
@@ -8,7 +8,7 @@ from madmigration.mongodb.type_convert import get_type_object
 
 
 class MongoDbMigrate:
-    def __init__(self, config: Config):
+    def __init__(self, config: ConfigYamlManager):
         self.config = config
         self.sourcedb = self.config.source_uri
         self.destination_db = self.config.destination_uri
