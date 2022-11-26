@@ -11,5 +11,5 @@ def cli():
 @cli.command(help="Database Migration tool")
 @click.option("--file", "-f", metavar="YAML", required=True)
 @click.option("--full-migrate", default=False, required=False)
-def cli(config_file, full_migrate):
-    run(config_file=config_file, full_migrate=full_migrate)
+def cli(file, full_migrate):
+    run(config_file=file, full_migrate=full_migrate)
