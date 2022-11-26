@@ -15,7 +15,6 @@ import sys
 
 logger = configure_logging(__name__)
 
-
  
 @contextmanager
 def OperationContextManager(engine):
@@ -236,8 +235,7 @@ class DBOperations:
             logger.error(err)
 
     def query_data_from_table(self, table_name, yield_per=1):
-        result = self.session.query(table_name).yield_per(yield_per)
-        return result
+        return self.session.query(table_name).yield_per(yield_per)
 
 
     def get_table_attribute_from_base(self, source_table_name: str):

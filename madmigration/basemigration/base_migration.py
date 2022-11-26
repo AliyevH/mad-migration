@@ -1,31 +1,25 @@
-import signal
-import sys
 from queue import Queue
 
-from madmigration.config.config_schema import MigrationTablesSchema
-from madmigration.config.config_schema import ColumnParametersSchema
-from sqlalchemy import Column, MetaData
-from sqlalchemy.engine import reflection
+from madmigration.db_operations.operations import DBOperations
+
+from sqlalchemy import Column
 from collections import defaultdict
-from madmigration.postgresqldb.type_convert import get_type_object
+
 from madmigration.config.conf import ConfigYamlManager
-from madmigration.db_operations.operations import DbOperations
 from madmigration.utils.logger import configure_logging
+from madmigration.utils.helpers import get_type_object
 
 
 logger = configure_logging(__name__)
 
 
-class BaseMigrate():
-    q = Queue()  # Static queue for fk constraints data
-    tables = set()
 
-    def __init__(self, config: ConfigYamlManager, destination_db):
+class BaseMigrate():
+    def __init__(self, config: ConfigYamlManager, source_db_operations: DBOperations, destination_db_operations: DBOperations):
         self.config = config
-        self.migration_tables = self.config.migrationTables
-        self.engine = destination_db.engine
-        self.connection = destination_db
-        self.metadata = MetaData()
+        self.source_db_operations = source_db_operations
+        self.destination_db_operations = destination_db_operations
+        self.tables = set()
         self.table_list = set()
         self.table_create = defaultdict(list)
         self.table_update = defaultdict(list)
@@ -33,65 +27,18 @@ class BaseMigrate():
         self.fk_constraints = []
         self.dest_fk = []
         self.contraints_columns = defaultdict(set)
-        self.db_operations = DbOperations(self.engine)
         self._drop_tables = []
+        self.collect_table_names()
+        self.q = Queue()
 
-        signal.signal(signal.SIGINT, self.sig_handler)
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, type, value, traceback):
-        self.engine.session.close()
-
-    def sig_handler(self, sig_num, _sig_frame):
-        logger.warn("TERMINATE APP WITH SIGNAL -> %d" % sig_num)
-        if self.tables:
-            self.db_operations.db_drop_everything(self.tables)
-        sys.exit(sig_num)
+    def run(self):
+        self.prepare_tables()
+        self.process()
+        self.start_migration()
 
     def collect_table_names(self):
         """Collects all tables that the program should create"""
         self.tables = self.config.collect_destination_tables()
-
-    def parse_migration_tables(self, tabels_schema: MigrationTablesSchema):
-        """
-        This function parses migrationTables from yaml file
-        """
-        try:
-            self.source_table = tabels_schema.migrationTable.SourceTable.dict()
-            self.destination_table = tabels_schema.migrationTable.DestinationTable.dict()
-            self.columns = tabels_schema.migrationTable.MigrationColumns
-        except Exception as err:
-            logger.error("parse_migration_tables [error] -> %s" % err)
-
-    def parse_migration_columns(
-        self, tablename: str, migration_columns: ColumnParametersSchema
-    ):
-        """
-        This function parses migrationColumns schema and prepare column
-        """
-        try:
-            table_exists = self.db_operations.is_table_exists(tablename)
-
-            for col in migration_columns:
-                self.source_column = col.sourceColumn
-                self.destination_column = col.destinationColumn
-                self.dest_options = col.destinationColumn.options.dict()
-
-                self._parse_fk(tablename, self.dest_options.pop("foreign_key"))
-                column_type = self._parse_column_type()
-
-                col = Column(self.destination_column.name, column_type, **self.dest_options)
-                if table_exists:
-                    if not self.db_operations.is_column_exists_in_table(tablename, self.destination_column.name):
-                        #     self.add_alter_column(tablename, {"column_name": self.destination_column.name,"type":column_type,"options":{**self.dest_options}})
-                        # else:
-                        self.add_updated_table(tablename, col)
-                else:
-                    self.add_created_table(tablename, col)
-        except Exception as err:
-            logger.error("parse_migration_columns [error] -> %s" % err)
 
     def add_updated_table(self, table_name: str, col: Column):
         self.table_update[table_name].append(col)
@@ -103,102 +50,113 @@ class BaseMigrate():
         self.alter_col[table_name].append(col)
 
     def prepare_tables(self):
-        try:
-            for migrate_table in self.migration_tables:
-                if migrate_table.migrationTable.DestinationTable.create:
-                    self.parse_migration_tables(migrate_table)
-                    self.parse_migration_columns(self.destination_table.get("name"), self.columns)
-        except Exception as err:
-            logger.error("prepare_tables  [error] -> %s" % err)
+        """Prepare tables which needs to create or delete"""
+        for migrate_table in self.config.migrationTables:
+            if migrate_table.migrationTable.DestinationTable.create:
+                source_table, destination_table, columns = self.config.parse_migration_tables(migrate_table.migrationTable)
+
+                table_exists = self.destination_db_operations.is_table_exists(destination_table.name)
+                
+                for col in columns:
+                    destination_column = col.destinationColumn.name
+                    dest_options = col.destinationColumn.options.dict()
+
+
+                    fk_options = dest_options.pop("foreign_key")
+                    if fk_options:
+                        fk_options["source_table"] = destination_table.name
+                        fk_options["dest_column"] = self.destination_column['name']
+                        self.fk_constraints.append(fk_options)
+
+                    column_type = self.get_column_type(dest_options.pop("type_cast"))
+                    type_length = dest_options.pop("length")
+
+                    if type_length:
+                        column_type = column_type(type_length)
+
+                    col = Column(destination_column, column_type, **dest_options)
+
+                    if table_exists:
+                        if not self.destination_db_operations.is_column_exists_in_table(destination_table.name, destination_column):
+                            self.add_updated_table(destination_table.name, col)
+                    else:
+                        self.add_created_table(destination_table.name, col)
+
 
     def update_table(self):
-
         for tab, col in self.table_update.items():
-            self.db_operations.add_column(tab, *col)
-        return True
+            self.destination_db_operations.add_column(tab, *col)
 
     def alter_columns(self):
         for tab, val in self.alter_col.items():
             for i in val:
-                self.db_operations.update_column(tab, i.pop("column_name"), i.pop("type"), **i.pop("options"))
-        return True
+                self.destination_db_operations.update_column(tab, i.pop("column_name"), i.pop("type"), **i.pop("options"))
 
     def create_tables(self):
         for tab, col in self.table_create.items():
-            self.db_operations.create_table(tab, *col)
-        return True
+            self.destination_db_operations.create_table(tab, *col)
+
 
     def process(self):
-        """
-        Create and check existing tables. 
-        Collect foreign key constraints
-        """
         try:
-            self.dest_fk, self.contraints_columns = self.db_operations.collect_fk_and_constraint_columns(self.table_list)
+            self.dest_fk, self.contraints_columns = self.destination_db_operations.collect_fk_and_constraint_columns(self.table_list)
+            
             if self._drop_tables:
-                self.db_operations.bulk_drop_tables(*self._drop_tables)
+                self.destination_db_operations.bulk_drop_tables(*self._drop_tables)
+
             self.update_table()
             self.create_tables()
-            self.db_operations.create_fk_constraint(self.fk_constraints,self.contraints_columns)
-            return True
+            self.alter_columns()
+            self.destination_db_operations.create_fk_constraint(self.fk_constraints, self.contraints_columns)
         except Exception as err:
-            logger.error("create_tables [error] -> %s" % err)
+            logger.error(err)
 
-    def _parse_column_type(self) -> object:
-        """ Parse column type and options (length,type and etc.) """
+    def start_migration(self):
+        for mt in self.config.migrationTables:
+            source_table, destination_table, columns = self.config.parse_migration_tables(mt.migrationTable)
 
-        try:
-            column_type = self.get_column_type(self.dest_options.pop("type_cast"))
-            type_length = self.dest_options.pop("length")
-            if type_length:
-                column_type = column_type(type_length)
-            return column_type
-        except Exception as err:
-            logger.error("_parse_column_type [error] -> %s" % err)
+             # Dictionary is used to keep data about destination column and type_cast format
+            self.convert_info = {}
 
-        # logger.error(self.dest_options.get("length"))
-        type_length = self.dest_options.pop("length")
-        if type_length:
-            column_type = column_type(type_length)
-        return column_type
+            # Columns List is used to keep source Columns names
+            # We will send table name and source columns list to function "get_data_from_source_table"
+            # get_data_from_source_table function will yield data with specified columns from row
+            __columns = []
 
-    def _parse_fk(self, tablename, fk_options):
-        """ Parse foreignkey and options (use_alter,colum and etc.) """
-        try:
-            if fk_options:
-                fk_options["source_table"] = tablename
-                fk_options["dest_column"] = self.destination_column.name
-                self.fk_constraints.append(fk_options)
-        except Exception as err:
-            logger.error("_parse_fk [error] -> %s" % err)
+            for column in columns:
+                __columns.append(column.sourceColumn.name)
 
-    def get_input(self,table_name):
-        while True:
-            answ = input(
-                f"Table with name '{table_name}' already exist,\
-'{table_name}' table will be dropped and recreated,your table data will be lost,process?(y/n) ")
-            if answ.lower() == "y":
-                if self.dest_fk[table_name]:
-                    self.db_operations.drop_fk(self.dest_fk[table_name])
-                self._drop_tables.append(table_name)
-                return False
-            elif answ.lower() == "n":
-                return True
-            else:
-                continue
+                if column.destinationColumn.options.type_cast:
+                    self.convert_info[column.destinationColumn.name] = column.destinationColumn.options.type_cast
 
-    def get_table_attribute_from_base_class(self, source_table_name: str):
-        """
-        This function gets table name attribute from sourceDB.base.classes. Example sourceDB.base.class.(table name)
-        Using this attribute we can query table using sourceDB.session
-        :return table attribute
-        """
-        return getattr(self.connection.base.classes, source_table_name)
+            __source_data = self.get_data_from_source_table(source_table.name, __columns)
+
+            for source_data in __source_data:
+                try:
+                    new_data = self.type_cast(data_from_source=source_data, mt=mt, convert_info=self.convert_info)
+                except Exception as err:
+                    logger.error(err)
+
+                unsucessfull_stmt = self.destination_db_operations.insert_data(destination_table.name, new_data)
+                if unsucessfull_stmt:
+                    self.q.put(unsucessfull_stmt)
+
+        self.insert_data_from_queue()
+    
+
+    def insert_data_from_queue(self):
+        for stmt in self.q.queue:
+            print('stmt ->', stmt)
+            try:
+                logger.info("Inserting from queue")
+                self.destination_db_operations.execute_stmt(stmt)
+            except Exception as err:
+                logger.error(err, exc_info=True)
+
 
     def get_data_from_source_table(self, source_table_name: str, source_columns: list):
-
-        table = self.get_table_attribute_from_base_class(source_table_name.name)
-        rows = self.connection.session.query(table).yield_per(1)
+        table = self.source_db_operations.get_table_attribute_from_base(source_table_name)
+        rows = self.source_db_operations.query_data_from_table(table)
 
         for row in rows:
             data = {}
@@ -206,56 +164,7 @@ class BaseMigrate():
                 data[column] = getattr(row, column)
             yield data
 
-    @staticmethod
-    def insert_data(engine, table_name, data: dict):
-        # stmt = None
-        try:
-            stmt = engine.base.metadata.tables[table_name].insert().values(**data)
 
-        except Exception as err:
-            logger.error("insert_data stmt [error] -> %s" % err)
-            return
-        # logger.error("STMT",stmt)
-
-        try:
-            engine.session.execute(stmt)
-        except Exception as err:
-            logger.error("insert_data passing into queue [error] -> %s" % err)
-            BaseMigrate.put_queue(stmt)
-
-        try:
-            engine.session.commit()
-        except Exception as err:
-            logger.error("insert_data [error] -> %s" % err)
-            engine.session.rollback()
-        finally:
-            engine.session.close()
-
-    @staticmethod
-    def insert_queue(engine):
-        for stmt in BaseMigrate.q.queue:
-
-            try:
-                logger.info("Inserting from queue")
-                engine.session.execute(stmt)
-            except Exception as err:
-                logger.error("insert_queue [error] -> %s" % err)
-
-            try:
-                engine.session.commit()
-            except Exception as err:
-                logger.error("insert_queue [error] -> %s" % err)
-                engine.session.rollback()
-            finally:
-                engine.session.close()
-
-    @staticmethod
-    def put_queue(data):
-        BaseMigrate.q.put(data)
-
-    @staticmethod
-    def get_queue():
-        return BaseMigrate.q.get()
 
     @staticmethod
     def type_cast(data_from_source, mt, convert_info: dict):

@@ -2,7 +2,7 @@ import sys
 
 from madmigration.config.conf import ConfigYamlManager
 from madmigration.db_operations.operations import DBOperations
-from madmigration import basemigration
+from madmigration import basemigration, full_migration
 from madmigration.utils.logger import configure_logging
 
 logger = configure_logging(__file__)
