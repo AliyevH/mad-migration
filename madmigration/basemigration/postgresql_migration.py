@@ -1,53 +1,44 @@
 from sqlalchemy.ext.mutable import MutableDict
-from sqlalchemy.dialects.mssql import (
+from sqlalchemy.dialects.postgresql import (
+    ARRAY,
     BIGINT,
-    BINARY,
     BIT,
+    BOOLEAN,
+    BYTEA,
     CHAR,
     DATE,
-    DATETIME,
-    DATETIME2,
-    DATETIMEOFFSET,
-    DECIMAL,
+    # DOUBLE_PRECISION,
+    # ENUM,
     FLOAT,
-    IMAGE,
+    INET,
     INTEGER,
+    # INTERVAL,
+    JSON,
+    JSONB,
+    MACADDR,
     MONEY,
-    NCHAR,
-    NTEXT,
     NUMERIC,
-    NVARCHAR,
+    OID,
     REAL,
-    SMALLDATETIME,
     SMALLINT,
-    SMALLMONEY,
     TEXT,
     TIME,
     TIMESTAMP,
-    TINYINT,
-    UNIQUEIDENTIFIER,
-    VARBINARY,
     VARCHAR,
 )
 from sqlalchemy import DateTime
 from sqlalchemy_utils import UUIDType
-from madmigration.basemigration.base import BaseMigrate
+from madmigration.basemigration.base_migration import BaseMigrate
 from madmigration.config.conf import ConfigYamlManager
-from pprint import pprint
 
-#TODO for fk keys RESTRICT|CASCADE|SET NULL|NO ACTION|SET DEFAULT
 
-class MssqlMigrate(BaseMigrate):
-    def __init__(self, config: ConfigYamlManager, destination_db):
-        super().__init__(config, destination_db)
-        self.collect_table_names()
+class PgMigrate(BaseMigrate): 
+    def __init__(self, config: ConfigYamlManager, source_db_operations, destination_db_operations):
+        super().__init__(config, source_db_operations, destination_db_operations)
 
     @staticmethod
     def get_column_type(type_name: str) -> object:
-        """Get class of db type
-        :param type_name: str
-        :return: object class
-        """
+        """Get class of db type"""
         return {
             "varchar": VARCHAR,
             "char": CHAR,
@@ -56,19 +47,25 @@ class MssqlMigrate(BaseMigrate):
             "integer": INTEGER,
             "smallint": SMALLINT,
             "bigint": BIGINT,
-            "binary": BINARY,
-            "boolean": BIT, #FIXME  raise error when insert bool value
-            "bool": BIT,   #FIXME  raise error when insert bool value
-            "bit": BIT,
+            "binary": BYTEA,
+            "boolean": BOOLEAN,
+            "bool": BOOLEAN,
             "date": DATE,
-            "datetime": DATETIME,
+            "datetime": DateTime,
             "timestamp": TIMESTAMP,
             "time": TIME,
+            # "enum": ENUM,
             "float": FLOAT,
             "real": REAL,
+            "json": MutableDict.as_mutable(JSON),
+            "jsonb": MutableDict.as_mutable(JSONB),
             # "array": ARRAY, #FIXME column with array include array elemet type argument
             "numeric": NUMERIC,
             "money": MONEY,
+            "macaddr": MACADDR,
+            "inet": INET,
+            "oid": OID,
             "uuid": UUIDType(binary=False),
         }.get(type_name.lower())
+
 

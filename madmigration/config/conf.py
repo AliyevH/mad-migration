@@ -1,10 +1,11 @@
 import yaml
 import json
 import os
-from madmigration.config.config_schema import ConfigSchema, NoSQLConfigSchema
 from typing import IO, Any
-from pprint import pprint
+from madmigration.utils.logger import configure_logging
+from madmigration.config.config_schema import ConfigSchema, NoSQLConfigSchema, MigrationTablesSchema, OptionsSchema
 
+logger = configure_logging(__file__)
 
 class Loader(yaml.SafeLoader):
     """YAML Loader with `!import` constructor."""
@@ -86,3 +87,12 @@ class ConfigYamlManager:
             table_name = migrate_table.migrationTable.DestinationTable.name
             table_list.append(table_name)
         return table_list
+
+    def parse_migration_tables(self, tabels_schema: MigrationTablesSchema):
+        try:
+            source_table = tabels_schema.SourceTable
+            destination_table = tabels_schema.DestinationTable
+            columns = tabels_schema.MigrationColumns
+            return source_table, destination_table, columns
+        except Exception as err:
+            logger.error(err)

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "madmigration"
-version = "0.1.28"
+version = "0.1.30"
 description = "Mad Migration"
 authors = ["Hasan <hasan.aleeyev@gmail.com>"]
 license = "MIT"
@@ -45,4 +45,4 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-madmigration = 'madmigration.run:run'
+madmigration = 'madmigration.main:cli'

@@ -19,19 +19,19 @@ from sqlalchemy.dialects.mysql import (
     NUMERIC,
     TEXT,
 )
+from datetime import datetime, date
+from enum import Enum
+from uuid import uuid4
 
 from madmigration.config.conf import ConfigYamlManager
-from madmigration.basemigration.base import BaseMigrate
-from pprint import pprint
+from madmigration.basemigration.base_migration import BaseMigrate
 
 logger = logging.getLogger(__name__)
 
 
 class MysqlMigrate(BaseMigrate): 
-    def __init__(self, config: ConfigYamlManager, destination_db):
-        super().__init__(config,destination_db)
-        self.collect_table_names()
-    
+    def __init__(self, config: ConfigYamlManager):
+        super().__init__(config)
 
     @staticmethod
     def get_column_type(type_name: str) -> object:
@@ -61,3 +61,6 @@ class MysqlMigrate(BaseMigrate):
             "text": TEXT,
             "uuid": CHAR(36),
         }.get(type_name.lower())
+
+    
+    
