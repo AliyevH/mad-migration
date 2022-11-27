@@ -247,5 +247,5 @@ class DBOperations:
         try:
             return self.base.metadata.tables.get(source_table_name)
         except AttributeError as err:
-            logger.error(err, exc_info=True)
+            logger.error(err)
             sys.exit(1)
