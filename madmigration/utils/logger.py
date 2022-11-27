@@ -9,7 +9,7 @@ def configure_logging(file_name: str):
     consoleHandler.setLevel(logging.DEBUG)
 
     logger.addHandler(consoleHandler)
-    fmt = '%(levelname)s file: %(name)s  func: %(funcName)20s() line: %(lineno)d  -> %(message)s'
+    fmt = '%(levelname)s file: %(name)s:%(lineno)d  func: %(funcName)s() -> %(message)s'
 
     coloredlogs.install(level='DEBUG', logger=logger, fmt=fmt, )
 

@@ -1,56 +1,45 @@
-from sqlalchemy import create_engine, event, Table, MetaData, ForeignKeyConstraint
-from sqlalchemy.schema import DropConstraint, DropTable
+from sqlalchemy import create_engine, inspect, Table, MetaData, ForeignKeyConstraint, text
 from sqlalchemy.orm import Session
-from sqlalchemy.ext.automap import automap_base
-from sqlalchemy_utils.functions.database import database_exists, create_database
+from sqlalchemy.exc import ProgrammingError, NoSuchTableError
+from sqlalchemy.engine import reflection
 from sqlalchemy.engine.url import make_url
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.schema import DropConstraint, DropTable
+
+from sqlalchemy_utils.functions.database import database_exists, create_database
+
 from madmigration.utils.logger import configure_logging
 from madmigration.utils.helpers import goodby_message, database_not_exists
+
 from alembic.migration import MigrationContext
-from sqlalchemy.engine import reflection
 from alembic.operations import Operations
+
 from contextlib import contextmanager
+
 import sys
+from typing import Optional
 
 logger = configure_logging(__name__)
 
  
 @contextmanager
 def OperationContextManager(engine):
-    try:
-        conn = engine.connect()
-        ctx = MigrationContext.configure(conn)
-        op = Operations(ctx)
-        yield op
-    except Exception as err:
-        logger.error("OperationContextManager ->", err)
-        sys.exit(1)
-    finally:
-        conn.close()
+    conn = engine.connect()
+    ctx = MigrationContext.configure(conn)
+    op = Operations(ctx)
+    yield op
+    conn.close()
 
 @contextmanager
 def InspectorReflection(engine):
-    try:
-        inspector = reflection.Inspector.from_engine(engine)
-        yield inspector
-    except Exception as err:
-        print('err ->', err)
-        logger.error('InspectorReflection ->', err, exc_info=True)
-        sys.exit(1)
-
+    inspector = reflection.Inspector.from_engine(engine)
+    yield inspector
 
 @contextmanager
 def Transaction(engine):
-    try:
-        conn = engine.connect()
-        transactional = conn.begin()
-        yield transactional
-    except Exception as err:
-        logger.error('Transaction ->', err)
-        sys.exit(1)
-    finally:
-        conn.close()
+    conn = engine.connect()
+    transactional = conn.begin()
+    yield transactional
+    conn.close()
 
 
 class DBOperations:
@@ -59,27 +48,39 @@ class DBOperations:
             self.uri = uri
             self.password_masked_database_uri = make_url(self.uri)
 
+            if create_database:
+                self.create_database_if_not_exists()
+
             self.engine = create_engine(uri, echo=False)
             self.session = Session(self.engine, autocommit=False, autoflush=False)
             
             self.metadata = MetaData(bind=self.engine)
+            self.metadata.reflect(self.engine)
 
-            if create_database:
-                self.create_database_if_not_exists()
-
-            self.base = declarative_base()
-            self.base.metadata.reflect(self.engine)
-
+            self.inspector = reflection.Inspector.from_engine(self.engine)
 
         except Exception as err:
             logger.error(err)
             sys.exit(1)
 
+    @contextmanager
+    def reflected_metadata(self, schema=None):
+        if not schema:
+            logger.warn(f'Reflecting empty schema {schema}')
+
+        self.metadata.clear()
+        self.metadata.reflect(schema=schema)
+        yield self.metadata
+    
+
     def check_if_database_exists(self):
         return True if database_exists(self.uri) else False
             
     def create_database_if_not_exists(self, check_for_database: callable = database_exists):
-        if not check_for_database(self.uri):
+        if check_for_database(self.uri):
+            logger.error("Database exists in destination. Please remove before beginning migration!")
+            sys.exit(1)
+        else:
             while True:
                 msg = input(f"The database {self.password_masked_database_uri} does not exists, would you like to create it in the destination?(y/n) ")
                 if msg.lower() == "y":
@@ -96,8 +97,6 @@ class DBOperations:
     def drop_table(self, table_name):
         with OperationContextManager(self.engine) as op:
             op.drop_table(table_name)
-            logger.info(f"Table {table_name} dropped")
-
 
     def bulk_drop_tables(self, *table_name):
         try:
@@ -115,19 +114,11 @@ class DBOperations:
     def create_table(self, table_name: str, *columns) -> bool:
         with OperationContextManager(self.engine) as op:
             op.create_table(table_name, *columns)
-            self.refresh_metadata_reflection()
-
-        logger.info(f"Table {table_name} is created")
-    
-    def refresh_metadata_reflection(self):
-        self.base.metadata.reflect(self.engine)
-
 
     def add_column(self, table_name: str, *column) -> bool:
         with OperationContextManager(self.engine) as op:
             for col in column:
                 op.add_column(table_name, col)
-            logger.info(f"Columns {column} added into table {table_name}")
 
 
     def create_fk_constraint(self, fk_constraints: list, const_columns: dict) -> bool:
@@ -149,11 +140,10 @@ class DBOperations:
                         **constraint,
                     )
 
-    def drop_fk(self, fk_constraints: str):
+    def drop_fk(self, fk_constraints):
         with OperationContextManager(self.engine) as op:
             for fk in fk_constraints:
                 op.drop_constraint(fk[1], fk[0], type_="foreignkey")
-                logger.info(f"Dropped foreign key constraint {fk}")
 
 
     def db_drop_everything(self):
@@ -178,24 +168,26 @@ class DBOperations:
             for table in tables:
                 conn.execute(DropTable(table))
 
-            conn.commit()
-
-
-    def collect_fk_and_constraint_columns(self, table_list):
+    def collect_fk_and_constraint_columns(self, table_list, schema=None):
         """ 
         Collect foreign key constraints for tables
         """
-        dest_fk = []
-        contraints_columns = []
+        dest_fk = {}
+        contraints_columns = {}
 
         with InspectorReflection(self.engine) as inspector:
-            for table_name in inspector.get_table_names():
-                if table_name in table_list:
-                    for fk in inspector.get_foreign_keys(table_name):
-                        if not fk["name"]:
-                            continue
-                        dest_fk[fk["referred_table"]].append((table_name,fk["name"]))
-                        contraints_columns[table_name].add(*fk["constrained_columns"])
+            try:
+                for table_name in inspector.get_table_names(schema=schema):
+                    __table = f'{schema}.{table_name}'
+                    if __table in table_list:
+                        for fk in inspector.get_foreign_keys(table_name):
+                            if not fk["name"]:
+                                continue
+                            dest_fk[fk["referred_table"]].append((__table, fk["name"]))
+                            contraints_columns[table_name].append(*fk["constrained_columns"])
+            except Exception as err:
+                logger(err)
+                sys.exit()
 
         return dest_fk, contraints_columns
 
@@ -209,43 +201,202 @@ class DBOperations:
 
     def is_table_exists(self, table_name: str) -> bool:
         """Check table exist or not"""
-        with InspectorReflection(self.engine) as inspector:
-            tables = inspector.get_table_names()
-            return table_name in tables
+        return table_name in self.get_all_tables_names()
 
-    def insert_data(self, table_name, data: dict):
-        table = self.get_table_attribute_from_base(table_name)
-        
+    def insert_data(self, table_name, data: dict, schema=None):
+        table = self.get_table_attribute_from_base(table_name, schema=schema)
         try:
-            logger.info(f"Inserting {data} into table {table}")
             stmt = table.insert().values(**data)
-
         except Exception as err:
-            logger.error(err, exc_info=True)
+            logger.error(f'Failed to generate sql stmt: {err}', exc_info=True)
             sys.exit(1)
         self.execute_stmt(stmt=stmt)
 
 
-    
     def execute_stmt(self, stmt):
         try:
             with self.engine.connect() as connection:
-                connection.execute(stmt)
+                return connection.execute(stmt)
         except Exception as err:
-            logger.error(err)
+            logger.error(f'Failed to execute stmt: {err}')
 
     def query_data_from_table(self, table_name, yield_per=1):
         return self.session.query(table_name).yield_per(yield_per)
 
 
-    def get_table_attribute_from_base(self, source_table_name: str):
-        """
-        This function gets table name attribute from sourceDB.base.classes. Example sourceDB.base.class.(table name)
-        Using this attribute we can query table using sourceDB.session
-        :return table attribute
+    def get_table_attribute_from_base(self, source_table_name: str, schema=None):
+        try:
+            with self.reflected_metadata(schema=schema) as metadata:
+                return metadata.tables.get(source_table_name)
+        except AttributeError as err:
+            logger.error(err)
+            sys.exit(1)
+
+    def get_all_schemas(self):
+        insp = inspect(self.engine)
+        return insp.get_schema_names()
+
+    def get_all_tables(self, schema=None):
+        with self.reflected_metadata(schema=schema) as metadata:
+            return list(metadata.tables.values())
+
+    def get_table(self, table_name, schema=None):
+        tables = self.get_all_tables(schema=schema)
+        __table = f'{schema}.{table_name}'
+        try:
+            return tables[__table]
+        except KeyError as err:
+            logger.error(f"Table {table_name} not found", err)
+
+    def get_all_tables_names(self):
+        tables = self.get_all_tables()
+        return [table for table in tables]
+
+    def get_table_constraints(self, table):
+        return table.constraints
+
+    def get_table_columns(self, table):
+        return table.columns.values()
+
+    def drop_constraint(self, constraint_name, table_name, constraint_type, schema=None):
+        with OperationContextManager(self.engine) as op:
+            try:
+                op.drop_constraint(constraint_name, table_name, type_=constraint_type, schema=None)
+            except ProgrammingError as err:
+                logger.error(err)
+
+    def test_set_fk(self, constraint_name, table_name):
+        with OperationContextManager(self.engine) as op:
+            try:
+                print(help(op.create_check_constraint))
+                # op.create_check_constraint(constraint_name, table_name)
+            except Exception as err:
+                logger.error(err)
+
+    def get_foreign_keys_constraints(self, table_name, schema=None) -> Optional[list[dict]]:
+        """ 
+        Collect foreign key constraints for tables
         """
         try:
-            return self.base.metadata.tables.get(source_table_name)
-        except AttributeError as err:
-            logger.error(err, exc_info=True)
-            sys.exit(1)
+            with InspectorReflection(self.engine) as inspector:
+                return inspector.get_foreign_keys(table_name, schema=schema)
+        except NoSuchTableError as err:
+            logger.error(f'Table {table_name} not found in schema {schema}: {err}', exc_info=True)
+
+    def create_all_tables_with_metadata(self, metadata):
+        metadata.create_all(bind=self.engine)
+
+    def create_schema(self, schema: str):
+        with self.engine.connect() as conn:
+            conn.execute(f'CREATE SCHEMA IF NOT EXISTS {schema}')
+
+    def get_reflected_metadata_of_schema(self, schema):
+        with self.reflected_metadata(schema=schema) as metadata:
+            return metadata
+
+    def set_foreign_key_constraint(self, source_table: str, fk_options: dict):
+        """Exmaple of fk_options:
+        {'name': 'orders_personid_fkey', 'constrained_columns': ['personid'], 'referred_schema': None, 'referred_table': 'persons', 'referred_columns': ['id'], 'options': {'ondelete': 'CASCADE'}}
+        """
+        constraint_name = fk_options.get('name')
+        destination_table = fk_options.get('referred_table')
+        source_columns = fk_options.get('constrained_columns')
+        destination_columns = fk_options.get('referred_columns')
+        options = fk_options.get('options')
+        on_delete = options.get('ondelete')
+        on_update = options.get('onupdate')
+
+        with OperationContextManager(self.engine) as op:
+            op.create_foreign_key(
+                constraint_name=constraint_name,
+                source_table = source_table,
+                referent_table = destination_table,
+                local_cols = source_columns,
+                remote_cols = destination_columns,
+                onupdate = on_update,
+                ondelete = on_delete
+            )
+
+    def get_all_stored_functions_and_procedures(self):
+        sql_stmt = """
+            select n.nspname as schema_name,
+                p.proname as specific_name,
+                case p.prokind 
+                        when 'f' then 'FUNCTION'
+                        when 'p' then 'PROCEDURE'
+                        when 'a' then 'AGGREGATE'
+                        when 'w' then 'WINDOW'
+                        end as kind,
+                l.lanname as language,
+                case when l.lanname = 'internal' then p.prosrc
+                        else pg_get_functiondef(p.oid)
+                        end as definition,
+                pg_get_function_arguments(p.oid) as arguments,
+                t.typname as return_type
+            from pg_proc p
+            left join pg_namespace n on p.pronamespace = n.oid
+            left join pg_language l on p.prolang = l.oid
+            left join pg_type t on t.oid = p.prorettype 
+            where n.nspname not in ('pg_catalog', 'information_schema')
+            order by schema_name, specific_name;
+        """
+        return self.execute_stmt(sql_stmt).fetchall()
+
+    def get_fwd_servers_from_pg_database(self):
+        stmt = """
+        select 
+            srvname as name, 
+            srvowner::regrole as owner, 
+            fdwname as wrapper, 
+            srvoptions as options
+        from pg_foreign_server
+        join pg_foreign_data_wrapper w on w.oid = srvfdw;
+        """
+
+        result = self.execute_stmt(text(stmt))
+        for r in result.fetchall():
+            server_name = r[0]
+            foreign_data_wrapper = r[2]
+            options = {}
+            
+            for i in r[3]:
+                k, v = i.split('=')
+                options[k]= v
+
+            host = options.get('host')
+            dbname = options.get('dbname')
+            port = options.get('port')
+            yield foreign_data_wrapper, server_name, host, port, dbname
+
+
+    def create_foreign_data_wrapper(self, foreign_data_wrapper):
+        stmt = f'CREATE FOREIGN DATA WRAPPER {foreign_data_wrapper}'
+        self.execute_stmt(text(stmt))
+
+
+    def create_foreign_server(self, foreign_data_wrapper, server_name, host, port, dbname):
+        stmt = f"CREATE SERVER {server_name} FOREIGN DATA WRAPPER {foreign_data_wrapper} OPTIONS (host '{host}', dbname '{dbname}', port '{port}');"
+        self.execute_stmt(text(stmt))
+    
+
+    def get_user_mappings(self):
+        stmt = """
+        select * from pg_user_mappings;
+        """
+        result = self.execute_stmt(text(stmt))
+        for i in result.fetchall():
+            server_name = i[2]
+            user_name = i[4]
+            options = i[5]
+            yield server_name, user_name, options
+
+
+    def create_user_mapping(self, server_name, user_name, options):
+        if options:
+            password = options[0].split('=')[1]
+            user = options[1].split('=')[0]
+            stmt = text(f"CREATE USER MAPPING FOR {user_name} SERVER {server_name} OPTIONS (user '{user}', password '{password}');")
+        else:
+            stmt = text(f"CREATE USER MAPPING FOR {user_name} SERVER {server_name}")
+
+        self.execute_stmt(stmt)
