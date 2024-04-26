@@ -6,7 +6,7 @@ authors = ["Hasan <hasan.aleeyev@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.9"
 alembic = "^1.8.1"
 coloredlogs = "^15.0.1"
 click = "^8.1.3"
@@ -26,19 +26,20 @@ mkdocs = "*"
 
 
 [tool.poetry.group.test.dependencies]
-pytest = "^7.2.0"
-black = "^22.10.0"
-flake8 = "^5.0.4"
-pyflakes = "^2.5.0"
-
-
-[tool.poetry.group.mysql.dependencies]
-mysqlclient = "^2.1.1"
-pymysql = "^1.0.2"
+pytest = "^8.1.2"
+flake8 = "^7.0.0"
+pyflakes = "^3.2.0"
+black = "^24.4.2"
+tox = "^4.15.0"
 
 
 [tool.poetry.group.postgresql.dependencies]
 psycopg2 = "^2.9.5"
+
+
+[tool.poetry.group.mysql.dependencies]
+mysqlclient = "^2.2.4"
+pymysql = "^1.1.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
