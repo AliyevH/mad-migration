@@ -14,13 +14,13 @@ pydantic = "^2.7.1"
 python-dateutil = "^2.9.0.post0"
 pyyaml = "^6.0.1"
 regex = "^2024.4.16"
-sqlalchemy = "^2.0.29"
-sqlalchemy-utils = "^0.41.2"
 mysql = "^0.0.3"
 pymongo = "^4.7.0"
 psycopg2 = "^2.9.9"
 mysqlclient = "^2.2.4"
 pymysql = "^1.1.0"
+sqlalchemy = "1.4"
+sqlalchemy-utils = "^0.41.2"
 
 
 [tool.poetry.group.docs.dependencies]

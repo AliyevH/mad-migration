@@ -170,7 +170,6 @@ class BaseMigrate:
 
     def insert_data_from_queue(self):
         for stmt in self.q.queue:
-            print("stmt ->", stmt)
             try:
                 logger.info("Inserting from queue")
                 self.destination_db_operations.execute_stmt(stmt)

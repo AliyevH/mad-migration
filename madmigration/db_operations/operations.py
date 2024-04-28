@@ -233,7 +233,7 @@ class DBOperations:
                 return connection.execute(stmt)
         except Exception as err:
             if log_stmt_exception:
-                logger.error(f"Failed to execute stmt: {err}")
+                logger.error(f"Failed to execute stmt {stmt}: {err}")
 
     def query_data_from_table(self, table_name, yield_per=1):
         return self.session.query(table_name).yield_per(yield_per)
