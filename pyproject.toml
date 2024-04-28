@@ -23,10 +23,6 @@ sqlalchemy = "1.4"
 sqlalchemy-utils = "^0.41.2"
 
 
-[tool.poetry.group.docs.dependencies]
-mkdocs = "*"
-
-
 [tool.poetry.group.test.dependencies]
 pytest = "^8.1.2"
 flake8 = "^7.0.0"
@@ -34,6 +30,12 @@ pyflakes = "^3.2.0"
 black = "^24.4.2"
 tox = "^4.15.0"
 
+
+
+[tool.poetry.group.docs.dependencies]
+mkdocs = "^1.6.0"
+mkdocs-material = "^9.5.19"
+mkdocs-markdownextradata-plugin = "^0.2.5"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -1,5 +1,5 @@
 import importlib.metadata
-
+import sys
 import click
 
 from madmigration.controller import run
@@ -18,3 +18,7 @@ def cli():
 @click.version_option(__version__)
 def cli(file, full_migrate):
     run(config_file=file, full_migrate=full_migrate)
+
+
+if __name__ == "__main__":
+    sys.exit(cli())

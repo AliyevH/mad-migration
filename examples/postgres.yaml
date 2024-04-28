@@ -1,71 +1,119 @@
 version: 1.1
 Configs:
   - SourceConfig:
-      dbURI: "postgresql:///pdf_service"
-#       dbURI: "mysql://root:admin@127.0.0.1/old"
+      dbURI: "postgresql://postgres:postgres@127.0.0.1/old"
   - DestinationConfig:
-      dbURI: "postgresql:///pdf_service"
-#       dbURI: "mysql://root:admin@127.0.0.1/tableCreate"
+      dbURI: "postgresql://postgres:postgres@127.0.0.1/new"
 
 migrationTables:
   - migrationTable:
      SourceTable:
-       name: operations
+       name: imdb
      DestinationTable:
-       name: mytable
+       name: imdb
        create: True # -> I suggest that we have to define this option that will tell us whether we have to create tables or not
 
      MigrationColumns:
        - sourceColumn:
-           name: id
+           name: Id
          destinationColumn:
-           name: id
+           name: Id
            options:
              primary_key: true
              autoincrement: true
              type_cast: Integer
 
        - sourceColumn:
-           name: firstname
+           name: Title
          destinationColumn:
-           name: firstname
+           name: Title
            options:
              length: 255
-             type_cast: varchar
+             type_cast: string
 
        - sourceColumn:
-           name: lastname
+           name: Genre
          destinationColumn:
-           name: reg_id
+           name: Genre
            options:
-             type_cast: integer
-             foreign_key:
-               table_name: automobiles
-               column_name: id
+             length: 255
+             type_cast: string
 
-  - migrationTable:
-      SourceTable:
-        name: cars
-      DestinationTable:
-        name: automobiles
+       - sourceColumn:
+           name: Description
+         destinationColumn:
+           name: Description
+           options:
+             type_cast: text
 
-      MigrationColumns:
-        - sourceColumn:
-            name: id
-          destinationColumn:
-            name: id
-            options:
-              primary_key: true
-              autoincrement: true
-              type_cast: Integer
+       - sourceColumn:
+           name: Director
+         destinationColumn:
+           name: Director
+           options:
+             length: 255
+             type_cast: string
 
-        - sourceColumn:
-            name: number
-          destinationColumn:
-            name: test_name
-            options:
-              type_cast: String
-              length: 255
-              nullable: False
-              
+       - sourceColumn:
+           name: Actors
+         destinationColumn:
+           name: Actors
+           options:
+             length: 255
+             type_cast: string
 
+       - sourceColumn:
+           name: Year
+         destinationColumn:
+           name: Year
+           options:
+             length: 255
+             type_cast: string
+
+       - sourceColumn:
+           name: Runtime
+         destinationColumn:
+           name: Runtime
+           options:
+             length: 255
+             type_cast: string
+
+       - sourceColumn:
+           name: Year
+         destinationColumn:
+           name: Year
+           options:
+             length: 255
+             type_cast: string
+
+       - sourceColumn:
+           name: Rating
+         destinationColumn:
+           name: Rating
+           options:
+             length: 255
+             type_cast: string
+
+       - sourceColumn:
+           name: Votes
+         destinationColumn:
+           name: Votes
+           options:
+             length: 255
+             type_cast: string
+
+       - sourceColumn:
+           name: Revenue
+         destinationColumn:
+           name: Revenue
+           options:
+             length: 255
+             type_cast: string
+
+       - sourceColumn:
+           name: Metascore
+         destinationColumn:
+           name: Metascore
+           options:
+             length: 255
+             type_cast: string

@@ -1,3 +1,4 @@
+import sys
 from collections import defaultdict
 from queue import Queue
 
@@ -77,7 +78,11 @@ class BaseMigrate:
                     type_length = dest_options.pop("length")
 
                     if type_length:
-                        column_type = column_type(type_length)
+                        try:
+                            column_type = column_type(type_length)
+                        except TypeError as err:
+                            logger.error(err)
+                            sys.exit(0)
 
                     col = Column(destination_column, column_type, **dest_options)
 
