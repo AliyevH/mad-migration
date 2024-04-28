@@ -5,9 +5,7 @@
 [![GitHub forks](https://img.shields.io/github/forks/MadMigrationTeam/mad-migration.svg)](https://github.com/MadeByMads/mad-migration/network/members)
 [![GitHub issues](https://img.shields.io/github/issues-raw/MadMigrationTeam/mad-migration)](https://github.com/MadeByMads/mad-migration/issues)
 [![Downloads](https://pepy.tech/project/madmigration)](https://pepy.tech/project/madmigration)
-CLI tool and Packgae provide easy and fast migration from one database to another database by specifiying its fields and types. 
-
-Tool has been made by Mad Team for other tools check our [Organization](https://github.com/MadMigrationTeam).
+CLI tool and Package provide easy and fast migration from one database to another database by specifiying its fields and types. 
 
 Full code can be found on [GitHub Repo](https://github.com/MadMigrationTeam/mad-migration).
 

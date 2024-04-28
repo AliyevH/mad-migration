@@ -22,7 +22,7 @@ theme:
     repo: fontawesome/brands/github
   logo: img/madmigration.jpg
 repo_name: mad-migration
-repo_url: https://github.com/MadMigrationTeam/mad-migration
+repo_url: https://github.com/AliyevH/mad-migration
 edit_uri: ''
 
 plugins:
@@ -34,8 +34,6 @@ markdown_extensions:
   - toc:
       permalink: true
 
-      
-      
 nav:
   - Mad Migration: index.md
   - Install: install.md

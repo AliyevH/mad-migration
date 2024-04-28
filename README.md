@@ -14,15 +14,14 @@
 
 </div>
 
-**`Don't use this tool in production databases!! At this time tool under development!!`**
-
 ## 🧐 About <a name = "about"></a>
 
-The Database Migration Tool was designed for those looking to migrate their data from one database to another. Basically, the tool is focused on transferring data from different database structures. Currently, the MySQL, Mariadb and Postgres driver related tool allows us to add NoSQL to SQL databases and vice versa. Our main goal is to make data migration possible in all environments.
+The Database Migration Tool was designed for those looking to migrate their data from one database to another. Additionally type casting is supported if you need to change column type in new version. Our main goal is to make data migration possible between different database servers. For example mysql, postgresql.
 
+Currently only mysql and postgresql is supported. Future planning is to support migration from/to cloud based databases.
 
 ---
-**Documentation**: [Documentation](https://madebymads.github.io/mad-migration/)
+**Documentation**: [Documentation](aliyevh.github.io/mad-migration/)
 ---
 
 ## 🏁 Getting Started <a name = "getting_started"></a>
@@ -33,12 +32,17 @@ The Database Migration Tool was designed for those looking to migrate their data
 pip install madmigration
 ```
 
-## 🎈 Usage <a name="usage"></a>
+### Usage
+```bash
+madmigration -f migration_schema.yaml
+```
 
-After installation you should define YAML file where configuration will be taken in order to apply data to target database. Yaml file with list and dictionaries  may contain following structures:
+## Configuration <a name="configuration"></a>
+
+After installation you should define YAML file where configuration will be taken in order to apply data to target database. Yaml file with list and dictionaries may contain following structures:
 
 
-![alt text](https://github.com/MadeByMads/mad-migration/blob/master/docs/img/db.jpg)
+![alt text](docs/img/db.jpg)
 
 #### Connection Config
 
@@ -49,9 +53,9 @@ After installation you should define YAML file where configuration will be taken
 version: 0.1.6
 Configs:
   - SourceConfig:
-       dbURI: "postgres://root:admin@127.0.0.1/oldDB"
+       dbURI: "postgres://admin:admin@127.0.0.1/oldDB"
   - DestinationConfig:
-       dbURI: "mysql://root:admin@127.0.0.1/newDB"
+       dbURI: "mysql://admin:admin@127.0.0.1/newDB"
 
 migrationTables:
   - migrationTable:
@@ -183,9 +187,9 @@ You must create the main .yaml file and importing other files into main .yaml fi
 version: 1.1
 Configs:
   - SourceConfig:
-      dbURI: "mysql://root:admin@127.0.0.1/old"
+      dbURI: "mysql://admin:admin@127.0.0.1/old"
   - DestinationConfig:
-      dbURI: "postgresql://root:admin@127.0.0.1/new"
+      dbURI: "postgresql://admin:admin@127.0.0.1/new"
 
 migrationTables:
   - migrationTable: !import company.yaml
@@ -299,77 +303,6 @@ MigrationColumns:
     ]
   }
 ```
-### Currently new feature PostgreSql to MongoDB has been added.
-
-```yml
-version: 1.1
-Configs:
-  - SourceConfig:
-      dbURI: "postgresql://sabuhi:sabuhi12345@localhost:5432/company_service"
-  - DestinationConfig:
-      dbURI: "mongodb://localhost:27017/mydb"
-
-migrationTables:
-  - migrationTable:
-      SourceTable:  #postgresql table name
-        name: company  
-      DestinationTable: #the collection name:
-        name: Company
-
-      MigrationColumns:
-        - sourceColumn:
-            name: id
-          destinationColumn:
-            name: id
-            options:
-              type_cast: uuid
-
-        - sourceColumn:
-            name: name
-          destinationColumn:
-            name: NAME
-            options:
-              type_cast: varchar
-              
-        - sourceColumn:
-            name: created
-          destinationColumn:
-            name: CREATED
-            options:    
-              type_cast: datetime
-        - sourceColumn:
-            name: email
-          destinationColumn:
-            name: EMAIL
-            options:     
-              type_cast: string
-        - sourceColumn:
-            name: updated
-          destinationColumn:
-            name: UPDATED
-            options:
-              type_cast: datetime
-         - sourceColumn:
-            name: code
-          destinationColumn:
-            name: CODE
-            options:      
-              type_cast: string
-```
-Work on PostgreSQl to MongoDB still goes, we will add other futures as soon as possible.
-
- 
-
-### We will create all tables and database on the destination server if they do not exist
-
-**madmigrate -f migration_schema.yaml**
-
-
-## ✍️ Authors <a name = "authors"></a>
-
-- [@AliyevH](https://github.com/AliyevH) - Idea & Initial work
-- [@Turall](https://github.com/Turall) 
-- [@sabuhish](https://github.com/sabuhish)
 
 See also the list of [contributors](https://github.com/MadeByMads/mad-migration/graphs/contributors) who participated in this project.
 
@@ -377,4 +310,4 @@ See also the list of [contributors](https://github.com/MadeByMads/mad-migration/
 ## Contributing
 We are open to  new ideas, additions. If you have any we would be happy to recieve and diccuss.
 
-- [Contributing](https://github.com/MadeByMads/mad-migration/blob/master/mdCONTRIBUTING.md)
+- [Contributing](https://github.com/AliyevH/mad-migration/blob/master/mdCONTRIBUTING.md)
