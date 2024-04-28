@@ -94,3 +94,4 @@ venv.bak/
 
 # VSCode
 .vscode/
+app.py
