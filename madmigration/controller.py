@@ -1,12 +1,13 @@
-import sys
 import signal
+import sys
+
+from madmigration import basemigration, fullmigration
 from madmigration.config.conf import ConfigYamlManager
 from madmigration.db_operations.operations import DBOperations
-from madmigration import basemigration
-from madmigration import fullmigration
 from madmigration.utils.logger import configure_logging
 
 logger = configure_logging(__file__)
+
 
 class Controller:
     def __init__(self, config: ConfigYamlManager, full_migrate=None):
@@ -15,7 +16,9 @@ class Controller:
         self.full_migrate = full_migrate
         self.config = config
         self.source_db_operations = DBOperations(self.config.source_uri)
-        self.destination_db_operations = DBOperations(self.config.destination_uri, create_database=True)
+        self.destination_db_operations = DBOperations(
+            self.config.destination_uri, create_database=True
+        )
 
     def __enter__(self):
         return self
@@ -25,7 +28,9 @@ class Controller:
         self.destination_db_operations.session.close()
 
     def register_ctrl_C_handler(self):
-        logger.info("Registering CTRL_C Handler. In case of termination app will delete everything in destination database")
+        logger.info(
+            "Registering CTRL_C Handler. In case of termination app will delete everything in destination database"
+        )
         signal.signal(signal.SIGINT, self.sig_handler)
 
     def sig_handler(self, sig_num, _sig_frame):
@@ -42,7 +47,7 @@ class Controller:
             # "mysql+pymysql": fullmigration.MysqlFullMigration,
             # "mariadb+pymsql": fullmigration.MysqlFullMigration,
             "psycopg2": fullmigration.PostgresqlFullMigration,
-            "pg8000": fullmigration.PostgresqlFullMigration
+            "pg8000": fullmigration.PostgresqlFullMigration,
         }.get(driver)
 
     def get_base_migration_class_with_database_driver_name(self, driver):
@@ -60,11 +65,17 @@ class Controller:
         self.destination_db_driver_name = self.destination_db_operations.engine.driver
 
         if self.full_migrate:
-            migration = self.get_full_migration_class_with_database_driver_name(self.destination_db_driver_name)
+            migration = self.get_full_migration_class_with_database_driver_name(
+                self.destination_db_driver_name
+            )
             mig = migration(self.source_db_operations, self.destination_db_operations)
         else:
-            migration = self.get_base_migration_class_with_database_driver_name(self.destination_db_driver_name)
-            mig = migration(self.config, self.source_db_operations, self.destination_db_operations)
+            migration = self.get_base_migration_class_with_database_driver_name(
+                self.destination_db_driver_name
+            )
+            mig = migration(
+                self.config, self.source_db_operations, self.destination_db_operations
+            )
 
         mig.run()
 

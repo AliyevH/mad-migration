@@ -1,18 +1,13 @@
-from sqlalchemy.ext.mutable import MutableDict
+from sqlalchemy import DateTime
 from sqlalchemy.dialects.postgresql import (
-    ARRAY,
     BIGINT,
-    BIT,
     BOOLEAN,
     BYTEA,
     CHAR,
     DATE,
-    # DOUBLE_PRECISION,
-    # ENUM,
     FLOAT,
     INET,
     INTEGER,
-    # INTERVAL,
     JSON,
     JSONB,
     MACADDR,
@@ -26,14 +21,17 @@ from sqlalchemy.dialects.postgresql import (
     TIMESTAMP,
     VARCHAR,
 )
-from sqlalchemy import DateTime
+from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy_utils import UUIDType
+
 from madmigration.basemigration.base_migration import BaseMigrate
 from madmigration.config.conf import ConfigYamlManager
 
 
-class PgMigrate(BaseMigrate): 
-    def __init__(self, config: ConfigYamlManager, source_db_operations, destination_db_operations):
+class PgMigrate(BaseMigrate):
+    def __init__(
+        self, config: ConfigYamlManager, source_db_operations, destination_db_operations
+    ):
         super().__init__(config, source_db_operations, destination_db_operations)
 
     @staticmethod
@@ -54,12 +52,11 @@ class PgMigrate(BaseMigrate):
             "datetime": DateTime,
             "timestamp": TIMESTAMP,
             "time": TIME,
-            # "enum": ENUM,
             "float": FLOAT,
             "real": REAL,
             "json": MutableDict.as_mutable(JSON),
             "jsonb": MutableDict.as_mutable(JSONB),
-            # "array": ARRAY, #FIXME column with array include array elemet type argument
+            # "array": ARRAY, # FIXME column with array include array elemet type argument
             "numeric": NUMERIC,
             "money": MONEY,
             "macaddr": MACADDR,
@@ -67,5 +64,3 @@ class PgMigrate(BaseMigrate):
             "oid": OID,
             "uuid": UUIDType(binary=False),
         }.get(type_name.lower())
-
-

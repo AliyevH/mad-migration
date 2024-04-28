@@ -1,21 +1,23 @@
+from collections import defaultdict
 from queue import Queue
 
-from madmigration.db_operations.operations import DBOperations
-
 from sqlalchemy import Column
-from collections import defaultdict
 
 from madmigration.config.conf import ConfigYamlManager
-from madmigration.utils.logger import configure_logging
+from madmigration.db_operations.operations import DBOperations
 from madmigration.utils.helpers import get_type_object
-
+from madmigration.utils.logger import configure_logging
 
 logger = configure_logging(__name__)
 
 
-
-class BaseMigrate():
-    def __init__(self, config: ConfigYamlManager, source_db_operations: DBOperations, destination_db_operations: DBOperations):
+class BaseMigrate:
+    def __init__(
+        self,
+        config: ConfigYamlManager,
+        source_db_operations: DBOperations,
+        destination_db_operations: DBOperations,
+    ):
         self.config = config
         self.source_db_operations = source_db_operations
         self.destination_db_operations = destination_db_operations
@@ -53,19 +55,22 @@ class BaseMigrate():
         """Prepare tables which needs to create or delete"""
         for migrate_table in self.config.migrationTables:
             if migrate_table.migrationTable.DestinationTable.create:
-                source_table, destination_table, columns = self.config.parse_migration_tables(migrate_table.migrationTable)
+                source_table, destination_table, columns = (
+                    self.config.parse_migration_tables(migrate_table.migrationTable)
+                )
 
-                table_exists = self.destination_db_operations.is_table_exists(destination_table.name)
-                
+                table_exists = self.destination_db_operations.is_table_exists(
+                    destination_table.name
+                )
+
                 for col in columns:
                     destination_column = col.destinationColumn.name
                     dest_options = col.destinationColumn.options.dict()
 
-
                     fk_options = dest_options.pop("foreign_key")
                     if fk_options:
                         fk_options["source_table"] = destination_table.name
-                        fk_options["dest_column"] = self.destination_column['name']
+                        fk_options["dest_column"] = self.destination_column["name"]
                         self.fk_constraints.append(fk_options)
 
                     column_type = self.get_column_type(dest_options.pop("type_cast"))
@@ -77,11 +82,12 @@ class BaseMigrate():
                     col = Column(destination_column, column_type, **dest_options)
 
                     if table_exists:
-                        if not self.destination_db_operations.is_column_exists_in_table(destination_table.name, destination_column):
+                        if not self.destination_db_operations.is_column_exists_in_table(
+                            destination_table.name, destination_column
+                        ):
                             self.add_updated_table(destination_table.name, col)
                     else:
                         self.add_created_table(destination_table.name, col)
-
 
     def update_table(self):
         for tab, col in self.table_update.items():
@@ -90,32 +96,41 @@ class BaseMigrate():
     def alter_columns(self):
         for tab, val in self.alter_col.items():
             for i in val:
-                self.destination_db_operations.update_column(tab, i.pop("column_name"), i.pop("type"), **i.pop("options"))
+                self.destination_db_operations.update_column(
+                    tab, i.pop("column_name"), i.pop("type"), **i.pop("options")
+                )
 
     def create_tables(self):
         for tab, col in self.table_create.items():
             self.destination_db_operations.create_table(tab, *col)
 
-
     def process(self):
         try:
-            self.dest_fk, self.contraints_columns = self.destination_db_operations.collect_fk_and_constraint_columns(self.table_list)
-            
+            self.dest_fk, self.contraints_columns = (
+                self.destination_db_operations.collect_fk_and_constraint_columns(
+                    self.table_list
+                )
+            )
+
             if self._drop_tables:
                 self.destination_db_operations.bulk_drop_tables(*self._drop_tables)
 
             self.update_table()
             self.create_tables()
             self.alter_columns()
-            self.destination_db_operations.create_fk_constraint(self.fk_constraints, self.contraints_columns)
+            self.destination_db_operations.create_fk_constraint(
+                self.fk_constraints, self.contraints_columns
+            )
         except Exception as err:
             logger.error(err)
 
     def start_migration(self):
         for mt in self.config.migrationTables:
-            source_table, destination_table, columns = self.config.parse_migration_tables(mt.migrationTable)
+            source_table, destination_table, columns = (
+                self.config.parse_migration_tables(mt.migrationTable)
+            )
 
-             # Dictionary is used to keep data about destination column and type_cast format
+            # Dictionary is used to keep data about destination column and type_cast format
             self.convert_info = {}
 
             # Columns List is used to keep source Columns names
@@ -127,35 +142,45 @@ class BaseMigrate():
                 __columns.append(column.sourceColumn.name)
 
                 if column.destinationColumn.options.type_cast:
-                    self.convert_info[column.destinationColumn.name] = column.destinationColumn.options.type_cast
+                    self.convert_info[column.destinationColumn.name] = (
+                        column.destinationColumn.options.type_cast
+                    )
 
-            __source_data = self.get_data_from_source_table(source_table.name, __columns)
+            __source_data = self.get_data_from_source_table(
+                source_table.name, __columns
+            )
 
             for source_data in __source_data:
                 try:
-                    new_data = self.type_cast(data_from_source=source_data, mt=mt, convert_info=self.convert_info)
+                    new_data = self.type_cast(
+                        data_from_source=source_data,
+                        mt=mt,
+                        convert_info=self.convert_info,
+                    )
                 except Exception as err:
                     logger.error(err)
 
-                unsucessfull_stmt = self.destination_db_operations.insert_data(destination_table.name, new_data)
+                unsucessfull_stmt = self.destination_db_operations.insert_data(
+                    destination_table.name, new_data
+                )
                 if unsucessfull_stmt:
                     self.q.put(unsucessfull_stmt)
 
         self.insert_data_from_queue()
-    
 
     def insert_data_from_queue(self):
         for stmt in self.q.queue:
-            print('stmt ->', stmt)
+            print("stmt ->", stmt)
             try:
                 logger.info("Inserting from queue")
                 self.destination_db_operations.execute_stmt(stmt)
             except Exception as err:
                 logger.error(err, exc_info=True)
 
-
     def get_data_from_source_table(self, source_table_name: str, source_columns: list):
-        table = self.source_db_operations.get_table_attribute_from_base(source_table_name)
+        table = self.source_db_operations.get_table_attribute_from_base(
+            source_table_name
+        )
         rows = self.source_db_operations.query_data_from_table(table)
 
         for row in rows:
@@ -163,8 +188,6 @@ class BaseMigrate():
             for column in source_columns:
                 data[column] = getattr(row, column)
             yield data
-
-
 
     @staticmethod
     def type_cast(data_from_source, mt, convert_info: dict):
@@ -183,14 +206,20 @@ class BaseMigrate():
                 datatype = get_type_object(destination_type_cast)
 
                 try:
-                    if datatype == type(data_from_source.get(source_column)):
-                        data_from_source[destination_column] = data_from_source.pop(source_column)
+                    if isinstance(datatype, type(data_from_source.get(source_column))):
+                        data_from_source[destination_column] = data_from_source.pop(
+                            source_column
+                        )
 
                     elif datatype.__name__ == "UUID":
-                        data_from_source[destination_column] = str(data_from_source.pop(source_column))
+                        data_from_source[destination_column] = str(
+                            data_from_source.pop(source_column)
+                        )
                     else:
                         try:
-                            data_from_source[destination_column] = datatype(data_from_source.pop(source_column))
+                            data_from_source[destination_column] = datatype(
+                                data_from_source.pop(source_column)
+                            )
                         except Exception as err:
                             logger.error("type_cast [error] -> %s" % err)
                             data_from_source[destination_column] = None
@@ -199,7 +228,9 @@ class BaseMigrate():
                     logger.error("type_cast [error] -> %s" % err)
                     data_from_source[destination_column] = None
             else:
-                data_from_source[destination_column] = data_from_source.pop(source_column)
+                data_from_source[destination_column] = data_from_source.pop(
+                    source_column
+                )
 
         return data_from_source
 

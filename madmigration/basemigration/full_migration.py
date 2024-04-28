@@ -1,7 +1,12 @@
 from madmigration.db_operations.operations import DBOperations
 
-class FullMigrate():
-    def __init__(self, source_db_operations: DBOperations, destination_db_operations: DBOperations):
+
+class FullMigrate:
+    def __init__(
+        self,
+        source_db_operations: DBOperations,
+        destination_db_operations: DBOperations,
+    ):
         self.source_db_operations = source_db_operations
         self.destination_db_operations = destination_db_operations
 

@@ -1,11 +1,18 @@
-import yaml
 import json
 import os
 from typing import IO, Any
+
+import yaml
+
+from madmigration.config.config_schema import (
+    ConfigSchema,
+    MigrationTablesSchema,
+    NoSQLConfigSchema,
+)
 from madmigration.utils.logger import configure_logging
-from madmigration.config.config_schema import ConfigSchema, NoSQLConfigSchema, MigrationTablesSchema, OptionsSchema
 
 logger = configure_logging(__file__)
+
 
 class Loader(yaml.SafeLoader):
     """YAML Loader with `!import` constructor."""
@@ -39,6 +46,7 @@ def construct_include(loader: Loader, node: yaml.Node) -> Any:
 
 yaml.add_constructor("!import", construct_include, Loader)
 
+
 # Config class generates configuration based on yaml file
 class ConfigYamlManager:
     def __init__(self, config_yaml):
@@ -48,30 +56,34 @@ class ConfigYamlManager:
 
         self.config_section = self.get_config_section_from_yml()
         self.source_config_section = self.get_sourceDB_config_section_from_yml()
-        self.destination_config_section = self.get_destinationDB_config_section_from_yml()
+        self.destination_config_section = (
+            self.get_destinationDB_config_section_from_yml()
+        )
         self.destination_uri = self.get_destination_db_uri()
         self.source_uri = self.get_source_db_uri()
-        self.config_schema = self.verify_and_choose_ConfigSchema_based_on_database_type(self.data)
+        self.config_schema = self.verify_and_choose_ConfigSchema_based_on_database_type(
+            self.data
+        )
         self.migrationTables = self.config_schema.migrationTables
 
     def get_config_section_from_yml(self):
-        return self.data.get('Configs')
-    
+        return self.data.get("Configs")
+
     def get_sourceDB_config_section_from_yml(self):
-        return self.config_section[0].get('SourceConfig')
+        return self.config_section[0].get("SourceConfig")
 
     def get_destinationDB_config_section_from_yml(self):
-        return self.config_section[1].get('DestinationConfig')
+        return self.config_section[1].get("DestinationConfig")
 
     def read_config_yml_file(self):
         with open(self.config_file) as f:
             return yaml.load(f, Loader=Loader)
 
     def get_source_db_uri(self):
-        return self.source_config_section.get('dbURI')
+        return self.source_config_section.get("dbURI")
 
     def get_destination_db_uri(self):
-        return self.destination_config_section.get('dbURI')
+        return self.destination_config_section.get("dbURI")
 
     def verify_and_choose_ConfigSchema_based_on_database_type(self, data):
         if "mongodb" in self.destination_uri:

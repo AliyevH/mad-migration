@@ -1,5 +1,7 @@
 import logging
+
 import coloredlogs
+
 
 def configure_logging(file_name: str):
     logger = logging.getLogger(file_name)
@@ -9,8 +11,12 @@ def configure_logging(file_name: str):
     consoleHandler.setLevel(logging.DEBUG)
 
     logger.addHandler(consoleHandler)
-    fmt = '%(levelname)s file: %(name)s:%(lineno)d  func: %(funcName)s() -> %(message)s'
+    fmt = "%(levelname)s file: %(name)s:%(lineno)d  func: %(funcName)s() -> %(message)s"
 
-    coloredlogs.install(level='DEBUG', logger=logger, fmt=fmt, )
+    coloredlogs.install(
+        level="DEBUG",
+        logger=logger,
+        fmt=fmt,
+    )
 
     return logger

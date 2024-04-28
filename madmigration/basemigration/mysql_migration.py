@@ -1,11 +1,6 @@
 import logging
 
 from sqlalchemy.dialects.mysql import (
-    VARCHAR,
-    INTEGER,
-    NVARCHAR,
-    SMALLINT,
-    SET,
     BIGINT,
     BINARY,
     BOOLEAN,
@@ -15,21 +10,23 @@ from sqlalchemy.dialects.mysql import (
     DECIMAL,
     ENUM,
     FLOAT,
+    INTEGER,
     JSON,
     NUMERIC,
+    NVARCHAR,
+    SET,
+    SMALLINT,
     TEXT,
+    VARCHAR,
 )
-from datetime import datetime, date
-from enum import Enum
-from uuid import uuid4
 
-from madmigration.config.conf import ConfigYamlManager
 from madmigration.basemigration.base_migration import BaseMigrate
+from madmigration.config.conf import ConfigYamlManager
 
 logger = logging.getLogger(__name__)
 
 
-class MysqlMigrate(BaseMigrate): 
+class MysqlMigrate(BaseMigrate):
     def __init__(self, config: ConfigYamlManager):
         super().__init__(config)
 
@@ -61,6 +58,3 @@ class MysqlMigrate(BaseMigrate):
             "text": TEXT,
             "uuid": CHAR(36),
         }.get(type_name.lower())
-
-    
-    

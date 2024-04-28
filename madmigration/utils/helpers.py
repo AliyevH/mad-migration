@@ -1,25 +1,24 @@
 import os
 import sys
-from pathlib import Path
-from datetime import datetime, date
+from datetime import date, datetime
 from enum import Enum
-from uuid import uuid4, UUID
+from pathlib import Path
+from uuid import UUID, uuid4
 
-
-from sqlalchemy.schema import DropTable
-from sqlalchemy.schema import ForeignKeyConstraint
-from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.engine.url import make_url
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.schema import DropTable, ForeignKeyConstraint
 
 from madmigration.utils.logger import configure_logging
 
 logger = configure_logging(__name__)
 
+
 @compiles(DropTable, "postgresql")
 def _compile_drop_table(element, compiler, **kwargs):
     """
     Drop table cascade with foreignkeys
-    https://stackoverflow.com/questions/38678336/sqlalchemy-how-to-implement-drop-table-cascade# 
+    https://stackoverflow.com/questions/38678336/sqlalchemy-how-to-implement-drop-table-cascade#
     """
     return compiler.visit_drop_table(element) + " CASCADE"
 
@@ -52,7 +51,7 @@ def parse_uri(uri):
 
 
 def database_not_exists(database):
-    """This function will be executed if there is no database exists """
+    """This function will be executed if there is no database exists"""
 
     database = parse_uri(database)
 
@@ -77,36 +76,28 @@ def goodby_message(message, exit_code=0):
 
 
 def get_type_object(data_type):
-        return {
-            "UUID": UUID,
-            "uuid": uuid4,
-            
-            "string": str,
-            "str": str,
-            "varchar": str,
-            "text": str,
-            "nvarchar": str,
-            "smallint": int,
-            "char": str,
-
-            "int": int,
-            "integer": int,
-            "bigint": int,
-
-            "float": float,
-            "numeric": float,
-            "decimal": float,
-
-            "date": date,
-            "datetime": datetime,
-
-            "binary": bytes,
-            "enum": Enum,
-            "set": set,
-
-            "json": dict,
-
-            "boolean": bool,
-            "bool": bool,
-
-        }.get(data_type.lower())
+    return {
+        "UUID": UUID,
+        "uuid": uuid4,
+        "string": str,
+        "str": str,
+        "varchar": str,
+        "text": str,
+        "nvarchar": str,
+        "smallint": int,
+        "char": str,
+        "int": int,
+        "integer": int,
+        "bigint": int,
+        "float": float,
+        "numeric": float,
+        "decimal": float,
+        "date": date,
+        "datetime": datetime,
+        "binary": bytes,
+        "enum": Enum,
+        "set": set,
+        "json": dict,
+        "boolean": bool,
+        "bool": bool,
+    }.get(data_type.lower())

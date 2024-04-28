@@ -1,5 +1,6 @@
-from pydantic import BaseModel, validator
-from typing import Union, List, Any, AnyStr, Dict, Optional
+from typing import Any, Dict, List, Optional, Union
+
+from pydantic import BaseModel
 
 
 class ForeignKeySchema(BaseModel):
@@ -80,7 +81,6 @@ class OptionsSchmea(BaseModel):
 
 
 class ConcatenateColumns(ColumnParametersSchema):
-
     destinationColumn: OptionsSchmea
 
 
@@ -98,6 +98,7 @@ class ColumConfig(ColumnParametersSchema):
     destinationColumn: DestinationColumnSchema  # options dict
 
 
+# fmt: off
 class DestinationTableSchema(SourceTableSchema):
     ...
 
@@ -112,6 +113,4 @@ class MigrationTableS(MigrationTablesSchema):
 
 
 class NoSQLConfigSchema(ConfigSchema):
-
     migrationTables: List[MigrationTableS]
-
