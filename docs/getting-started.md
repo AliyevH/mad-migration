@@ -9,7 +9,7 @@ After installation you should define YAML file where configuration will be taken
 ## Example:
 We have `users` database. We want to migrate it to `persons` database.
 
-![Alt text](../img/db.jpg)
+![Alt text](img/db.jpg)
 
 ## Lets create yaml file for our migration tool.
 
