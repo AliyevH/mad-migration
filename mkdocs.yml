@@ -2,28 +2,24 @@ site_name: Mad Migration
 site_url: 
 site_description: Mad Migration tool documention easy and fast migration
 
-theme:
-  name: material
-
-  palette:
-    scheme: slate
-    primary: blue grey
-    accent: cyan
-    
-  font:
-    text: Roboto
-    
-  features:
-    - search.highlight
-    
-
-
-  icon:
-    repo: fontawesome/brands/github
-  logo: img/madmigration.jpg
-repo_name: mad-migration
+repo_name: aliyevh/mad-migration
 repo_url: https://github.com/AliyevH/mad-migration
 edit_uri: ''
+
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: blue
+    accent: cyan
+  font:
+    text: Roboto
+  features:
+    - search.highlight
+  icon:
+    repo: fontawesome/brands/github
+
+
 
 plugins:
 - search
@@ -36,9 +32,7 @@ markdown_extensions:
 
 nav:
   - Mad Migration: index.md
-  - Install: install.md
+  - Installation: install.md
   - Getting Started: getting-started.md
   - Full Example: example.md
   - License: license.md
-
-

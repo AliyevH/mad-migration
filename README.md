@@ -18,7 +18,7 @@
 
 The Database Migration Tool was designed for those looking to migrate their data from one database to another. Additionally type casting is supported if you need to change column type in new version. Our main goal is to make data migration possible between different database servers. For example mysql, postgresql.
 
-Currently only mysql and postgresql is supported. Future planning is to support migration from/to cloud based databases.
+Currently only mysql and postgresql is supported. Future planning is to support migration from/to other databases.
 
 ---
 **Documentation**: [Documentation](aliyevh.github.io/mad-migration/)
