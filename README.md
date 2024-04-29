@@ -116,7 +116,7 @@ migrationTables:
 ```
 
 `Configs section`
-- `SourceConfig` set the source database database configurations
+- `SourceConfig` set the source database configurations
   - `dbURI` source database URI 
 - `DestinationConfig` set the destination database configurations
   - `dbURI` destination database URI 
